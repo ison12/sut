@@ -1,0 +1,9 @@
+-- LOB‚ðŽ‚Âƒe[ƒuƒ‹
+DROP TABLE lob__;
+
+CREATE TABLE lob__ (
+    col1    VARCHAR(30)
+   ,col2    OID
+   ,PRIMARY KEY (col1)
+);
+

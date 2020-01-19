@@ -1,0 +1,21 @@
+-- PKñ≥ÇµÉeÅ[ÉuÉã
+DROP TABLE data_type;
+
+CREATE TABLE data_type (
+	id	AUTOINCREMENT,
+	col01	BINARY,
+	col02	BIT,
+	col03	TINYINT,
+	col04	MONEY,
+	col05	DATETIME,
+	col06	UNIQUEIDENTIFIER,
+	col07	REAL,
+	col08	FLOAT,
+	col09	SMALLINT,
+	col10	INTEGER,
+	col11	DECIMAL,
+	col12	TEXT,
+	col13	IMAGE,
+	col14	CHARACTER,
+	PRIMARY KEY (id)
+);

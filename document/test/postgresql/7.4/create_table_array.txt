@@ -1,0 +1,9 @@
+drop table array_;
+
+create table array_ (
+    col1    bigint primary key
+   ,col2_1    bigint[]
+   ,col2_2    bigint[][]
+   ,col3_1    varchar(10)[]
+   ,col3_2    varchar(10)[][]
+);

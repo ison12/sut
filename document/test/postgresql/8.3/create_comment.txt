@@ -1,0 +1,7 @@
+-- コメントを付加する
+comment on table all_data_type is 'test dayo';
+comment on column all_data_type.col1 is 'column dayo';
+comment on column all_data_type.col1 is 'columnだよ！漢字！”＃＄!?daklfjaluiroeAFA';
+comment on column notnull_.col1 is 'not null dayo';
+
+comment on schema public is 'ぱぶりっくスキーマ！afjaklfurioe431098479';

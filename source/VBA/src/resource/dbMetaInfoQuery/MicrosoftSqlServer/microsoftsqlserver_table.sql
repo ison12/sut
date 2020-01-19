@@ -1,0 +1,18 @@
+SELECT
+    C.TABLE_SCHEMA   AS TABLE_SCHEMA
+   ,C.TABLE_NAME AS TABLE_NAME
+   ,EP_TABLE.VALUE   AS TABLE_COMMENT
+FROM
+    information_schema.TABLES C
+        INNER JOIN sys.schemas SS ON SS.NAME  = C.TABLE_SCHEMA
+        INNER JOIN sys.tables  ST ON SS.SCHEMA_ID = ST.SCHEMA_ID
+                                 AND C.TABLE_NAME = ST.NAME
+        LEFT JOIN sys.extended_properties EP_TABLE  ON ST.OBJECT_ID= EP_TABLE.MAJOR_ID
+           AND EP_TABLE.MINOR_ID   = 0
+           AND EP_TABLE.CLASS_DESC = 'OBJECT_OR_COLUMN'
+           AND UPPER(EP_TABLE.NAME) = 'COMMENT_DESCRIPTION'
+WHERE
+${condition}
+ORDER BY
+     C.TABLE_SCHEMA
+    ,C.TABLE_NAME

@@ -1,0 +1,13 @@
+drop table inherits_super;
+drop table inherits_sub;
+
+CREATE TABLE inherits_super (
+    col1 varchar(30) primary key
+   ,col2 varchar(30) 
+   ,col3 varchar(30) 
+   ,col4 varchar(30) 
+);
+
+CREATE TABLE inherits_sub (
+    col5 varchar(60)
+) INHERITS (inherits_super);

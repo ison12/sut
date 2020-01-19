@@ -1,0 +1,74 @@
+drop table all_data_type;
+
+create table all_data_type (
+    col1    bigint primary key
+   ,col2    int8
+   ,col3    bigserial
+   ,col4    serial8
+   ,col5    bit
+   ,col6    bit(3)
+   ,col7    bit varying
+   ,col8    bit varying(3)
+   ,col9    varbit
+   ,col10    varbit(3)
+   ,col11    boolean
+   ,col12    bool
+   ,col13    box
+   ,col14    bytea
+   ,col15    character varying
+   ,col16    character varying(10)
+   ,col17    varchar
+   ,col18    varchar(10)
+   ,col19    character
+   ,col20    character(10)
+   ,col21    char
+   ,col22    char(10)
+   ,col23    cidr
+   ,col24    circle
+   ,col25    double precision
+   ,col26    float8
+   ,col27    inet
+   ,col28    integer
+   ,col29    int
+   ,col30    int4
+   ,col31    interval
+   ,col32    interval(3)
+   ,col33    line
+   ,col34    lseg
+   ,col35    macaddr
+   ,col36    money
+   ,col37    numeric
+   ,col38    numeric(10,3)
+   ,col39    decimal
+   ,col40    decimal(10,3)
+   ,col41    path
+   ,col42    point
+   ,col43    polygon
+   ,col44    real
+   ,col45    float4
+   ,col46    smallint
+   ,col47    int2
+   ,col48    serial
+   ,col49    serial4
+   ,col50    text
+   ,col51    date
+   ,col52    time
+   ,col53    time(3)
+   ,col54    time(3) without time zone
+   ,col55    time with time zone
+   ,col56    time(3) with time zone
+   ,col57    timetz
+   ,col58    timetz(3)
+   ,col59    timestamp
+   ,col60    timestamp(3)
+   ,col61    timestamp(3) without time zone
+   ,col62    timestamp with time zone
+   ,col63    timestamp(3) with time zone
+   ,col64    timestamptz
+   ,col65    timestamptz(3)
+   ,col66    tsquery
+   ,col67    tsvector
+   ,col68    txid_snapshot
+   ,col69    uuid
+   ,col70    xml
+);

@@ -1,6 +1,10 @@
 ■ファイルの説明
 VBA
   |
+  + src - Sut.xlam本体を格納
+  |
+  + src_export - Sut.xlamからエクスポートしたモジュールファイル
+  |
   + tool
     |
     + vbac.wsf VBAファイルのエクスポート・インポートツール
@@ -8,8 +12,3 @@ VBA
         https://github.com/vbaidiot/Ariawase
     |
     + vba_module_export.bat - VBAモジュールをエクスポートするバッチ
-    |
-  |
-  + src - Sut.xlamからエクスポートしたモジュールファイル
-  |
-  + Sut.xlam - Sut本体

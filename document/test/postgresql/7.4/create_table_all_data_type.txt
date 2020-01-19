@@ -1,0 +1,65 @@
+drop table data_type_all;
+
+create table data_type_all (
+    col1    bigint primary key
+   ,col2    int8
+   ,col3    bigserial
+   ,col4    serial8
+   ,col5    bit
+   ,col6    bit varying
+   ,col7    bit varying(3)
+   ,col8    varbit
+   ,col9    boolean
+   ,col10    bool
+   ,col11    box
+   ,col12    bytea
+   ,col13    character varying
+   ,col14    character varying(10)
+   ,col15    varchar
+   ,col16    varchar(10)
+   ,col17    character
+   ,col18    character(10)
+   ,col19    char
+   ,col20    char(10)
+   ,col21    cidr
+   ,col22    circle
+   ,col23    double precision
+   ,col24    float8
+   ,col25    inet
+   ,col26    integer
+   ,col27    int
+   ,col28    int4
+   ,col29    interval
+   ,col30    interval(3)
+   ,col31    line
+   ,col32    lseg
+   ,col33    macaddr
+   ,col34    money
+   ,col35    numeric
+   ,col36    numeric(10,3)
+   ,col37    decimal
+   ,col38    decimal(10,3)
+   ,col39    path
+   ,col40    point
+   ,col41    polygon
+   ,col42    real
+   ,col43    float4
+   ,col44    smallint
+   ,col45    int2
+   ,col46    serial
+   ,col47    serial4
+   ,col48    text
+   ,col49    date
+   ,col50    time
+   ,col51    time(3)
+   ,col52    time(3) without time zone
+   ,col53    time with time zone
+   ,col54    time(3) with time zone
+   ,col55    timetz
+   ,col56    timestamp
+   ,col57    timestamp(3)
+   ,col58    timestamp(3) without time zone
+   ,col59    timestamp with time zone
+   ,col60    timestamp(3) with time zone
+   ,col61    timestamptz
+);

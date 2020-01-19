@@ -1,0 +1,23 @@
+./configure --prefix=/usr/local/postgresql/7.4/ --with-pgport=5431 --without-readline --enable-syslog --without-zlib
+
+zlibのインストール
+http://honana.com/library/zlib.html
+
+initdb -D /usr/local/pgsql/data
+
+[postgres@Three 8.3]$ export PGDATA=/usr/local/postgresql/8.3/data
+
+
+drop user root;
+create user root password 'password' createdb createuser;
+
+drop user test;
+create user test password 'password' createdb
+
+ALTER USER test password 'password';
+
+psql -U test -d postgres
+CREATE DATABASE test with encoding = 'UTF8'
+
+-- testユーザでログインしなおしてからテーブルを作成する
+psql -U test -d test

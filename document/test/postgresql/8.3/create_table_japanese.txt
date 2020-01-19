@@ -1,0 +1,7 @@
+drop table "テーブル""";
+
+create table "テーブル""" (
+    "カラム１"    bigint primary key
+   ,"カラム２"    int8
+   ,"カラム３"""  varchar(30)
+);

@@ -1,0 +1,4 @@
+-- ƒRƒƒ“ƒg‚ğ•t‰Á‚·‚é
+comment on table data_type_all is 'test dayo';
+comment on column data_type_all.col1 is 'column dayo';
+comment on column notnull_.col1 is 'not null dayo';
