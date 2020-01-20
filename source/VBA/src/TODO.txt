@@ -1,2 +1,15 @@
+・DBエクスプローラのフォームの設定は必要ない気がする
 ・errハンドラで、関数コールしている個所は、SwapErrしてエラーオブジェクトを退避すること
+
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
+    
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
+
 ・Class_Terminateでエラーが発生した場合は、通常とは異なるエラーになるので回避したい。単一ファイル出力時に、FileWriterでファイルエラーになった場合に、おかしな挙動になる模様
+
+・RegistManipulationとBookPropを統合する（片方だけ保存、両方に保存可能なように選択できるようにする）
+・SutワークシートのdataTypeXxxは一つのシートに統合したい（処理を軽くするために）
+・DBの読み込み対応としてAccessに対応する
+・Progressフォームの作成

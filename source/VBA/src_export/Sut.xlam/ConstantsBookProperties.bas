@@ -25,3 +25,5 @@ Public Const TABLE_SELECT_CONDITION_CREATOR_DIALOG As Long = 11
 Public Const TABLE_FILE_OUTPUT_DIALOG As Long = 8
 ' テーブル DBクエリバッチダイアログ
 Public Const TABLE_DB_QUERY_BATCH_DIALOG As Long = 14
+' テーブル DBエクスプローラダイアログ
+Public Const TABLE_DB_EXPLORER_DIALOG As Long = 17

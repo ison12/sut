@@ -372,6 +372,12 @@ End Function
 ' =========================================================
 Public Function getConnectionStatus(ByRef conn As Object) As ADOConnectStatusConstants
 
+    If conn Is Nothing Then
+    
+        getConnectionStatus = adStateClosed
+        Exit Function
+    End If
+
     ' コネクションのステータスを取得する
     getConnectionStatus = conn.state
 

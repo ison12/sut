@@ -59,4 +59,38 @@ Public Enum DB_QUERY_BATCH_TYPE
 
 End Enum
 
+Private dbQueryTypeNames As ValCollection
 
+' =========================================================
+' ▽DBクエリバッチ種類名称を取得する。
+'
+' 概要　　　：
+' 引数　　　：d 一括クエリ実行種類
+' 戻り値　　：一括クエリ実行種類名称
+' 特記事項　：
+'
+' =========================================================
+Public Function getDbQueryBatchTypeName(ByVal d As DB_QUERY_BATCH_TYPE) As String
+
+    If dbQueryTypeNames Is Nothing Then
+        ' 初回時のみ実行
+    
+        Set dbQueryTypeNames = New ValCollection
+        
+        ' 種類名称の設定
+        dbQueryTypeNames.setItem "", DB_QUERY_BATCH_TYPE.none
+        dbQueryTypeNames.setItem "INSERT + UPDATE", DB_QUERY_BATCH_TYPE.insertUpdate
+        dbQueryTypeNames.setItem "INSERT", DB_QUERY_BATCH_TYPE.insert
+        dbQueryTypeNames.setItem "UPDATE", DB_QUERY_BATCH_TYPE.update
+        dbQueryTypeNames.setItem "DELETE", DB_QUERY_BATCH_TYPE.deleteOnSheet
+        dbQueryTypeNames.setItem "DELETE テーブル上の全レコード", DB_QUERY_BATCH_TYPE.deleteAll
+        dbQueryTypeNames.setItem "SELECT", DB_QUERY_BATCH_TYPE.selectAll
+        dbQueryTypeNames.setItem "SELECT 条件指定", DB_QUERY_BATCH_TYPE.selectCondition
+        dbQueryTypeNames.setItem "SELECT 再実行", DB_QUERY_BATCH_TYPE.selectReExec
+        
+    End If
+    
+    ' 種類名称の特定
+    getDbQueryBatchTypeName = dbQueryTypeNames.getItem(d, vbVariant)
+
+End Function

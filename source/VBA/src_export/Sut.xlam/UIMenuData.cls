@@ -73,11 +73,13 @@ Attribute frmQueryEditor.VB_VarHelpID = -1
 Private WithEvents frmDbQueryBatchVar           As frmDBQueryBatch
 Attribute frmDbQueryBatchVar.VB_VarHelpID = -1
 ' クエリ結果フォーム
-Private WithEvents frmQueryResult               As sutredlib.queryResult
-Attribute frmQueryResult.VB_VarHelpID = -1
+Private WithEvents frmQueryResultVar            As frmQueryResult
+Attribute frmQueryResultVar.VB_VarHelpID = -1
 
+' クエリ結果セット情報
+Private queryResultSetInfo As ValQueryResultSetInfo
 ' クエリ結果情報
-Private QueryResultInfo As sutredlib.QueryResultInfo
+Private queryResultInfo As ValQueryResultInfo
 ' クエリ結果件数
 ' 処理
 Private queryResultProcessCnt As Long
@@ -163,11 +165,16 @@ Private Sub onExecuteQueryCommon(ByVal queryList As sutredlib.IGenericCollection
     
     Exit Sub
 err:
+
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
     
     frmProgress.Close
     
     frmQueryEditor.enable
     
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
     ' エラー発生
     Main.ShowErrorMessage
 
@@ -225,6 +232,7 @@ Private Sub frmQueryEditor_OnCommitTrans(ByRef isError As Boolean)
     isError = False
     
     Exit Sub
+
 err:
     ' トランザクションが開始されていない可能性あり
     VBUtil.showMessageBoxForWarning "トランザクションが開始されていません。" _
@@ -288,44 +296,44 @@ Private Sub frmDbQueryBatchVar_ok(ByVal dbQueryBatchMode As DB_QUERY_BATCH_MODE 
         ' 対象シートをアクティブにする
         update.sheet.activate
             
-        If var.dbQueryBatchType = BATCH_QUERY_TYPE.insertUpdate Then
+        If var.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insertUpdate Then
         
             ' 登録・更新
             Call insertUpdateAll
         
-        ElseIf var.dbQueryBatchType = BATCH_QUERY_TYPE.insert Then
+        ElseIf var.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert Then
         
             ' 登録
             Call insertAll
         
-        ElseIf var.dbQueryBatchType = BATCH_QUERY_TYPE.update Then
+        ElseIf var.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update Then
         
             ' 更新
             Call updateAll
         
-        ElseIf var.dbQueryBatchType = BATCH_QUERY_TYPE.deleteAll Then
+        ElseIf var.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteAll Then
         
             ' 削除
             Call deleteAllOfTable
         
-        ElseIf var.dbQueryBatchType = BATCH_QUERY_TYPE.deleteOnSheet Then
+        ElseIf var.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet Then
         
             ' 削除
             Call deleteAll
         
-        ElseIf var.dbQueryBatchType = BATCH_QUERY_TYPE.selectAll Then
+        ElseIf var.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectAll Then
         
             ' 参照
             Call selectAll
         
-        ElseIf var.dbQueryBatchType = BATCH_QUERY_TYPE.selectCondition Then
+        ElseIf var.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectCondition Then
         
             ' 対象シートを設定する
             Set tableSheetReader.sheet = tableSheet.sheet
             ' 参照（条件あり）
             Call selectCondition
         
-        ElseIf var.dbQueryBatchType = BATCH_QUERY_TYPE.selectReExec Then
+        ElseIf var.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectReExec Then
         
             ' 参照（再実行）
             Call selectReExecute
@@ -336,36 +344,6 @@ Private Sub frmDbQueryBatchVar_ok(ByVal dbQueryBatchMode As DB_QUERY_BATCH_MODE 
     
     showQueryResult
     
-End Sub
-
-' =========================================================
-' ▼クエリ結果フォームイベント - 詳細情報選択時
-' =========================================================
-Private Sub frmQueryResult_OnSelectQueryResultDetail(ByVal info As sutredlib.IQueryResultInfo, ByVal detail As sutredlib.IQueryResultDetailInfo)
-
-    Dim sheet As ValTableWorksheet
-    Set sheet = info.tableWorksheet
-    
-    Dim wsheet As Worksheet
-    
-    If sheet Is Nothing Then
-    
-        Exit Sub
-    End If
-    
-    Set wsheet = sheet.sheet
-    wsheet.activate
-    
-    On Error Resume Next
-    
-    If detail.cell <> "" Then
-    
-        wsheet.Range(detail.cell).activate
-    
-    End If
-    
-    On Error GoTo 0
-
 End Sub
 
 ' =========================================================
@@ -390,13 +368,12 @@ Private Sub select__readTableInfo(tableSheet As ValTableWorksheet)
     #End If
 
     ' クエリ結果情報を生成する
-    If Not QueryResultInfo Is Nothing Then
+    If Not queryResultInfo Is Nothing Then
     
-        'QueryResultInfo.tableWorksheet = tableSheet
-        QueryResultInfo.tableWorksheet = Nothing
-        QueryResultInfo.processCount = 0
-        QueryResultInfo.successCount = 0
-        QueryResultInfo.errorCount = 0
+        Set queryResultInfo.tableWorksheet = tableSheet
+        queryResultInfo.processCount = 0
+        queryResultInfo.successCount = 0
+        queryResultInfo.errorCount = 0
     End If
 
 End Sub
@@ -483,15 +460,15 @@ Private Sub select__ExecuteSqlError(sql As String, sqlState As String, message A
 
     ' クエリ結果情報に詳細を追加する
     
-    If Not QueryResultInfo Is Nothing Then
+    If Not queryResultInfo Is Nothing Then
     
-        Dim detail As New sutredlib.QueryResultDetailInfo
+        Dim detail As New ValQueryResultDetailInfo
         detail.cell = "-"
         detail.sqlState = sqlState
         detail.message = message
         detail.query = sql
         
-        QueryResultInfo.addDetail detail
+        queryResultInfo.addDetail detail
     End If
 
     DoEvents
@@ -577,12 +554,11 @@ End Sub
 Private Sub update_readTableInfo(table As ValTableWorksheet)
 
     ' クエリ結果情報を生成する
-    Set QueryResultInfo = New sutredlib.QueryResultInfo
-    'QueryResultInfo.tableWorksheet = table
-    QueryResultInfo.tableWorksheet = Nothing
-    QueryResultInfo.processCount = 0
-    QueryResultInfo.successCount = 0
-    QueryResultInfo.errorCount = 0
+    Set queryResultInfo = New ValQueryResultInfo
+    Set queryResultInfo.tableWorksheet = table
+    queryResultInfo.processCount = 0
+    queryResultInfo.successCount = 0
+    queryResultInfo.errorCount = 0
 
 End Sub
 
@@ -702,9 +678,9 @@ Private Sub update_ExecuteSql(ByRef tableSheet As ValTableWorksheet _
 
     On Error Resume Next
 
-    QueryResultInfo.processCount = QueryResultInfo.processCount + 1
+    queryResultInfo.processCount = queryResultInfo.processCount + 1
     If count > 0 Then
-        QueryResultInfo.successCount = QueryResultInfo.successCount + 1
+        queryResultInfo.successCount = queryResultInfo.successCount + 1
     End If
 
     ' レンジオブジェクト
@@ -728,7 +704,7 @@ Private Sub update_ExecuteSql(ByRef tableSheet As ValTableWorksheet _
             ' レコードリストからセルのオフセット位置を取得（レンジオブジェクト）
             Set r = recordList.valuesCellOffset
             
-            If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+            If tableSheet.recFormat = recFormatToUnder Then
                 ' 削除レコードリストに行番号を格納
                 deleteRecordList.setItem (r.row + recordListIndex - 1)
             
@@ -751,7 +727,7 @@ Private Sub update_ExecuteSql(ByRef tableSheet As ValTableWorksheet _
         ' 更新結果が0件の場合
         If count = 0 Then
     
-            Dim queryResultDetail As New sutredlib.QueryResultDetailInfo
+            Dim queryResultDetail As New ValQueryResultDetailInfo
             
             ' コメントを追加する
             ExcelUtil.addComment tableSheet.sheetName _
@@ -775,7 +751,7 @@ Private Sub update_ExecuteSql(ByRef tableSheet As ValTableWorksheet _
             queryResultDetail.query = sql
         
             ' クエリ結果情報に詳細を設定する
-            QueryResultInfo.addDetail queryResultDetail
+            queryResultInfo.addDetail queryResultDetail
             
         ' 正常に更新できた場合
         Else
@@ -838,10 +814,10 @@ Private Sub update_ExecuteSqlError(ByRef tableSheet As ValTableWorksheet _
 
     On Error Resume Next
 
-    QueryResultInfo.processCount = QueryResultInfo.processCount + 1
-    QueryResultInfo.errorCount = QueryResultInfo.errorCount + 1
+    queryResultInfo.processCount = queryResultInfo.processCount + 1
+    queryResultInfo.errorCount = queryResultInfo.errorCount + 1
     
-    Dim queryResultDetail As New sutredlib.QueryResultDetailInfo
+    Dim queryResultDetail As New ValQueryResultDetailInfo
 
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
@@ -896,7 +872,7 @@ Private Sub update_ExecuteSqlError(ByRef tableSheet As ValTableWorksheet _
     End If
     
     ' クエリ結果情報に詳細を設定する
-    QueryResultInfo.addDetail queryResultDetail
+    queryResultInfo.addDetail queryResultDetail
     
     ' デバッグモードのみの実行
     #If (DEBUG_MODE = 1) Then
@@ -946,12 +922,11 @@ End Sub
 Private Sub updateSelection__readTableInfo(table As ValTableWorksheet)
 
     ' クエリ結果情報を生成する
-    Set QueryResultInfo = New sutredlib.QueryResultInfo
-    'QueryResultInfo.tableWorksheet = table
-    QueryResultInfo.tableWorksheet = Nothing
-    QueryResultInfo.processCount = 0
-    QueryResultInfo.successCount = 0
-    QueryResultInfo.errorCount = 0
+    Set queryResultInfo = New ValQueryResultInfo
+    Set queryResultInfo.tableWorksheet = table
+    queryResultInfo.processCount = 0
+    queryResultInfo.successCount = 0
+    queryResultInfo.errorCount = 0
 
 End Sub
 
@@ -1045,9 +1020,9 @@ Private Sub updateSelection__ExecuteSql(ByRef tableSheet As ValTableWorksheet _
 
     On Error Resume Next
 
-    QueryResultInfo.processCount = QueryResultInfo.processCount + 1
+    queryResultInfo.processCount = queryResultInfo.processCount + 1
     If count > 0 Then
-        QueryResultInfo.successCount = QueryResultInfo.successCount + 1
+        queryResultInfo.successCount = queryResultInfo.successCount + 1
     End If
 
     ' レンジオブジェクト
@@ -1064,7 +1039,7 @@ Private Sub updateSelection__ExecuteSql(ByRef tableSheet As ValTableWorksheet _
             ' レコードリストからセルのオフセット位置を取得（レンジオブジェクト）
             Set r = recordList.valuesCellOffset
             
-            If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+            If tableSheet.recFormat = recFormatToUnder Then
                 ' 削除レコードリストに行番号を格納
                 deleteRecordList.setItem (r.row + recordListIndex - 1)
             
@@ -1087,7 +1062,7 @@ Private Sub updateSelection__ExecuteSql(ByRef tableSheet As ValTableWorksheet _
         ' 更新結果が0件の場合
         If count = 0 Then
             
-            Dim queryResultDetail As New sutredlib.QueryResultDetailInfo
+            Dim queryResultDetail As New ValQueryResultDetailInfo
             
             ' コメントを追加する
             ExcelUtil.addComment tableSheet.sheetName _
@@ -1112,7 +1087,7 @@ Private Sub updateSelection__ExecuteSql(ByRef tableSheet As ValTableWorksheet _
             queryResultDetail.query = sql
             
             ' クエリ結果情報に詳細を追加する
-            QueryResultInfo.addDetail queryResultDetail
+            queryResultInfo.addDetail queryResultDetail
             
         ' 正常に更新できた場合
         Else
@@ -1166,10 +1141,10 @@ Private Sub updateSelection__ExecuteSqlError(ByRef tableSheet As ValTableWorkshe
 
     On Error Resume Next
     
-    Dim queryResultDetail As New sutredlib.QueryResultDetailInfo
+    Dim queryResultDetail As New ValQueryResultDetailInfo
     
-    QueryResultInfo.processCount = QueryResultInfo.processCount + 1
-    QueryResultInfo.errorCount = QueryResultInfo.errorCount + 1
+    queryResultInfo.processCount = queryResultInfo.processCount + 1
+    queryResultInfo.errorCount = queryResultInfo.errorCount + 1
 
     frmProgress.PriMessage = "SQL実行エラー"
     
@@ -1218,7 +1193,7 @@ Private Sub updateSelection__ExecuteSqlError(ByRef tableSheet As ValTableWorkshe
     End If
     
     ' クエリ結果情報に詳細を追加する
-    QueryResultInfo.addDetail queryResultDetail
+    queryResultInfo.addDetail queryResultDetail
     
     ' デバッグモードのみの実行
     #If (DEBUG_MODE = 1) Then
@@ -1320,15 +1295,15 @@ Private Sub queryExecution_ExecuteSqlError(sql As String, sqlState As String, me
 
     ' クエリ結果情報に詳細を追加する
     
-    If Not QueryResultInfo Is Nothing Then
+    If Not queryResultInfo Is Nothing Then
     
-        Dim detail As New sutredlib.QueryResultDetailInfo
+        Dim detail As New ValQueryResultDetailInfo
         detail.cell = "-"
         detail.sqlState = sqlState
         detail.message = message
         detail.query = sql
         
-        QueryResultInfo.addDetail detail
+        queryResultInfo.addDetail detail
     End If
 
     DoEvents
@@ -1432,7 +1407,7 @@ Private Function getCellOfInsertedComment(ByRef tableSheet As ValTableWorksheet 
     ' ベースとなるレンジオブジェクトを取得する
     Set r = recordList.valuesCellOffset
         
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = recFormatToUnder Then
     
         ' 行をレコード配列の現在位置から算出する
         row = r.row + recordListIndex - LBound(recordList.values)
@@ -1472,9 +1447,6 @@ Private Sub Class_Terminate()
     If Not frmQueryEditor Is Nothing Then
         frmQueryEditor.Close
     End If
-    If Not frmQueryResult Is Nothing Then
-        frmQueryResult.Close
-    End If
 
     ' プログレスフォームを破棄する
     Set frmProgress = Nothing
@@ -1487,7 +1459,7 @@ Private Sub Class_Terminate()
     ' 一括クエリフォームを破棄する
     Set frmDbQueryBatchVar = Nothing
     ' クエリ結果フォームを破棄する
-    Set frmQueryResult = Nothing
+    Set frmQueryResultVar = Nothing
     
     ' レコード情報生成オブジェクトを破棄する
     Set tableSheetReader = Nothing
@@ -1538,7 +1510,16 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
     ' フォームを設定する
     Set frmRecAppender = frmRecordAppender
     
-    Set QueryResultInfo = Nothing
+    ' フォームをロードする
+    Load frmQueryResult
+    ' フォームを設定する
+    Set frmQueryResultVar = frmQueryResult
+    
+    If queryResultSetInfo Is Nothing Then
+        Set queryResultSetInfo = New ValQueryResultSetInfo
+    End If
+    
+    Set queryResultInfo = Nothing
     
     ' クエリエディタを初期化する
     If frmQueryEditor Is Nothing Then
@@ -1547,18 +1528,10 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
         frmQueryEditor.ExcelApplication = Excel.Application
     End If
     
-    ' クエリ結果を初期化する
-    If frmQueryResult Is Nothing Then
-    
-        ' フォームを設定する
-        Set frmQueryResult = New sutredlib.queryResult
-        frmQueryResult.ExcelApplication = Excel.Application
-    End If
-    
     If clearQueryResults Then
     
-        ' クエリ結果をクリアする
-        frmQueryResult.ClearInfos
+        ' クエリ結果セット情報をクリアする
+        queryResultSetInfo.clearInfos
     End If
 
     ' レコード情報生成オブジェクトを生成する
@@ -1644,14 +1617,16 @@ Public Sub insertUpdateAll()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-        QueryResultInfo.queryType = insertUpdate
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insertUpdate
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -1659,15 +1634,17 @@ err:
     frmProgress.Close
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = insertUpdate
-            frmQueryResult.AddInfo QueryResultInfo
+        If Not queryResultInfo Is Nothing Then
+            queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insertUpdate
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -1712,14 +1689,16 @@ Public Sub insertUpdateSelection()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-        QueryResultInfo.queryType = insertUpdate
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insertUpdate
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -1727,15 +1706,17 @@ err:
     frmProgress.Close
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = insertUpdate
-            frmQueryResult.AddInfo QueryResultInfo
+        If Not queryResultInfo Is Nothing Then
+            queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insertUpdate
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -1784,14 +1765,16 @@ Public Sub insertAll()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-        QueryResultInfo.queryType = insert
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -1799,15 +1782,17 @@ err:
     frmProgress.Close
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = insert
-            frmQueryResult.AddInfo QueryResultInfo
+        If Not queryResultInfo Is Nothing Then
+            queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -1852,14 +1837,16 @@ Public Sub insertSelection()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-        QueryResultInfo.queryType = insert
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -1867,15 +1854,17 @@ err:
     frmProgress.Close
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = insert
-            frmQueryResult.AddInfo QueryResultInfo
+        If Not queryResultInfo Is Nothing Then
+            queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -1925,14 +1914,16 @@ Public Sub updateAll()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-        QueryResultInfo.queryType = sutredlib.update
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -1940,15 +1931,17 @@ err:
     frmProgress.Close
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = sutredlib.update
-            frmQueryResult.AddInfo QueryResultInfo
+        If Not queryResultInfo Is Nothing Then
+            queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -1993,14 +1986,16 @@ Public Sub updateSelection()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-        QueryResultInfo.queryType = sutredlib.update
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -2008,15 +2003,17 @@ err:
     frmProgress.Close
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = sutredlib.update
-            frmQueryResult.AddInfo QueryResultInfo
+        If Not queryResultInfo Is Nothing Then
+            queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -2072,9 +2069,9 @@ Public Sub deleteAll()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-        QueryResultInfo.queryType = deleteOnSheet
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     If resultCount > 0 Then
@@ -2086,6 +2083,8 @@ Public Sub deleteAll()
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -2093,15 +2092,17 @@ err:
     frmProgress.Close
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = deleteOnSheet
-            frmQueryResult.AddInfo QueryResultInfo
+        If Not queryResultInfo Is Nothing Then
+            queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -2152,9 +2153,9 @@ Public Sub deleteSelection()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = deleteOnSheet
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     If resultCount > 0 Then
@@ -2165,6 +2166,8 @@ Public Sub deleteSelection()
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -2172,15 +2175,17 @@ err:
     frmProgress.Close
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            QueryResultInfo.queryType = deleteOnSheet
-            frmQueryResult.AddInfo QueryResultInfo
+        If Not queryResultInfo Is Nothing Then
+            queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -2198,11 +2203,11 @@ Public Sub deleteAllOfTable()
 
     On Error GoTo err
 
-    Set QueryResultInfo = New sutredlib.QueryResultInfo
-    QueryResultInfo.queryType = sutredlib.deleteAll
-    QueryResultInfo.processCount = 0
-    QueryResultInfo.successCount = 0
-    QueryResultInfo.errorCount = 0
+    Set queryResultInfo = New ValQueryResultInfo
+    queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteAll
+    queryResultInfo.processCount = 0
+    queryResultInfo.successCount = 0
+    queryResultInfo.errorCount = 0
 
     ' テーブルシートかどうかを確認する。（失敗した場合、エラーが発行される）
     tableSheetReader.validTableSheet
@@ -2248,26 +2253,28 @@ Public Sub deleteAllOfTable()
     Set longTimeProcessing = Nothing
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
-        QueryResultInfo.tableWorksheet = update.readTableSheet
-        QueryResultInfo.processCount = resultCount
-        QueryResultInfo.successCount = resultCount
-        QueryResultInfo.errorCount = 0
-        frmQueryResult.AddInfo QueryResultInfo
+    If Not queryResultInfo Is Nothing Then
+        Set queryResultInfo.tableWorksheet = update.readTableSheet
+        queryResultInfo.processCount = resultCount
+        queryResultInfo.successCount = resultCount
+        queryResultInfo.errorCount = 0
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
     ' クエリエラーが発生した場合
-    If err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
         ' クエリ結果情報を設定する
-        If Not QueryResultInfo Is Nothing Then
-            Dim detail As New sutredlib.QueryResultDetailInfo
+        If Not queryResultInfo Is Nothing Then
+            Dim detail As New ValQueryResultDetailInfo
             detail.cell = "-"
             detail.message = err.Description
             detail.query = update.createdSql
@@ -2283,16 +2290,18 @@ err:
                 End If
             End If
             
-            QueryResultInfo.addDetail detail
-            QueryResultInfo.tableWorksheet = update.readTableSheet
-            QueryResultInfo.processCount = 1
-            QueryResultInfo.successCount = 0
-            QueryResultInfo.errorCount = 1
+            queryResultInfo.addDetail detail
+            Set queryResultInfo.tableWorksheet = update.readTableSheet
+            queryResultInfo.processCount = 1
+            queryResultInfo.successCount = 0
+            queryResultInfo.errorCount = 1
         
-            frmQueryResult.AddInfo QueryResultInfo
+            queryResultSetInfo.addInfo queryResultInfo
         End If
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -2337,7 +2346,7 @@ Private Sub deleteCellsByDeleteRecordList()
             i = UBound(recordArray)
             Do While i >= LBound(recordArray)
             
-                If tableSheetReader.getRowFormat = sutredlib.recFormatToUnder Then
+                If tableSheetReader.getRowFormat = recFormatToUnder Then
                 
                     ' 削除する（行単位で削除）
                     .Cells(recordArray(i), 1).EntireRow.delete
@@ -2356,7 +2365,7 @@ Private Sub deleteCellsByDeleteRecordList()
         
         ' 番号セルに値が設定されているかを調べることでレコードセルが削除されているかどうかを調べる
         ' 行フォーマットごとに調べる箇所を変えてやる
-        If tableSheetReader.getRowFormat = sutredlib.recFormatToUnder Then
+        If tableSheetReader.getRowFormat = recFormatToUnder Then
         
             If .Cells(ConstantsTable.U_RECORD_OFFSET_ROW, U_RECORD_NUM_COL) = "" Then
             
@@ -2407,8 +2416,8 @@ Public Sub selectAll()
     tableSheetReader.validTableSheet
     
     ' クエリ結果を初期化しておく
-    Set QueryResultInfo = New sutredlib.QueryResultInfo
-    QueryResultInfo.queryType = sutredlib.selectAll
+    Set queryResultInfo = New ValQueryResultInfo
+    queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectAll
     
     ' Excel.Applicationプロパティを操作するオブジェクト
     ' 関数を抜けると自動でApplicationプロパティが復元される
@@ -2431,12 +2440,12 @@ Public Sub selectAll()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
+    If Not queryResultInfo Is Nothing Then
     
-        QueryResultInfo.processCount = resultCount
-        QueryResultInfo.successCount = resultCount
-        QueryResultInfo.errorCount = 0
-        frmQueryResult.AddInfo QueryResultInfo
+        queryResultInfo.processCount = resultCount
+        queryResultInfo.successCount = resultCount
+        queryResultInfo.errorCount = 0
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     ' --------------------------------------------------------------
@@ -2466,6 +2475,8 @@ Public Sub selectAll()
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -2474,14 +2485,16 @@ err:
     frmProgress.Close
 
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing And err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
-        QueryResultInfo.processCount = 0
-        QueryResultInfo.successCount = 0
-        QueryResultInfo.errorCount = 1
-        frmQueryResult.AddInfo QueryResultInfo
+        queryResultInfo.processCount = 0
+        queryResultInfo.successCount = 0
+        queryResultInfo.errorCount = 1
+        queryResultSetInfo.addInfo queryResultInfo
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     
@@ -2584,7 +2597,7 @@ Public Sub queryBatch()
     Load frmDBQueryBatch
     Set frmDbQueryBatchVar = frmDBQueryBatch
     
-    frmDbQueryBatchVar.ShowExt vbModal, DB_QUERY_BATCH_MODE.QueryExecute, BATCH_QUERY_TYPE.none, book
+    frmDbQueryBatchVar.ShowExt vbModal, DB_QUERY_BATCH_MODE.QueryExecute, DB_QUERY_BATCH_TYPE.none, book
     
     Set frmDbQueryBatchVar = Nothing
     
@@ -2609,13 +2622,13 @@ Public Function isErrorQueryResult() As Boolean
     ' クエリ結果を取得する
     Dim i As Long
     Dim queryResultCount As Long
-    Dim queryResultObj As QueryResultInfo
+    Dim queryResultObj As ValQueryResultInfo
     
-    queryResultCount = frmQueryResult.GetInfoCount
+    queryResultCount = queryResultSetInfo.getInfoCount
     
     For i = 1 To queryResultCount
     
-        Set queryResultObj = frmQueryResult.GetInfo(i)
+        Set queryResultObj = queryResultSetInfo.getInfo(i)
         
         If Not queryResultObj Is Nothing Then
         
@@ -2643,7 +2656,7 @@ Public Sub showQueryResult()
     On Error GoTo err
     
     ' クエリ結果フォームを表示する
-    frmQueryResult.Show ExcelUtil.getApplicationHWnd
+    frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
 
     Exit Sub
     
@@ -2669,18 +2682,18 @@ Public Sub showQueryResultWhenSettingResult()
         If isErrorQueryResult Then
         
             ' クエリ結果が設定済みの場合、表示する
-            If frmQueryResult.GetInfoCount > 0 Then
+            If queryResultSetInfo.getInfoCount > 0 Then
                 ' クエリ結果フォームを表示する
-                frmQueryResult.Show ExcelUtil.getApplicationHWnd
+                frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
             End If
         End If
         
     Else
     
         ' クエリ結果が設定済みの場合、表示する
-        If frmQueryResult.GetInfoCount > 0 Then
+        If queryResultSetInfo.getInfoCount > 0 Then
             ' クエリ結果フォームを表示する
-            frmQueryResult.Show ExcelUtil.getApplicationHWnd
+            frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
         End If
     End If
 
@@ -2704,8 +2717,8 @@ Private Sub frmSelectConditionCreatorVar_ok(ByVal sql As String, ByVal append As
     On Error GoTo err
     
     ' クエリ結果を初期化しておく
-    Set QueryResultInfo = New sutredlib.QueryResultInfo
-    QueryResultInfo.queryType = sutredlib.selectCondition
+    Set queryResultInfo = New ValQueryResultInfo
+    queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectCondition
 
     ' Excel.Applicationプロパティを操作するオブジェクト
     ' 関数を抜けると自動でApplicationプロパティが復元される
@@ -2734,12 +2747,12 @@ Private Sub frmSelectConditionCreatorVar_ok(ByVal sql As String, ByVal append As
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
+    If Not queryResultInfo Is Nothing Then
     
-        QueryResultInfo.processCount = resultCount
-        QueryResultInfo.successCount = resultCount
-        QueryResultInfo.errorCount = 0
-        frmQueryResult.AddInfo QueryResultInfo
+        queryResultInfo.processCount = resultCount
+        queryResultInfo.successCount = resultCount
+        queryResultInfo.errorCount = 0
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     ' --------------------------------------------------------------
@@ -2764,6 +2777,8 @@ Private Sub frmSelectConditionCreatorVar_ok(ByVal sql As String, ByVal append As
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -2772,16 +2787,18 @@ err:
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing And err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
-        QueryResultInfo.queryType = sutredlib.selectCondition
-        QueryResultInfo.processCount = 0
-        QueryResultInfo.successCount = 0
-        QueryResultInfo.errorCount = 1
-        frmQueryResult.AddInfo QueryResultInfo
+        queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectCondition
+        queryResultInfo.processCount = 0
+        queryResultInfo.successCount = 0
+        queryResultInfo.errorCount = 1
+        queryResultSetInfo.addInfo queryResultInfo
         
     Else
 
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     
@@ -2804,8 +2821,8 @@ Public Sub selectReExecute()
     tableSheetReader.validTableSheet
     
     ' クエリ結果を初期化しておく
-    Set QueryResultInfo = New sutredlib.QueryResultInfo
-    QueryResultInfo.queryType = sutredlib.selectReExec
+    Set queryResultInfo = New ValQueryResultInfo
+    queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectReExec
     
     ' テーブル定義
     Dim tableSheet As ValTableWorksheet
@@ -2888,12 +2905,12 @@ Public Sub selectReExecute()
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing Then
+    If Not queryResultInfo Is Nothing Then
     
-        QueryResultInfo.processCount = resultCount
-        QueryResultInfo.successCount = resultCount
-        QueryResultInfo.errorCount = 0
-        frmQueryResult.AddInfo QueryResultInfo
+        queryResultInfo.processCount = resultCount
+        queryResultInfo.successCount = resultCount
+        queryResultInfo.errorCount = 0
+        queryResultSetInfo.addInfo queryResultInfo
     End If
     
     SutWhite.closeHourglassWindow
@@ -2901,6 +2918,8 @@ Public Sub selectReExecute()
     Exit Sub
     
 err:
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
 
     Set longTimeProcessing = Nothing
     
@@ -2909,14 +2928,16 @@ err:
     frmProgress.Close
     
     ' クエリ結果情報を設定する
-    If Not QueryResultInfo Is Nothing And err.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
     
-        QueryResultInfo.processCount = 0
-        QueryResultInfo.successCount = 0
-        QueryResultInfo.errorCount = 1
-        frmQueryResult.AddInfo QueryResultInfo
+        queryResultInfo.processCount = 0
+        queryResultInfo.successCount = 0
+        queryResultInfo.errorCount = 1
+        queryResultSetInfo.addInfo queryResultInfo
     Else
     
+        ' 退避したエラー情報を設定しなおす
+        VBUtil.setErr errT
         ' エラー発生
         Main.ShowErrorMessage
     End If
@@ -2970,3 +2991,19 @@ Private Function createProgressTitleOptionalMessage() As String
     End If
 
 End Function
+
+' =========================================================
+' ▼クエリ結果フォーム - シート選択時に呼び出されるイベント
+' =========================================================
+Private Sub frmQueryResultVar_selected(tableSheet As ValTableWorksheet)
+
+    On Error GoTo err
+
+    tableSheet.sheet.activate
+
+    Exit Sub
+
+err:
+
+End Sub
+

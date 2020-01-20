@@ -31,7 +31,7 @@ Option Explicit
 ' 引数　　　：
 '
 ' =========================================================
-Public Event complete(ByRef createTargetTable As sutredlib.GenericCollection)
+Public Event complete(ByRef createTargetTable As ValCollection)
 
 ' =========================================================
 ' ▽処理がキャンセルされた場合に呼び出されるイベント
@@ -69,7 +69,7 @@ Private tableInfoList  As CntListBox
 Private tableInfoListRowFormat As CntListBox
 
 ' 選択されたテーブルリスト
-Private selectedTableList As sutredlib.GenericCollection
+Private selectedTableList As ValCollection
 ' -------------------------------------------------------------
 
 ' =========================================================
@@ -876,7 +876,7 @@ Private Sub fixPageComplete()
     Dim var    As ValCollection
     Dim varObj As ValDbDefineTable
     
-    Dim tableSheetList As New sutredlib.GenericCollection
+    Dim tableSheetList As New ValCollection
     Dim tableSheet     As ValTableWorksheet
     
     Set var = tableInfoListRowFormat.collection
@@ -905,7 +905,7 @@ Private Sub fixPageComplete()
             tableSheet.recFormat = sutredlib.recFormatToUnder
         End If
         
-        tableSheetList.Add tableSheet, varObj.schemaTableName
+        tableSheetList.setItem tableSheet, varObj.schemaTableName
         
         i = i + 1
     Next

@@ -20,16 +20,22 @@ Option Explicit
 
 Public processCount As Long
 Public successCount As Long
-Public errorCount As Long
-Public queryType As BATCH_QUERY_TYPE
+Public errorCount   As Long
+
+Public dbQueryBatchType As DB_QUERY_BATCH_TYPE
+
 Public tableWorksheet As ValTableWorksheet
-Public detailList As ValCollection
+Public detailList     As ValCollection
 
 ' =========================================================
 ' ▽クラス初期化メソッド
 ' =========================================================
 Private Sub Class_Initialize()
+    
     Set detailList = New ValCollection
+    
+    dbQueryBatchType = DB_QUERY_BATCH_TYPE.none
+    
 End Sub
 
 ' =========================================================
@@ -54,3 +60,64 @@ End Function
 Public Function getDetailsCount() As Long
     getDetailsCount = detailList.count
 End Function
+
+Public Property Get processErrorCount() As String
+
+    processErrorCount = processCount & " / " & errorCount
+    
+End Property
+
+Public Property Get dbQueryBatchTypeName() As String
+
+    dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbQueryBatchType)
+
+End Property
+
+Public Property Get sheetNameOrSheetTableName() As String
+
+    If Not tableWorksheet Is Nothing Then
+        
+        sheetNameOrSheetTableName = tableWorksheet.sheetNameOrSheetTableName
+        
+    End If
+
+End Property
+
+Public Property Get sheetName() As String
+
+    If Not tableWorksheet Is Nothing Then
+        sheetName = tableWorksheet.sheetName
+    End If
+
+End Property
+
+Public Property Get schemaTableName() As String
+
+    If Not tableWorksheet Is Nothing Then
+        If Not tableWorksheet.table Is Nothing Then
+            schemaTableName = tableWorksheet.table.schemaTableName
+        End If
+    End If
+
+End Property
+
+Public Property Get tableName() As String
+
+    If Not tableWorksheet Is Nothing Then
+        If Not tableWorksheet.table Is Nothing Then
+            tableName = tableWorksheet.table.tableName
+        End If
+    End If
+
+End Property
+
+Public Property Get tableComment() As String
+
+    If Not tableWorksheet Is Nothing Then
+        If Not tableWorksheet.table Is Nothing Then
+            tableComment = tableWorksheet.table.tableComment
+        End If
+    End If
+
+End Property
+

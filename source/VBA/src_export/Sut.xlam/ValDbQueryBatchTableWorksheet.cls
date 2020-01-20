@@ -18,16 +18,14 @@ Option Explicit
 ' 特記事項：
 ' *********************************************************
 
-Public dbQueryBatchTypeObj  As ValDbQueryBatchType
+Public dbQueryBatchType     As DB_QUERY_BATCH_TYPE
 Public tableWorksheet       As ValTableWorksheet
 
 ' =========================================================
 ' ▽クラス初期化メソッド
 ' =========================================================
 Private Sub Class_Initialize()
-    Set dbQueryBatchTypeObj = New ValDbQueryBatchType
-    dbQueryBatchTypeObj.dbQueryBatchType = DB_QUERY_BATCH_TYPE.none
-    dbQueryBatchTypeObj.dbQueryBatchTypeName = ""
+    dbQueryBatchType = DB_QUERY_BATCH_TYPE.none
 End Sub
 
 ' =========================================================
@@ -36,45 +34,10 @@ End Sub
 Private Sub Class_Terminate()
 End Sub
 
-Public Property Get dbQueryBatchType() As DB_QUERY_BATCH_TYPE
-
-    If Not dbQueryBatchTypeObj Is Nothing Then
-        
-        dbQueryBatchType = dbQueryBatchTypeObj.dbQueryBatchType
-        
-    End If
-
-End Property
-
-Public Property Let dbQueryBatchType(ByVal vNewValue As DB_QUERY_BATCH_TYPE)
-
-    If Not dbQueryBatchTypeObj Is Nothing Then
-        
-        dbQueryBatchTypeObj.dbQueryBatchType = vNewValue
-        
-    End If
-    
-End Property
-
-
 Public Property Get dbQueryBatchTypeName() As String
 
-    If Not dbQueryBatchTypeObj Is Nothing Then
-        
-        dbQueryBatchTypeName = dbQueryBatchTypeObj.dbQueryBatchTypeName
-        
-    End If
+    dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbQueryBatchType)
 
-End Property
-
-Public Property Let dbQueryBatchTypeName(ByVal vNewValue As String)
-
-    If Not dbQueryBatchTypeObj Is Nothing Then
-        
-        dbQueryBatchTypeObj.dbQueryBatchTypeName = vNewValue
-        
-    End If
-    
 End Property
 
 Public Property Get sheetNameOrSheetTableName() As String

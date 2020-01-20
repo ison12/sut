@@ -71,7 +71,7 @@ End Sub
 '
 ' =========================================================
 Private Function execFileOutput(table As ValTableWorksheet _
-                            , queryType As sutredlib.BATCH_QUERY_TYPE _
+                            , queryType As DB_QUERY_BATCH_TYPE _
                             , filePath As String _
                             , encode As String _
                             , newline As String) As Boolean

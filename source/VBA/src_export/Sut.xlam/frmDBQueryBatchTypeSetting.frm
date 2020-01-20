@@ -31,7 +31,7 @@ Option Explicit
 ' 引数　　　：dbQueryBatchType DBクエリバッチ種類
 '
 ' =========================================================
-Public Event ok(ByVal dbQueryBatchType As ValDbQueryBatchType)
+Public Event ok(ByVal dbQueryBatchType As DB_QUERY_BATCH_TYPE)
 
 ' =========================================================
 ' ▽キャンセルされた場合に呼び出されるイベント
@@ -232,7 +232,7 @@ Private Sub cmdOk_Click()
     HideExt
 
     ' OKイベントを送信する
-    RaiseEvent ok(dbQueryBatchTypeComboList.getSelectedItem)
+    RaiseEvent ok(dbQueryBatchTypeComboList.getSelectedItem.dbQueryBatchType)
     
     Exit Sub
     

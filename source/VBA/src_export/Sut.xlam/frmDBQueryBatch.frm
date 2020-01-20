@@ -182,7 +182,6 @@ Private Sub cboDbQueryBatchTypeChangeAll_Change()
     
         Set selectedDbQueryBatchType = dbQueryBatchTypeChangeAll.getSelectedItem
         var.dbQueryBatchType = selectedDbQueryBatchType.dbQueryBatchType
-        var.dbQueryBatchTypeName = selectedDbQueryBatchType.dbQueryBatchTypeName
         
         setTableSheet i, var
         
@@ -245,10 +244,9 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub frmDBQueryBatchTypeSettingVar_ok(ByVal dbQueryBatchType As ValDbQueryBatchType)
+Private Sub frmDBQueryBatchTypeSettingVar_ok(ByVal dbQueryBatchType As DB_QUERY_BATCH_TYPE)
 
-    tableSheetSelectedItem.dbQueryBatchType = dbQueryBatchType.dbQueryBatchType
-    tableSheetSelectedItem.dbQueryBatchTypeName = dbQueryBatchType.dbQueryBatchTypeName
+    tableSheetSelectedItem.dbQueryBatchType = dbQueryBatchType
     
     setTableSheet tableSheetSelectedIndex, tableSheetSelectedItem
     
@@ -352,8 +350,7 @@ End Sub
 Private Function openFolderDialog() As String
 
     On Error GoTo err
-        
-    ' 選択ファイル
+            ' 選択ファイル
     Dim selectFile As String
     
     ' 開くダイアログを選択する
@@ -559,23 +556,22 @@ Private Sub activate()
     
     If dbQueryBatchMode = FileOutput Then
         ' ファイル出力
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.none: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "INSERT + UPDATE": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insertUpdate: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "INSERT": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "UPDATE": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "DELETE": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "DELETE テーブル上の全レコード": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteAll: dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.none: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+    
     Else
         ' クエリ実行
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.none: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "INSERT + UPDATE": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insertUpdate: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "INSERT": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "UPDATE": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "DELETE": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "DELETE テーブル上の全レコード": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteAll: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "SELECT 全て": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectAll: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "SELECT 条件指定": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectCondition: dbBatchQueryTypeRawList.setItem dbBatchQueryType
-        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchTypeName = "SELECT 再実行": dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectReExec: dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.none: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insertUpdate: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.insert: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.update: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteOnSheet: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.deleteAll: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectAll: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectCondition: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
+        Set dbBatchQueryType = New ValDbQueryBatchType: dbBatchQueryType.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectReExec: dbBatchQueryType.dbQueryBatchTypeName = ConstantsEnum.getDbQueryBatchTypeName(dbBatchQueryType.dbQueryBatchType): dbBatchQueryTypeRawList.setItem dbBatchQueryType
     End If
     
     dbQueryBatchTypeChangeAll.addAll dbBatchQueryTypeRawList, "dbQueryBatchTypeName"
@@ -748,9 +744,6 @@ End Sub
 ' =========================================================
 Private Sub readTableSheet()
 
-    Dim dbQueryBatchTypeDefault As ValDbQueryBatchType
-    Set dbQueryBatchTypeDefault = dbQueryBatchTypeChangeAll.getItem(1)
-
     ' テーブルリスト
     Dim tableList As ValCollection
     Dim tableWorksheet As ValTableWorksheet
@@ -779,8 +772,7 @@ Private Sub readTableSheet()
             Set tableWorksheet = tableSheetReader.readTableInfo(True)
             
             Set dbQueryBatchTableWorksheet = New ValDbQueryBatchTableWorksheet
-            dbQueryBatchTableWorksheet.dbQueryBatchType = dbQueryBatchTypeDefault.dbQueryBatchType
-            dbQueryBatchTableWorksheet.dbQueryBatchTypeName = dbQueryBatchTypeDefault.dbQueryBatchTypeName
+            dbQueryBatchTableWorksheet.dbQueryBatchType = dbQueryBatchTypeChangeAll.getItem(1).dbQueryBatchType
             Set dbQueryBatchTableWorksheet.tableWorksheet = tableWorksheet
             
             tableList.setItem dbQueryBatchTableWorksheet

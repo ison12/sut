@@ -21,9 +21,9 @@ Option Explicit
 ' ________________________________________________________
 ' メンバ変数
 ' ________________________________________________________
-' DBエクスプローラ
-Private WithEvents frmDBExplorer           As sutredlib.DbExplorer
-Attribute frmDBExplorer.VB_VarHelpID = -1
+' DBエクスプローラ（イベント受信用に定義）
+Private WithEvents frmDBExplorerVar        As frmDBExplorer
+Attribute frmDBExplorerVar.VB_VarHelpID = -1
 ' テーブルシート作成フォーム（イベント受信用に定義）
 Private WithEvents frmTableSheetCreatorVar As frmTableSheetCreator
 Attribute frmTableSheetCreatorVar.VB_VarHelpID = -1
@@ -48,37 +48,31 @@ Private applicationSetting As ValApplicationSetting
 ' ________________________________________________________
 ' イベント
 ' ________________________________________________________
-
 ' =========================================================
 ' ▼DBエクスプローラ Excelシートに出力
 ' =========================================================
-Private Sub frmDbExplorer_OnExportTableForExcelToRight(ByVal tableList As sutredlib.IGenericCollection)
-    
+Private Sub frmDBExplorerVar_export(ByVal tableList As ValCollection, ByVal recFormat As REC_FORMAT)
+
     createEmptyBook
     
-    Dim tableSheetList As sutredlib.GenericCollection
-    Set tableSheetList = createDataOfTableSheetList(tableList, recFormatToRight)
+    Dim tableSheetList As ValCollection
+    Set tableSheetList = createDataOfTableSheetList(tableList, recFormat)
     
     frmTableSheetCreatorVar_complete tableSheetList
+    
 End Sub
 
 ' =========================================================
-' ▼DBエクスプローラ Excelシートに出力
+' ▼DBエクスプローラ 閉じる
 ' =========================================================
-Private Sub frmDbExplorer_OnExportTableForExcelToUnder(ByVal tableList As sutredlib.IGenericCollection)
+Private Sub frmDBExplorerVar_closed()
 
-    createEmptyBook
-    
-    Dim tableSheetList As sutredlib.GenericCollection
-    Set tableSheetList = createDataOfTableSheetList(tableList, recFormatToUnder)
-    
-    frmTableSheetCreatorVar_complete tableSheetList
 End Sub
 
 ' =========================================================
 ' ▼テーブルシート作成 - テーブルシート作成開始（複数）
 ' =========================================================
-Private Sub tableSheetCreator_createTableSheetsBegin(tableSheetList As sutredlib.GenericCollection)
+Private Sub tableSheetCreator_createTableSheetsBegin(tableSheetList As ValCollection)
 
     frmProgress.InitPri tableSheetList.count, "テーブルシート作成中"
     
@@ -88,7 +82,7 @@ End Sub
 ' =========================================================
 ' ▼テーブルシート作成 - テーブルシート作成完了（複数）
 ' =========================================================
-Private Sub tableSheetCreator_createTableSheets(tableSheetList As sutredlib.GenericCollection)
+Private Sub tableSheetCreator_createTableSheets(tableSheetList As ValCollection)
 
     frmProgress.PriMessage = "テーブルシート作成完了"
     frmProgress.PriCount = tableSheetList.count
@@ -143,7 +137,7 @@ End Sub
 ' =========================================================
 ' ▼テーブルシート作成フォーム - 完了時に呼び出されるイベント
 ' =========================================================
-Private Sub frmTableSheetCreatorVar_complete(createTargetTable As sutredlib.GenericCollection)
+Private Sub frmTableSheetCreatorVar_complete(createTargetTable As ValCollection)
 
     On Error GoTo err
 
@@ -180,7 +174,6 @@ Private Sub frmTableSheetCreatorVar_complete(createTargetTable As sutredlib.Gene
     Set longTimeProcessing = Nothing
     
     frmProgress.Close
-    frmDBExplorer.enable
     
     Exit Sub
 err:
@@ -188,7 +181,6 @@ err:
     Set longTimeProcessing = Nothing
     
     frmProgress.Close
-    frmDBExplorer.enable
     
     Main.ShowErrorMessage
 
@@ -314,11 +306,8 @@ Private Sub Class_Terminate()
     If Not frmProgress Is Nothing Then
         frmProgress.Close
     End If
-    If Not frmDBExplorer Is Nothing Then
-        frmDBExplorer.Close
-    End If
 
-    Set frmDBExplorer = Nothing
+    Set frmDBExplorerVar = Nothing
     Set frmTableSheetCreatorVar = Nothing
     Set frmTableSheetListVar = Nothing
     Set frmTableSheetUpdateVar = Nothing
@@ -340,15 +329,13 @@ End Sub
 Public Sub init(ByRef appSetting As ValApplicationSetting _
               , ByRef conn As Object)
 
-    ' DBエクスプローラを初期化する
-    If frmDBExplorer Is Nothing Then
-    
-        Set frmDBExplorer = New sutredlib.DbExplorer
-        frmDBExplorer.ExcelApplication = Excel.Application
-    End If
-
     ' イベント受信用の変数にプログレスフォームを設定する
     Set frmProgress = New sutredlib.Progress
+
+    ' DBエクスプローラフォームをロードする
+    Load frmDBExplorer
+    ' イベント受信用の変数にDBエクスプローラフォームを設定する
+    Set frmDBExplorerVar = frmDBExplorer
 
     ' テーブルシート作成フォームをロードする
     Load frmTableSheetCreator
@@ -385,7 +372,10 @@ Public Sub updateDbConn(ByRef dbConn As Object)
     ' DBエクスプローラのコネクションを再設定する
     If Not frmDBExplorer Is Nothing Then
     
-        frmDBExplorer.DbConnection = dbConn
+        Load frmDBExplorer
+        Set frmDBExplorerVar = frmDBExplorer
+        
+        frmDBExplorerVar.DbConnection = dbConn
     End If
 
     Exit Sub
@@ -406,9 +396,8 @@ Public Sub showDbExplorer()
 
     On Error GoTo err
     
-    ' テーブルシート一覧フォームを表示する
-    frmDBExplorer.DbConnection = dbConn
-    frmDBExplorer.Show ExcelUtil.getApplicationHWnd
+    ' DBエクスプローラフォームを表示する
+    frmDBExplorerVar.ShowExt vbModeless, dbConn
 
     Exit Sub
     
@@ -515,21 +504,21 @@ End Function
 ' 概要　　　：
 '
 ' =========================================================
-Private Function createDataOfTableSheetList(ByRef tableList As sutredlib.GenericCollection _
-                                          , ByVal recFormat As REC_FORMAT) As sutredlib.GenericCollection
+Private Function createDataOfTableSheetList(ByRef tableList As ValCollection _
+                                          , ByVal recFormat As REC_FORMAT) As ValCollection
                                           
-    Dim tableSheetList As sutredlib.GenericCollection
-    Set tableSheetList = New sutredlib.GenericCollection
+    Dim tableSheetList As ValCollection
+    Set tableSheetList = New ValCollection
     
     Dim table      As ValDbDefineTable
     Dim tableSheet As ValTableWorksheet
     
     ' テーブルリストからテーブル定義を取り出しテーブルシート情報に変換して
     ' リストに設定する
-    For Each table In tableList
+    For Each table In tableList.col
     
         Set tableSheet = createDataOfTableSheet(table, recFormat)
-        tableSheetList.Add tableSheet
+        tableSheetList.setItem tableSheet
     Next
     
     Set createDataOfTableSheetList = tableSheetList

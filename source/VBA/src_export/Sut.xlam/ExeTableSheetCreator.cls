@@ -34,7 +34,7 @@ Option Explicit
 ' 引数　　　：tableInfoList   テーブル情報リスト
 '
 ' =========================================================
-Public Event createTableSheetsBegin(ByRef tableInfoList As sutredlib.GenericCollection)
+Public Event createTableSheetsBegin(ByRef tableInfoList As ValCollection)
 
 ' =========================================================
 ' ▽複数テーブルシート生成イベント
@@ -43,7 +43,7 @@ Public Event createTableSheetsBegin(ByRef tableInfoList As sutredlib.GenericColl
 ' 引数　　　：tableInfoList   テーブル情報リスト
 '
 ' =========================================================
-Public Event createTableSheets(ByRef tableInfoList As sutredlib.GenericCollection)
+Public Event createTableSheets(ByRef tableInfoList As ValCollection)
 
 ' =========================================================
 ' ▽テーブルシート生成処理開始前イベント
@@ -119,7 +119,7 @@ End Sub
 ' 引数　　　：tableSheetList  テーブル定義リスト
 '
 ' =========================================================
-Public Sub createSheets(ByRef tableSheetList As sutredlib.GenericCollection)
+Public Sub createSheets(ByRef tableSheetList As ValCollection)
 
     ' DBメタ情報取得用オブジェクト生成クラス
     Dim dbObjFactory As New DbObjectFactory
@@ -139,7 +139,7 @@ Public Sub createSheets(ByRef tableSheetList As sutredlib.GenericCollection)
     checkCanceled
 
     ' テーブルの数だけシートを作成する
-    For Each tableSheet In tableSheetList
+    For Each tableSheet In tableSheetList.col
         ' 未ロード時、ロードを実行する
         If Not tableSheet.table.isLoad Then
         

@@ -562,6 +562,27 @@ Public Function swapErr() As errInfo
 End Function
 
 ' =========================================================
+' ▽Errオブジェクトに情報を設定する
+'
+' 概要　　　：
+' 引数　　　：errT エラー情報
+' 戻り値　　：
+'
+' 特記事項　：
+'
+' =========================================================
+Public Sub setErr(ByRef errT As errInfo)
+
+    err.Source = errT.Source
+    err.Number = errT.Number
+    err.Description = errT.Description
+    'err.LastDllError = errT.LastDllError
+    err.HelpFile = errT.HelpFile
+    err.HelpContext = errT.HelpContext
+
+End Sub
+
+' =========================================================
 ' ▽保存ダイアログ表示
 '
 ' 概要　　　：保存ダイアログを表示する
@@ -1704,6 +1725,34 @@ End Function
 Public Function convertPointToPixel(ByVal d As Long, ByVal Point As Single) As Long
 
     convertPointToPixel = Point * d / 72
+    
+End Function
+
+' =========================================================
+' ▽真偽値文字列を真偽データに変換する。
+'
+' 概要　　　：
+' 引数　　　：str 文字列
+' 戻り値　　：変換後の真偽データ
+'
+' =========================================================
+Public Function convertBoolStrToBool(ByVal str As String) As Boolean
+
+    If str = Empty Then
+        ' 未入力時
+        convertBoolStrToBool = False
+    Else
+        ' 入力時
+    
+        If LCase$(str) = "true" Then
+            ' 真
+            convertBoolStrToBool = True
+        Else
+            ' 偽
+            convertBoolStrToBool = False
+        End If
+    
+    End If
     
 End Function
 
