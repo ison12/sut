@@ -29,12 +29,6 @@ Private applicationSettingShortcut As ValApplicationSettingShortcut
 ' ■アプリケーション設定情報（カラム書式情報）
 Private applicationSettingColFormat As ValApplicationSettingColFormat
 
-' ■ライセンス情報
-Private licenceInfo As ValLicenceInfo
-
-' ■メッセージコントローラ
-Private SutRedMessageController As sutredlib.SutRedMessageController
-
 ' アドインのファイルクローズ時の処理
 Public Sub Auto_Close()
 
@@ -66,43 +60,6 @@ Public Function Auto_Remove()
 End Function
 
 ' =========================================================
-' ▽所有ブックを設定する（Excel2013以上 SDI対応）
-'
-' 概要　　　：
-' 特記事項　：
-'
-' =========================================================
-Private Function setOwnerBook()
-
-    If ExcelUtil.getExcelVersion = Ver2013 Or ExcelUtil.getExcelVersion = VerOver Then
-    
-        ' --------------------------------
-        ' アクティブブックを取得する
-        Dim activeBook As Workbook: Set activeBook = Nothing
-    
-        On Error Resume Next
-        
-        Set activeBook = ActiveWorkbook
-        
-        On Error GoTo 0
-        
-        ' Sutの所有ブックを設定する
-        If SutWorkbook.ownerBook Is Nothing And Not activeBook Is Nothing Then
-        
-            ' SutRed.dllをロードするためにダミーのコードを実行する
-            Dim p As sutredlib.Progress
-            Set p = New sutredlib.Progress
-            Set p = Nothing
-
-            SutWorkbook.ownerBook = ActiveWorkbook
-        End If
-        ' --------------------------------
-        
-    End If
-
-End Function
-
-' =========================================================
 ' ▽Mainモジュールで管理しているDBコネクションを更新する。
 '
 ' 概要　　　：
@@ -128,7 +85,7 @@ Public Function SutUpdateDbConn(ByRef dbConn_ As Object, ByRef dbConnStr_ As Str
         menuDiff.updateDbConn dbConn_, dbConnSimpleStr_
     End If
     
-    If dbConn Is Nothing Then
+    If ADOUtil.getConnectionStatus(dbConn) = adStateClosed Then
         changeDbConnectStatus False
     Else
         changeDbConnectStatus True
@@ -149,12 +106,6 @@ Public Function SutInit()
     getApplicationSetting
     getApplicationSettingShortcut
     getApplicationSettingColFormat
-    
-    If SutRedMessageController Is Nothing Then
-        Set SutRedMessageController = New sutredlib.SutRedMessageController
-        SutRedMessageController.ParentHwnd = ExcelUtil.getApplicationHWnd
-        SutRedMessageController.StartControl
-    End If
     
     initUIObject
     
@@ -178,8 +129,6 @@ Public Function SutRelease()
     Set applicationSetting = Nothing
     Set applicationSettingShortcut = Nothing
     
-    Set licenceInfo = Nothing
-
     Set menuDB = Nothing
     Set menuTable = Nothing
     Set menuData = Nothing
@@ -187,12 +136,6 @@ Public Function SutRelease()
     Set menuFile = Nothing
     Set menuTool = Nothing
     Set menuHelp = Nothing
-
-    If Not SutRedMessageController Is Nothing Then
-    
-        SutRedMessageController.StopControl
-        Set SutRedMessageController = Nothing
-    End If
     
 End Function
 
@@ -272,12 +215,6 @@ Public Function SutDestroy()
 
     On Error GoTo err
 
-    ' SutWhite.dll後始末処理
-    SutWhite.destroy
-    
-    ' SutWhite.dllを解放する
-    SutWhite.freeLibrary
-    
     ' ツールバーを削除する前に呼び出す
     ' グローバル領域のデータを解放する
     Main.SutRelease
@@ -312,36 +249,12 @@ Public Function SutLoad()
     ChDrive SutWorkbook.path
     ChDir SutWorkbook.path
     
-    ' SutWhite.dllをロードする
-    SutWhite.LoadLibrary
-    
-    ' SutWhite.dll初期化処理
-    SutWhite.initialize
-    ' スプラッシュウィンドウを表示する
-    SutWhite.showSplashWindow
-    
-    ' スプラッシュウィンドウを表示しおえるまで待機する
-    Dim waitRet As Long
-    Do
-        ' 100ミリ秒間隔でループする
-        waitRet = SutWhite.waitSplashWindow(100)
-        DoEvents
-    
-        #If (DEBUG_MODE = 1) Then
-        
-            Debug.Print "waitSplashWindow " & waitRet
-        #End If
-        
-    Loop While waitRet = 10
-    
     ' ツールバーを初期化する
     initToolbar
     
     ' ツールバーの初期化後に呼び出す
     ' グローバル領域のデータを初期化する
     Main.SutInit
-    
-    setOwnerBook
     
     Exit Function
     
@@ -365,12 +278,6 @@ Public Function SutUnload()
     ' Excel.Applicationプロパティを操作するオブジェクト
     ' 関数を抜けると自動でApplicationプロパティが復元される
     Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
-    
-    ' SutWhite.dll後始末処理
-    SutWhite.destroy
-    
-    ' SutWhite.dllを解放する
-    SutWhite.freeLibrary
     
     ' ツールバーを削除する前に呼び出す
     ' グローバル領域のデータを解放する
@@ -995,7 +902,7 @@ err:
 End Function
 
 ' =========================================================
-' ▽クエリエディタ
+' ▽クエリエディタ（ !!! 未実装 !!! ）
 '
 ' 概要　　　：
 '
@@ -1264,7 +1171,7 @@ err:
 End Function
 
 ' =========================================================
-' ▽ファイル出力 - INSERT and UPDATE（全て）
+' ▽ファイル出力 - INSERT + UPDATE（全て）
 '
 ' 概要　　　：
 '
@@ -1296,7 +1203,7 @@ err:
 End Function
 
 ' =========================================================
-' ▽ファイル出力 - INSERT and UPDATE（選択範囲）
+' ▽ファイル出力 - INSERT + UPDATE（選択範囲）
 '
 ' 概要　　　：
 '
@@ -1597,28 +1504,7 @@ Public Function SutShowVersion()
 
     On Error GoTo err
     
-    Dim version     As String
-    Dim machineName As String
-    
-    version = ConstantsCommon.version
-    
-    #If VBA7 And Win64 Then
-        machineName = "64bit"
-    
-    #Else
-        machineName = "32bit"
-    
-    #End If
-    
-    #If DEBUG_MODE = "1" Then
-        machineName = machineName & " !!! IS DEBUG MODE"
-    
-    #End If
-    
-    
-    VBUtil.showMessageBoxForInformation machineName & " - ver." & version, ConstantsCommon.APPLICATION_NAME
-
-    doAfterProcess
+    frmSplash.Show vbModal
 
     Exit Function
     
@@ -1977,8 +1863,7 @@ Private Function initLoadingToolbar()
             .Tag = ConstantsCommon.COMMANDBAR_DONT_DELETE_TARGET
             
             setCommandBarControlIcon appIcon _
-                                   , IDB_ICON_DATABASE _
-                                   , IDB_ICON_DATABASE_MASK
+                                   , RESOURCE_ICON.database
             
             ' ※DescriptionTextプロパティに明示的に空文字列を設定する
             ' 　ショートカットキーの機能リストに本コントロールは追加しない
@@ -2126,8 +2011,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDBConnect _
-                                   , IDB_ICON_DATABASE_SETTING _
-                                   , IDB_ICON_DATABASE_SETTING_MASK
+                                   , RESOURCE_ICON.databaseSetting
         End If
         
     End With
@@ -2147,8 +2031,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDBDisConnect _
-                                   , IDB_ICON_DELETE_DATABASE _
-                                   , IDB_ICON_DELETE_DATABASE_MASK
+                                   , RESOURCE_ICON.deleteDatabase
         End If
         
     End With
@@ -2193,8 +2076,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDbExplorer _
-                                   , IDB_ICON_DATABASE_SEARCH _
-                                   , IDB_ICON_DATABASE_SEARCH_MASK
+                                   , RESOURCE_ICON.databaseSearch
         End If
         
     End With
@@ -2214,8 +2096,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnTableList _
-                                   , IDB_ICON_SEARCH_WINDOW _
-                                   , IDB_ICON_SEARCH_WINDOW_MASK
+                                   , RESOURCE_ICON.searchWindow
         End If
         
     End With
@@ -2235,8 +2116,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnTableCreateSheetWizard _
-                                   , IDB_ICON_ADD_FOLDER _
-                                   , IDB_ICON_ADD_FOLDER_MASK
+                                   , RESOURCE_ICON.addFolder
         End If
         
     End With
@@ -2256,8 +2136,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnTableUpdateSheetWizard _
-                                   , IDB_ICON_WINDOW_IMPORT _
-                                   , IDB_ICON_WINDOW_IMPORT_MASK
+                                   , RESOURCE_ICON.windowImport
         End If
     End With
 
@@ -2281,16 +2160,16 @@ Private Function initToolbar()
     
     
     ' ***************************************************************
-    ' INSERT and UPDATE
+    ' INSERT + UPDATE
     ' ***************************************************************
-    ' INSERT and UPDATEポップアップ
+    ' INSERT + UPDATEポップアップ
     Dim popInsertUpdate                 As commandBarPopup
-    ' INSERT and UPDATEボタン
+    ' INSERT + UPDATEボタン
     Dim btnInsertUpdate                 As CommandBarButton
-    ' INSERT and UPDATE（範囲選択）ボタン
+    ' INSERT + UPDATE（範囲選択）ボタン
     Dim btnInsertUpdateSelected         As CommandBarButton
     
-    ' INSERT and UPDATEポップアップを追加する
+    ' INSERT + UPDATEポップアップを追加する
     Set popInsertUpdate = popData.Controls.Add(Type:=msoControlPopup)
     
     With popInsertUpdate
@@ -2298,10 +2177,10 @@ Private Function initToolbar()
         .Caption = "INSERT + UPDATE"
     End With
     
-    ' INSERT and UPDATEボタンをコマンドバーにボタンを追加する
+    ' INSERT + UPDATEボタンをコマンドバーにボタンを追加する
     Set btnInsertUpdate = popInsertUpdate.Controls.Add(Type:=msoControlButton)
     
-    ' INSERT and UPDATEボタンのプロパティを設定する
+    ' INSERT + UPDATEボタンのプロパティを設定する
     With btnInsertUpdate
     
         .Style = msoButtonIconAndCaption
@@ -2313,16 +2192,15 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnInsertUpdate _
-                                   , IDB_ICON_ADD _
-                                   , IDB_ICON_ADD_MASK
+                                   , RESOURCE_ICON.Add
         End If
 
     End With
     
-    ' INSERT and UPDATE（範囲選択）ボタンをコマンドバーにボタンを追加する
+    ' INSERT + UPDATE（範囲選択）ボタンをコマンドバーにボタンを追加する
     Set btnInsertUpdateSelected = popInsertUpdate.Controls.Add(Type:=msoControlButton)
     
-    ' INSERT and UPDATE（範囲選択）ボタンのプロパティを設定する
+    ' INSERT + UPDATE（範囲選択）ボタンのプロパティを設定する
     With btnInsertUpdateSelected
     
         .Style = msoButtonIconAndCaption
@@ -2334,8 +2212,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnInsertUpdateSelected _
-                                   , IDB_ICON_AREA_ADD _
-                                   , IDB_ICON_AREA_ADD_MASK
+                                   , RESOURCE_ICON.areaAdd
         End If
     End With
     
@@ -2375,8 +2252,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnInsert _
-                                   , IDB_ICON_ADD _
-                                   , IDB_ICON_ADD_MASK
+                                   , RESOURCE_ICON.Add
         End If
 
     End With
@@ -2396,8 +2272,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnInsertSelected _
-                                   , IDB_ICON_AREA_ADD _
-                                   , IDB_ICON_AREA_ADD_MASK
+                                   , RESOURCE_ICON.areaAdd
         End If
     End With
     
@@ -2437,8 +2312,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnupdate _
-                                   , IDB_ICON_EDIT _
-                                   , IDB_ICON_EDIT_MASK
+                                   , RESOURCE_ICON.Edit
         End If
     End With
     
@@ -2457,8 +2331,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnUpdateSelected _
-                                   , IDB_ICON_AREA_EDIT _
-                                   , IDB_ICON_AREA_EDIT_MASK
+                                   , RESOURCE_ICON.areaEdit
         End If
     End With
     
@@ -2500,8 +2373,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDelete _
-                                   , IDB_ICON_REMOVE _
-                                   , IDB_ICON_REMOVE_MASK
+                                   , RESOURCE_ICON.remove
         End If
     End With
     
@@ -2520,8 +2392,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDeleteSelected _
-                                   , IDB_ICON_AREA_REMOVE _
-                                   , IDB_ICON_AREA_REMOVE_MASK
+                                   , RESOURCE_ICON.areaRemove
         End If
     End With
     
@@ -2540,8 +2411,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDeleteAllOfTable _
-                                   , IDB_ICON_BUG _
-                                   , IDB_ICON_BUG_MASK
+                                   , RESOURCE_ICON.bug
         End If
     End With
     
@@ -2583,8 +2453,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnSelect _
-                                   , IDB_ICON_SEARCH _
-                                   , IDB_ICON_SEARCH_MASK
+                                   , RESOURCE_ICON.Search
         End If
     End With
     
@@ -2603,8 +2472,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnSelectSelected _
-                                   , IDB_ICON_AREA_SEARCH _
-                                   , IDB_ICON_AREA_SEARCH_MASK
+                                   , RESOURCE_ICON.areaSearch
         End If
     End With
     
@@ -2626,31 +2494,31 @@ Private Function initToolbar()
     ' ***************************************************************
     
     ' ***************************************************************
-    ' クエリエディタ
+    ' クエリエディタ（ !!! 未実装 !!! ）
     ' ***************************************************************
-    ' クエリエディタの追加
-    Dim btnQueryEditor As CommandBarButton
-    
-    ' クエリエディタボタンをコマンドバーにボタンを追加する
-    Set btnQueryEditor = popData.Controls.Add(Type:=msoControlButton)
-    
-    ' クエリエディタボタンのプロパティを設定する
-    With btnQueryEditor
-    
-        .Style = msoButtonIconAndCaption
-        .Caption = "クエリエディタ"
-        .DescriptionText = "クエリエディタ"
-        .OnAction = "Main.SutQueryEditor"
-        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutQueryEditor"
-        
-        ' Excel2002以降のプロパティ
-        If excelVer >= Ver2002 Then
-            setCommandBarControlIcon btnQueryEditor _
-                                   , IDB_ICON_EDIT _
-                                   , IDB_ICON_EDIT_MASK
-        End If
-        
-    End With
+'    ' クエリエディタの追加
+'    Dim btnQueryEditor As CommandBarButton
+'
+'    ' クエリエディタボタンをコマンドバーにボタンを追加する
+'    Set btnQueryEditor = popData.Controls.Add(Type:=msoControlButton)
+'
+'    ' クエリエディタボタンのプロパティを設定する
+'    With btnQueryEditor
+'
+'        .Style = msoButtonIconAndCaption
+'        .Caption = "クエリエディタ"
+'        .DescriptionText = "クエリエディタ"
+'        .OnAction = "Main.SutQueryEditor"
+'        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutQueryEditor"
+'
+'        ' Excel2002以降のプロパティ
+'        If excelVer >= Ver2002 Then
+'            setCommandBarControlIcon btnQueryEditor _
+'                                   , RESOURCE_ICON.EDIT _
+'                                   , RESOURCE_ICON.EDIT_MASK
+'        End If
+'
+'    End With
     
     ' ***************************************************************
     ' 一括クエリ
@@ -2673,8 +2541,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnQueryBatch _
-                                   , IDB_ICON_FORWARD _
-                                   , IDB_ICON_FORWARD_MASK
+                                   , RESOURCE_ICON.Forward
         End If
         
     End With
@@ -2702,8 +2569,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnQueryResult _
-                                   , IDB_ICON_PASTE _
-                                   , IDB_ICON_PASTE_MASK
+                                   , RESOURCE_ICON.Paste
         End If
         
     End With
@@ -2972,8 +2838,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnFileBatch _
-                                   , IDB_ICON_FORWARD _
-                                   , IDB_ICON_FORWARD_MASK
+                                   , RESOURCE_ICON.Forward
         End If
         
     End With
@@ -3019,8 +2884,8 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             'setCommandBarControlIcon btnOption _
-            '                       , IDB_ICON_SETTINGS _
-            '                       , IDB_ICON_SETTINGS_MASK
+            '                       , RESOURCE_ICON.SETTINGS _
+            '                       , RESOURCE_ICON.SETTINGS_MASK
         End If
     End With
 
@@ -3039,8 +2904,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnOption _
-                                   , IDB_ICON_SETTINGS _
-                                   , IDB_ICON_SETTINGS_MASK
+                                   , RESOURCE_ICON.settings
         End If
     End With
     
@@ -3060,8 +2924,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnRClickMenuCustom _
-                                   , IDB_ICON_FLAG_RED _
-                                   , IDB_ICON_FLAG_RED_MASK
+                                   , RESOURCE_ICON.flagRed
         End If
     End With
     
@@ -3080,8 +2943,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnShortCutKey _
-                                   , IDB_ICON_FLAG_GREEN _
-                                   , IDB_ICON_FLAG_GREEN_MASK
+                                   , RESOURCE_ICON.flagGreen
         End If
     End With
     
@@ -3100,8 +2962,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnPopupKey _
-                                   , IDB_ICON_FLAG_BLUE _
-                                   , IDB_ICON_FLAG_BLUE_MASK
+                                   , RESOURCE_ICON.flagBlue
         End If
     End With
     
@@ -3143,8 +3004,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnHelp _
-                                   , IDB_ICON_BOOK _
-                                   , IDB_ICON_BOOK_MASK
+                                   , RESOURCE_ICON.book
         End If
         
     End With
@@ -3163,8 +3023,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnVersion _
-                                   , IDB_ICON_ALERT_MESSAGE _
-                                   , IDB_ICON_ALERT_MESSAGE_MASK
+                                   , RESOURCE_ICON.alertMessage
         End If
         
     End With
@@ -3281,11 +3140,10 @@ Private Function deleteToolbarExcludeSomeItems()
 End Function
 
 Private Function setCommandBarControlIcon(ByVal control As Object _
-                                   , ByVal p As SutYellowIcons _
-                                   , ByVal m As SutYellowIcons)
-
-    control.Picture = SutYellow.LoadIconAndGetPictureDisp(p)
-    control.Mask = SutYellow.LoadIconAndGetPictureDisp(m)
+                                        , ByVal icon As RESOURCE_ICON)
+                                   
+    'control.Picture = LoadPicture("")
+    'control.Mask = LoadPicture("")
 
 End Function
 
@@ -3336,4 +3194,32 @@ Private Sub changeDbConnectStatus(ByVal conn As Boolean)
     
 End Sub
 
-
+' =========================================================
+' ▽バージョン情報を取得
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：バージョン情報
+' 特記事項　：
+'
+' =========================================================
+Public Function getVersionInfo() As String
+    
+    Dim version     As String
+    Dim machineName As String
+    
+    version = ConstantsCommon.version
+    
+    #If VBA7 And Win64 Then
+        machineName = "64bit"
+    #Else
+        machineName = "32bit"
+    #End If
+    
+    #If DEBUG_MODE = "1" Then
+        machineName = machineName & " !!! IS DEBUG MODE"
+    #End If
+    
+    getVersionInfo = machineName & " - ver " & version
+    
+End Function

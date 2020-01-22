@@ -15,7 +15,7 @@ Implements IDbQueryCreator
 ' DBのクエリを生成するインターフェース。
 ' SymfowareDB向けの実装。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/09/12　新規作成
 '
 ' 特記事項：

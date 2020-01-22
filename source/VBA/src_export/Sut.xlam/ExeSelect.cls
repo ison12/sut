@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' レコードを選択するクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/02/01　新規作成
 '
 ' 特記事項：
@@ -27,7 +27,7 @@ Option Explicit
 ' =========================================================
 Public Event readColumnListBegin(ByVal cnt As Long)
 Public Event readColumn(ByRef column As ValDbDefineColumn)
-Public Event readColumnList(ByRef columnList As sutredlib.GenericCollection)
+Public Event readColumnList(ByRef columnList As ValCollection)
 Public Event readTableInfoBegin()
 Public Event readTableInfo(ByRef table As ValTableWorksheet)
 Public Event readRecordListBegin(ByVal cnt As Long)
@@ -304,7 +304,7 @@ Private Function execute(ByRef tableSheet As ValTableWorksheet, ByRef sql As Str
     ' レコード反映オフセット位置を取得する
     recordOffset = getRecordOffset(tableSheet)
     
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
         
         sheet.activate
         sheet.Cells(recordOffset _
@@ -464,7 +464,7 @@ Private Function getRecordOffset(ByRef tableSheet As ValTableWorksheet) As Long
     ' 既存の行を削除せずに、最後の位置からレコードを追加する
     If appendSheet = True Then
         
-        If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+        If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
         
             ' 最終入力行を取得し＋１する
             recordOffset = ExcelUtil.getCellEndOfLastInputtedRow(sheet, ConstantsTable.U_RECORD_NUM_COL) + 1
@@ -496,7 +496,7 @@ Private Function getRecordOffset(ByRef tableSheet As ValTableWorksheet) As Long
     ' 既存の行を削除して、最初の位置からレコードを追加する
     Else
     
-        If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+        If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
         
             ' 定数からレコードオフセットを取得する
             recordOffset = ConstantsTable.U_RECORD_OFFSET_ROW
@@ -563,7 +563,7 @@ End Function
 ' =========================================================
 Private Function convertRecordList(ByRef tableSheet As ValTableWorksheet, ByRef recordList As Variant)
 
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         ' レコード配列の要素入れ替えによって新たに生成される配列
         Dim temp As Variant
@@ -695,7 +695,7 @@ Private Sub reflectSheet(ByRef tableSheet As ValTableWorksheet, ByRef recordList
 
     Dim ret As Boolean
     
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         ret = reflectSheetToUnder(tableSheet, recordList, recordOffset)
         
@@ -858,7 +858,7 @@ Private Sub tableSheetReader_readColumnListBegin(ByVal cnt As Long)
     RaiseEvent readColumnListBegin(cnt)
 End Sub
 
-Private Sub tableSheetReader_readColumnList(columnList As sutredlib.GenericCollection)
+Private Sub tableSheetReader_readColumnList(columnList As ValCollection)
 
     RaiseEvent readColumnList(columnList)
 End Sub

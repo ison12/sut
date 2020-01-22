@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBExplorer 
    Caption         =   "DBエクスプローラ"
-   ClientHeight    =   10590
+   ClientHeight    =   10080
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   7920
+   ClientWidth     =   7950
    OleObjectBlob   =   "frmDBExplorer.frx":0000
    StartUpPosition =   1  'オーナー フォームの中央
 End
@@ -18,7 +18,7 @@ Option Explicit
 ' *********************************************************
 ' DBエクスプローラ
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2020/01/18　新規作成
 '
 ' 特記事項：
@@ -979,8 +979,8 @@ Private Sub readSchemaInfo()
     Else
         ' 接続状態
     
-        ' 砂時計ウィンドウを表示する
-        SutWhite.showHourglassWindowOnCenterPt Me
+        ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+        Dim cursorWait As New ExcelCursorWait: cursorWait.init
     
         ' スキーマ定義を取得する
         Dim dbObjFactory As New DbObjectFactory
@@ -993,17 +993,14 @@ Private Sub readSchemaInfo()
         ' スキーマリストボックスにリストを追加する
         addSchemaInfoList var
         
-        ' 砂時計ウィンドウを閉じる
-        SutWhite.closeHourglassWindow
+        ' 長時間の処理が終了したのでマウスカーソルを元に戻す
+        cursorWait.destroy
         
     End If
 
     Exit Sub
     
 err:
-
-    ' 砂時計ウィンドウを閉じる
-    SutWhite.closeHourglassWindow
     
     err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
     
@@ -1037,8 +1034,8 @@ Private Sub readTableInfo()
         ' 選択済みのスキーマ情報を取得
         If schemaInfoList.count > 0 Then
         
-            ' 砂時計ウィンドウを表示する
-            SutWhite.showHourglassWindowOnCenterPt Me
+            ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+            Dim cursorWait As New ExcelCursorWait: cursorWait.init
         
             If schemaInfoList.getSelectedIndex = -1 Then
                 ' 選択がない場合は、先頭を選択状態にする
@@ -1063,8 +1060,8 @@ Private Sub readTableInfo()
             
             Set tableWithoutFilterList = var.copy
             
-            ' 砂時計ウィンドウを閉じる
-            SutWhite.closeHourglassWindow
+            ' 長時間の処理が終了したのでマウスカーソルを元に戻す
+            cursorWait.destroy
             
         Else
             ' スキーマが存在しない場合
@@ -1078,9 +1075,6 @@ Private Sub readTableInfo()
     Exit Sub
     
 err:
-
-    ' 砂時計ウィンドウを閉じる
-    SutWhite.closeHourglassWindow
     
     err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
     

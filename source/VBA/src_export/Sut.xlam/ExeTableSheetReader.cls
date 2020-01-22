@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' シートからレコード情報を読み取る処理を定義したクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/02/01　新規作成
 '
 ' 特記事項：
@@ -50,7 +50,7 @@ Public Event readColumn(ByRef column As ValDbDefineColumn)
 ' 引数　　　：columnList カラムリスト
 '
 ' =========================================================
-Public Event readColumnList(ByRef columnList As sutredlib.GenericCollection)
+Public Event readColumnList(ByRef columnList As ValCollection)
 
 ' =========================================================
 ' ▽テーブル定義読込開始前イベント
@@ -204,10 +204,10 @@ End Sub
 ' 　　　　　　-1
 '
 ' =========================================================
-Public Function getRowFormat() As sutredlib.REC_FORMAT
+Public Function getRowFormat() As REC_FORMAT
 
     ' 戻り値
-    Dim ret As sutredlib.REC_FORMAT
+    Dim ret As REC_FORMAT
     
     ' テーブルシート判定用のオートシェイプ
     Dim S As Shape
@@ -225,7 +225,7 @@ Public Function getRowFormat() As sutredlib.REC_FORMAT
     If Not S Is Nothing Then
     
         ' 戻り値変数に行フォーマットを設定する
-        ret = sutredlib.recFormatToUnder
+        ret = REC_FORMAT.recFormatToUnder
         
         ' 戻り値を設定する
         getRowFormat = ret
@@ -239,7 +239,7 @@ Public Function getRowFormat() As sutredlib.REC_FORMAT
     If Not S Is Nothing Then
     
         ' 戻り値変数に行フォーマットを設定する
-        ret = sutredlib.recFormatToRight
+        ret = REC_FORMAT.recFormatToRight
         
         ' 戻り値を設定する
         getRowFormat = ret
@@ -329,11 +329,11 @@ Public Function readTableInfo(Optional tableInfoOnly As Boolean = False) As ValT
         
         If tableInfoOnly = False Then
         
-            If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+            If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
             
                 readTableInfoToUnder tableSheet
             
-            ElseIf tableSheet.recFormat = sutredlib.recFormatToRight Then
+            ElseIf tableSheet.recFormat = REC_FORMAT.recFormatToRight Then
             
                 readTableInfoToRight tableSheet
                 
@@ -374,8 +374,6 @@ Private Function readTableInfoToUnder(ByRef tableSheet As ValTableWorksheet)
     ' テーブル定義
     Dim table      As ValDbDefineTable
     Set table = tableSheet.table
-    ' カラム定義
-    Dim columnList As sutredlib.GenericCollection
     ' カラム
     Dim column     As ValDbDefineColumn
     
@@ -554,13 +552,13 @@ Private Function readTableInfoToUnder(ByRef tableSheet As ValTableWorksheet)
             tableConstPk.schemaName = table.schemaName
             tableConstPk.tableName = table.tableName
             tableConstPk.constraintName = "PrimaryKey"
-            tableConstPk.constraintType = sutredlib.tableConstPk
+            tableConstPk.constraintType = TABLE_CONSTANTS_TYPE.tableConstPk
             
             tableConstList.setItem tableConstPk
         End If
         
         ' カラムリスト生成完了イベント
-        RaiseEvent readColumnList(columnList)
+        RaiseEvent readColumnList(table.columnList)
     
     End With ' sheet
 
@@ -590,7 +588,7 @@ Private Function readTableInfoToRight(ByRef tableSheet As ValTableWorksheet)
     Dim table      As ValDbDefineTable
     Set table = tableSheet.table
     ' カラム定義
-    Dim columnList As sutredlib.GenericCollection
+    Dim columnList As ValCollection
     ' カラム
     Dim column     As ValDbDefineColumn
     
@@ -769,7 +767,7 @@ Private Function readTableInfoToRight(ByRef tableSheet As ValTableWorksheet)
             tableConstPk.schemaName = table.schemaName
             tableConstPk.tableName = table.tableName
             tableConstPk.constraintName = "PrimaryKey"
-            tableConstPk.constraintType = sutredlib.tableConstPk
+            tableConstPk.constraintType = TABLE_CONSTANTS_TYPE.tableConstPk
             
             tableConstList.setItem tableConstPk
         End If
@@ -873,7 +871,7 @@ Public Function readRecordList(ByRef tableSheet As ValTableWorksheet _
     ' ◇レコードリスト生成処理が開始されることをイベントとして発信する
     RaiseEvent readRecordListBegin(rowSize)
     
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         row = row + ConstantsTable.U_RECORD_OFFSET_ROW - 1
     
@@ -985,7 +983,7 @@ Public Function readRecordListBySelectionArea(ByRef tableSheet As ValTableWorksh
         
     Set selectionArea = ActiveWindow.RangeSelection.Areas
     
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         ' 選択領域に関するチェックを行い、レコードの総数をカウントする
         For Each selectionRange In selectionArea
@@ -1156,7 +1154,7 @@ Public Function getColumnSize(ByRef tableSheet As ValTableWorksheet) As Long
     ' 戻り値変数
     Dim ret As Long
     
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         ret = ExcelUtil.getCellEndOfLastInputtedCol(sheet, ConstantsTable.U_COLUMN_NAME_ROW) - ConstantsTable.U_COLUMN_OFFSET_COL + 1
     
@@ -1185,7 +1183,7 @@ Public Function getRecordSize(ByRef tableSheet As ValTableWorksheet) As Long
     ' 戻り値変数
     Dim ret As Long
     
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         ret = ExcelUtil.getCellEndOfLastInputtedRow(sheet, ConstantsTable.U_RECORD_NUM_COL)
         ret = ret - ConstantsTable.U_RECORD_OFFSET_ROW + 1

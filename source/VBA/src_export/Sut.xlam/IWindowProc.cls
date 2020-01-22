@@ -13,7 +13,7 @@ Option Explicit
 ' Callback関数 WindowProc のインターフェース
 ' Windowをサブクラス化し独自にメッセージ処理する場合、本インターフェースをImplementsする。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/10/11　新規作成
 '
 ' 特記事項：

@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' スナップショットのレコード情報
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/01/06　新規作成
 '
 ' 特記事項：
@@ -27,7 +27,7 @@ Public sql As String
 ' メモ
 Public memo As String
 ' PKリスト
-Public pkList As GenericCollection
+Public pkList As ValCollection
 ' PKリスト（インデックスへの変換）
 Public pkListIndex As ValCollection
 
@@ -91,7 +91,7 @@ Public Function convertToPkIndexList() As ValCollection
     Dim pk As Variant
     
     ' PKと一致するヘッダ名を走査し、ヘッダリストの位置を取得する
-    For Each pk In pkList
+    For Each pk In pkList.col
     
         For headerIndex = LBound(headerList) To UBound(headerList)
         
@@ -129,7 +129,7 @@ Public Function getPkStr(ByVal recordIndex As Long) As String
   
     getPkStr = Empty
     
-    Dim pk As sutredlib.SnapSqlDefineSqlPk
+    Dim pk As ValSnapSqlDefineSqlPk
     
     If IsEmpty(recordList) Then
         ' レコードがない場合は、PKもなし

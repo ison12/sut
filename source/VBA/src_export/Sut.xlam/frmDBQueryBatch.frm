@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBQueryBatch 
    Caption         =   "クエリ一括実行"
-   ClientHeight    =   9795.001
+   ClientHeight    =   9705.001
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   13905
@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' クエリ一括実行フォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2020/01/18　新規作成
 '
 ' 特記事項：

@@ -12,15 +12,15 @@ Option Explicit
 ' *********************************************************
 ' メニュー操作時の処理 - Diff
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2018/12/30　新規作成
 '
 ' 特記事項：
 ' *********************************************************
 
-' プログレスフォーム（イベント受信用に定義）
-Private WithEvents frmProgress                  As sutredlib.Progress
-Attribute frmProgress.VB_VarHelpID = -1
+' プログレスフォーム
+Private WithEvents frmProgressVar               As frmProgress
+Attribute frmProgressVar.VB_VarHelpID = -1
 ' DB接続フォーム（イベント受信用に定義）
 Private WithEvents frmDBConnectVar              As frmDBConnect
 Attribute frmDBConnectVar.VB_VarHelpID = -1
@@ -50,14 +50,14 @@ Private applicationSetting As ValApplicationSetting
 ' DBコネクションオブジェクト
 Private dbConn As Object
 ' SQL定義情報
-Private sqlDefineWorkSheet As sutredlib.SnapSqlDefineWorkSheet
+Private sqlDefineWorkSheet As ValSnapSqlDefineWorkSheet
 ' スナップショット
-Private snapshotSet As sutredlib.GenericCollection
+Private snapshotSet As ValCollection
 
 ' ________________________________________________________
 ' イベント定義
 ' ________________________________________________________
-Private Sub frmProgress_OnCancel()
+Private Sub frmProgressVar_cancel()
 
     ' キャンセルフラグをONにする
     If Not snapSqlDefineSheetCreator Is Nothing Then
@@ -140,7 +140,7 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
     On Error GoTo err
     
     Dim ssKey  As String
-    Dim ssList As sutredlib.GenericCollection
+    Dim ssList As ValCollection
     Dim ss     As ValSnapRecordsSet
 
     Set snapSqlDefineSheetReader = New ExeSnapSqlDefineSheetReader
@@ -157,8 +157,8 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
     Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
     
     ' プログレスウィンドウを表示する
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "クエリ実行"
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "クエリ実行"
     
     ' エディタが開いている間に接続状態が変更されている可能性があるので、コネクションを設定する
     Dim conn As Object
@@ -175,13 +175,13 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
     
     ssKey = sheet.parent.name & " " & sheet.name
     
-    Set ssList = snapshotSet.item(ssKey)
+    Set ssList = snapshotSet.getItem(ssKey)
     If ssList Is Nothing Then
-        Set ssList = New GenericCollection
-        snapshotSet.Add ssList, sheet.parent.name & " " & sheet.name
+        Set ssList = New ValCollection
+        snapshotSet.setItem ssList, sheet.parent.name & " " & sheet.name
     End If
     
-    ssList.Add ss
+    ssList.setItem ss
     frmSnapShotVar_changeSql sheet
     ' -----------------------------------------------------------
     
@@ -190,14 +190,12 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
     ' そのため、ExcelLongTimeProcessingオブジェクトを明示的に破棄する
     Set longTimeProcessing = Nothing
 
-    SutWhite.closeHourglassWindow
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     Exit Sub
 err:
     
-    SutWhite.closeHourglassWindow
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' エラー発生
     Main.ShowErrorMessage
@@ -227,12 +225,12 @@ End Sub
 Private Sub frmSnapShotVar_changeSql(sheet As Worksheet)
 
     Dim ssKey  As String
-    Dim ssList As sutredlib.GenericCollection
+    Dim ssList As ValCollection
     Dim ss     As ValSnapRecordsSet
 
     ssKey = sheet.parent.name & " " & sheet.name
     
-    Set ssList = snapshotSet.item(ssKey)
+    Set ssList = snapshotSet.getItem(ssKey)
     If Not ssList Is Nothing Then
     
         frmSnapShotVar.clearSnapshot
@@ -269,12 +267,12 @@ Private Sub frmSnapShotVar_clearSnapshot(sheet As Worksheet)
     End If
 
     Dim ssKey  As String
-    Dim ssList As sutredlib.GenericCollection
+    Dim ssList As ValCollection
     Dim ss     As ValSnapRecordsSet
 
     ssKey = sheet.parent.name & " " & sheet.name
     
-    Set ssList = snapshotSet.item(ssKey)
+    Set ssList = snapshotSet.getItem(ssKey)
     If Not ssList Is Nothing Then
         snapshotSet.remove ssKey
     End If
@@ -289,12 +287,12 @@ End Sub
 Private Sub frmSnapShotVar_showSnapshotDiff(ByRef sheet As Worksheet)
 
     Dim ssKey  As String
-    Dim ssList As sutredlib.GenericCollection
+    Dim ssList As ValCollection
     Dim ss     As ValSnapRecordsSet
 
     ssKey = sheet.parent.name & " " & sheet.name
     
-    Set ssList = snapshotSet.item(ssKey)
+    Set ssList = snapshotSet.getItem(ssKey)
     If Not ssList Is Nothing Then
         ' モーダル表示するのでロードを常に実行する
         Load frmSnapshotDiff
@@ -321,34 +319,32 @@ End Sub
 ' =========================================================
 ' ▼スナップショット取得比較フォーム - 比較実行
 ' =========================================================
-Private Sub frmSnapshotDiffVar_execDiff(ByRef snapShotList As GenericCollection, ByVal srcIndex As Long, ByVal desIndex As Long)
+Private Sub frmSnapshotDiffVar_execDiff(ByRef snapShotList As ValCollection, ByVal srcIndex As Long, ByVal desIndex As Long)
 
     On Error GoTo err
 
     ' プログレスウィンドウを表示する
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "スナップショット比較"
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "スナップショット比較"
 
     Set snapDiff = New ExeSnapDiff
     snapDiff.book = ActiveWorkbook
     snapDiff.applicationSetting = applicationSetting
     
     Dim valSnapRecordsSet1 As ValSnapRecordsSet
-    Set valSnapRecordsSet1 = snapShotList.item(srcIndex + 1) ' リストの要素は、1始まりなので、+1する
+    Set valSnapRecordsSet1 = snapShotList.getItemByIndex(srcIndex + 1) ' リストの要素は、1始まりなので、+1する
     
     Dim valSnapRecordsSet2 As ValSnapRecordsSet
-    Set valSnapRecordsSet2 = snapShotList.item(desIndex + 1) ' リストの要素は、1始まりなので、+1する
+    Set valSnapRecordsSet2 = snapShotList.getItemByIndex(desIndex + 1) ' リストの要素は、1始まりなので、+1する
     
     snapDiff.execute valSnapRecordsSet1, valSnapRecordsSet2
     
-    SutWhite.closeHourglassWindow
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     Exit Sub
 err:
     
-    SutWhite.closeHourglassWindow
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' エラー発生
     Main.ShowErrorMessage
@@ -360,7 +356,7 @@ End Sub
 ' =========================================================
 Private Sub snapSqlDefineSheetCreator_createSnapshotSqlDefineSheetBegin()
 
-    frmProgress.InitPri 1, "スナップショットSQL定義シート作成中"
+    frmProgressVar.initPri 1, "スナップショットSQL定義シート作成中"
     
     DoEvents
 
@@ -371,7 +367,7 @@ End Sub
 ' =========================================================
 Private Sub snapSqlDefineSheetCreator_createSnapshotSqlDefineSheet()
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
     
     DoEvents
 
@@ -382,7 +378,7 @@ End Sub
 ' =========================================================
 Private Sub snapQueryExecution_ExecuteSqlListBegin(ByVal count As Long)
 
-    frmProgress.InitPri count, "SQL実行中"
+    frmProgressVar.initPri count, "SQL実行中"
 
 End Sub
 
@@ -391,11 +387,12 @@ End Sub
 ' =========================================================
 Private Sub snapQueryExecution_ExecuteSqlListComplete()
 
-    frmProgress.PriMessage = "SQL実行完了"
+    frmProgressVar.priMessage = "SQL実行完了"
     
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
 
 End Sub
 
@@ -411,7 +408,7 @@ End Sub
 ' =========================================================
 Private Sub snapQueryExecution_ExecuteSqlSuccessful(sql As String)
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
     
     DoEvents
     
@@ -422,7 +419,7 @@ End Sub
 ' =========================================================
 Private Sub snapQueryExecution_ExecuteSqlError(ByRef sheet As Worksheet, ByVal recordSetIndex As Long, sql As String, sqlState As String, message As String)
 
-    frmProgress.PriMessage = "SQL実行エラー"
+    frmProgressVar.priMessage = "SQL実行エラー"
     
     ' デバッグモードのみの実行
     #If (DEBUG_MODE = 1) Then
@@ -450,11 +447,12 @@ End Sub
 ' =========================================================
 Private Sub snapDiff_createSnapshotDiffSheetBegin()
 
-    frmProgress.PriMessage = "比較結果シート生成中"
+    frmProgressVar.priMessage = "比較結果シート生成中"
 
     DoEvents
 
-    SutWhite.showHourglassWindowOnCenterPt
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init True
 
 End Sub
 
@@ -463,11 +461,12 @@ End Sub
 ' =========================================================
 Private Sub snapDiff_createSnapshotDiffSheet(sheet As Worksheet)
 
-    frmProgress.PriMessage = "比較結果シート生成完了"
+    frmProgressVar.priMessage = "比較結果シート生成完了"
 
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
 
 End Sub
 
@@ -476,11 +475,12 @@ End Sub
 ' =========================================================
 Private Sub snapDiff_diffRecordSetBegin(ByVal count As Long)
 
-    frmProgress.InitPri count, "レコードセット比較中"
+    frmProgressVar.initPri count, "レコードセット比較中"
 
     DoEvents
 
-    SutWhite.showHourglassWindowOnCenterPt
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init True
 
 End Sub
 
@@ -489,7 +489,7 @@ End Sub
 ' =========================================================
 Private Sub snapDiff_diffRecordSetOne()
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
 
     DoEvents
 
@@ -500,11 +500,12 @@ End Sub
 ' =========================================================
 Private Sub snapDiff_diffRecordSet()
 
-    frmProgress.PriMessage = "レコードセット比較完了"
+    frmProgressVar.priMessage = "レコードセット比較完了"
 
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
 
 End Sub
 
@@ -513,17 +514,13 @@ End Sub
 ' =========================================================
 Private Sub Class_Initialize()
 
-    Set snapshotSet = New GenericCollection
+    Set snapshotSet = New ValCollection
 End Sub
 
 ' =========================================================
 ' ▽クラス後処理メソッド
 ' =========================================================
 Private Sub Class_Terminate()
-
-    If Not frmProgress Is Nothing Then
-        frmProgress.Close
-    End If
 
     ' プログレスフォームを破棄する
     Set frmProgress = Nothing
@@ -578,7 +575,9 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
     Set frmSnapshotDiffVar = frmSnapshotDiff
 
     ' フォームを設定する
-    Set frmProgress = New sutredlib.Progress
+    Load frmProgress
+    ' フォームを設定する
+    Set frmProgressVar = frmProgress
     
     ' アプリケーション設定情報を取得する
     Set applicationSetting = appSetting
@@ -607,8 +606,8 @@ Public Sub createNewSheetSnapSqlDefine()
     Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
     
     ' プログレスウィンドウを表示する
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "スナップショットSQLシート追加"
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "スナップショットSQLシート追加"
 
     DoEvents
 
@@ -636,7 +635,7 @@ Public Sub createNewSheetSnapSqlDefine()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     Exit Sub
     
@@ -645,7 +644,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' エラー発生
     Main.ShowErrorMessage

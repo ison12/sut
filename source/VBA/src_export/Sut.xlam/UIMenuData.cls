@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' メニュー操作時の処理 - Data
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/03/14　新規作成
 '
 ' 特記事項：
@@ -22,7 +22,7 @@ Option Explicit
 Private Const REG_SUB_KEY_SELECT_LATEST                    As String = "select_latest"
     
 ' SELECTの再実行のSQL本体
-Private Const REG_SUB_KEY_SELECT_LATEST_SQL                As String = "sql"
+    Private Const REG_SUB_KEY_SELECT_LATEST_SQL                As String = "sql"
 ' SELECTの再実行の条件指定の場合の追加有無フラグ
 Private Const REG_SUB_KEY_SELECT_LATEST_TYPE               As String = "type"
 ' SELECTの再実行の種類（全て）
@@ -42,9 +42,9 @@ Private Const CELL_COLOR_INDEX_SUCCESS      As Long = 15
 Private Const CELL_COLOR_INDEX_ZERO_UPDATED As Long = 36
 
 
-' プログレスフォーム（イベント受信用に定義）
-Private WithEvents frmProgress                  As sutredlib.Progress
-Attribute frmProgress.VB_VarHelpID = -1
+' プログレスフォーム
+Private WithEvents frmProgressVar               As frmProgress
+Attribute frmProgressVar.VB_VarHelpID = -1
 ' SELECT SQL生成フォーム
 Private WithEvents frmSelectConditionCreatorVar As frmSelectConditionCreator
 Attribute frmSelectConditionCreatorVar.VB_VarHelpID = -1
@@ -66,9 +66,8 @@ Attribute select_.VB_VarHelpID = -1
 ' クエリー実行生成
 Private WithEvents queryExecution               As ExeQueryExecution
 Attribute queryExecution.VB_VarHelpID = -1
-' クエリエディタ
-Private WithEvents frmQueryEditor               As sutredlib.queryEditor
-Attribute frmQueryEditor.VB_VarHelpID = -1
+' クエリエディタ（ !!! 未実装 !!! ）
+'Private WithEvents frmQueryEditorVar            As frmQueryEditor
 ' DBクエリ一括実行フォーム
 Private WithEvents frmDbQueryBatchVar           As frmDBQueryBatch
 Attribute frmDbQueryBatchVar.VB_VarHelpID = -1
@@ -97,7 +96,7 @@ Private deleteRecordList As ValCollection
 ' ________________________________________________________
 ' イベント定義
 ' ________________________________________________________
-Private Sub frmProgress_OnCancel()
+Private Sub frmProgressVar_cancel()
 
     ' キャンセルフラグをONにする
     If Not tableSheetReader Is Nothing Then
@@ -123,9 +122,9 @@ Private Sub frmProgress_OnCancel()
 End Sub
 
 ' =========================================================
-' ▼クエリエディタ共通の実行処理
+' ▼クエリエディタ共通の実行処理（ !!! 未実装 !!! ）
 ' =========================================================
-Private Sub onExecuteQueryCommon(ByVal queryList As sutredlib.IGenericCollection, ByVal isAppend As Boolean, ByVal isBeginTran As Boolean)
+Private Sub onExecuteQueryCommon(ByVal queryList As ValCollection, ByVal isAppend As Boolean, ByVal isBeginTran As Boolean)
 
     On Error GoTo err
     
@@ -136,11 +135,11 @@ Private Sub onExecuteQueryCommon(ByVal queryList As sutredlib.IGenericCollection
     ' プログレスウィンドウを表示する
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
-        frmProgress.Show ExcelUtil.getApplicationHWnd, True
+        frmProgressVar.ShowExt vbModeless, True
     Else
-        frmProgress.Show ExcelUtil.getApplicationHWnd, False
+        frmProgressVar.ShowExt vbModeless, False
     End If
-    frmProgress.title = "クエリ実行" & createProgressTitleOptionalMessage
+    frmProgressVar.title = "クエリ実行" & createProgressTitleOptionalMessage
     
     ' エディタが開いている間に接続状態が変更されている可能性があるので、コネクションを設定する
     Dim connForQueryEditor As Object
@@ -159,9 +158,9 @@ Private Sub onExecuteQueryCommon(ByVal queryList As sutredlib.IGenericCollection
     ' そのため、ExcelLongTimeProcessingオブジェクトを明示的に破棄する
     Set longTimeProcessing = Nothing
 
-    frmProgress.Close
+    frmProgressVar.HideExt
     
-    frmQueryEditor.enable
+    'frmQueryEditor.enable
     
     Exit Sub
 err:
@@ -169,9 +168,9 @@ err:
     ' エラー情報を退避する
     Dim errT As errInfo: errT = VBUtil.swapErr
     
-    frmProgress.Close
+    frmProgressVar.HideExt
     
-    frmQueryEditor.enable
+    'frmQueryEditor.enable
     
     ' 退避したエラー情報を設定しなおす
     VBUtil.setErr errT
@@ -181,22 +180,22 @@ err:
 End Sub
 
 ' =========================================================
-' ▼クエリエディタイベント - クエリ全て実行
+' ▼クエリエディタイベント - クエリ全て実行（ !!! 未実装 !!! ）
 ' =========================================================
-Private Sub frmQueryEditor_OnExecuteQueryAll(ByVal queryList As sutredlib.IGenericCollection, Optional ByVal isAppend As Boolean, Optional ByVal isBeginTran As Boolean)
+Private Sub frmQueryEditor_OnExecuteQueryAll(ByVal queryList As ValCollection, Optional ByVal isAppend As Boolean, Optional ByVal isBeginTran As Boolean)
 
     onExecuteQueryCommon queryList, isAppend, isBeginTran
 
 End Sub
 
-Private Sub frmQueryEditor_OnExecuteQuerySelection(ByVal queryList As sutredlib.IGenericCollection, Optional ByVal isAppend As Boolean, Optional ByVal isBeginTran As Boolean)
+Private Sub frmQueryEditor_OnExecuteQuerySelection(ByVal queryList As ValCollection, Optional ByVal isAppend As Boolean, Optional ByVal isBeginTran As Boolean)
 
     onExecuteQueryCommon queryList, isAppend, isBeginTran
 
 End Sub
 
 ' =========================================================
-' ▼クエリエディタイベント - トランザクションの開始
+' ▼クエリエディタイベント - トランザクションの開始（ !!! 未実装 !!! ）
 ' =========================================================
 Private Sub frmQueryEditor_OnBeginTrans(ByRef isError As Boolean)
     
@@ -217,7 +216,7 @@ Private Sub frmQueryEditor_OnBeginTrans(ByRef isError As Boolean)
 End Sub
 
 ' =========================================================
-' ▼クエリエディタイベント - コミットの開始
+' ▼クエリエディタイベント - コミットの開始（ !!! 未実装 !!! ）
 ' =========================================================
 Private Sub frmQueryEditor_OnCommitTrans(ByRef isError As Boolean)
     
@@ -245,7 +244,7 @@ err:
 End Sub
 
 ' =========================================================
-' ▼クエリエディタイベント - ロールバックの開始
+' ▼クエリエディタイベント - ロールバックの開始（ !!! 未実装 !!! ）
 ' =========================================================
 Private Sub frmQueryEditor_OnRollbackTrans(ByRef isError As Boolean)
     
@@ -383,7 +382,7 @@ End Sub
 ' =========================================================
 Private Sub select__readColumnListBegin(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "カラム定義読み込み中"
+    frmProgressVar.initPri cnt, "カラム定義読み込み中"
     
     DoEvents
 End Sub
@@ -398,7 +397,7 @@ Private Sub select__readColumn(column As ValDbDefineColumn)
         Debug.Print column.columnName & " - " & column.dataTypeFormal
     #End If
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
     
     DoEvents
 End Sub
@@ -406,9 +405,9 @@ End Sub
 ' =========================================================
 ' ▼参照イベント - カラムリスト読み込み完了
 ' =========================================================
-Private Sub select__readColumnList(columnList As sutredlib.GenericCollection)
+Private Sub select__readColumnList(columnList As ValCollection)
 
-    frmProgress.PriMessage = "カラム定義読み込み完了"
+    frmProgressVar.priMessage = "カラム定義読み込み完了"
     
     DoEvents
 End Sub
@@ -418,8 +417,8 @@ End Sub
 ' =========================================================
 Private Sub select__ExecuteSql(sql As String)
 
-    frmProgress.InitPri -1, "SQL実行中"
-    frmProgress.PriCount = 0
+    frmProgressVar.initPri -1, "SQL実行中"
+    frmProgressVar.priCount = 0
     
     ' デバッグモードのみの実行
     #If (DEBUG_MODE = 1) Then
@@ -429,7 +428,8 @@ Private Sub select__ExecuteSql(sql As String)
 
     DoEvents
 
-    SutWhite.showHourglassWindowOnCenterPt
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init True
 End Sub
 
 ' =========================================================
@@ -437,11 +437,12 @@ End Sub
 ' =========================================================
 Private Sub select__ExecuteSqlSuccessful(sql As String)
 
-    frmProgress.PriMessage = "SQL実行完了"
+    frmProgressVar.priMessage = "SQL実行完了"
     
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
     
 End Sub
 
@@ -450,7 +451,7 @@ End Sub
 ' =========================================================
 Private Sub select__ExecuteSqlError(sql As String, sqlState As String, message As String)
 
-    frmProgress.PriMessage = "SQL実行エラー"
+    frmProgressVar.priMessage = "SQL実行エラー"
     
     ' デバッグモードのみの実行
     #If (DEBUG_MODE = 1) Then
@@ -473,7 +474,8 @@ Private Sub select__ExecuteSqlError(sql As String, sqlState As String, message A
 
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
     
 End Sub
 
@@ -482,12 +484,13 @@ End Sub
 ' =========================================================
 Private Sub select__ReflectionRecordGetBegin(ByVal recordListSize As Long)
 
-    frmProgress.PriMessage = "レコード取得中"
+    frmProgressVar.priMessage = "レコード取得中"
 
     DoEvents
 
-    SutWhite.showHourglassWindowOnCenterPt
-
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init True
+    
 End Sub
 
 ' =========================================================
@@ -495,13 +498,14 @@ End Sub
 ' =========================================================
 Private Sub select__ReflectionRecordGet(ByVal recordListSizeActual As Long, ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriCount = frmProgress.PriCount + recordListSize
-    frmProgress.PriMessage = "レコード取得完了"
+    frmProgressVar.priCount = frmProgressVar.priCount + recordListSize
+    frmProgressVar.priMessage = "レコード取得完了"
     
     DoEvents
 
-    SutWhite.closeHourglassWindow
-
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
+    
 End Sub
 
 ' =========================================================
@@ -509,7 +513,7 @@ End Sub
 ' =========================================================
 Private Sub select__ReflectionRecordConvertBegin(ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriMessage = "レコード情報変換中"
+    frmProgressVar.priMessage = "レコード情報変換中"
     
     DoEvents
 
@@ -520,7 +524,7 @@ End Sub
 ' =========================================================
 Private Sub select__ReflectionRecordConvert(ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriMessage = "レコード情報変換完了"
+    frmProgressVar.priMessage = "レコード情報変換完了"
     
     DoEvents
 
@@ -531,7 +535,7 @@ End Sub
 ' =========================================================
 Private Sub select__ReflectionRecordBegin(ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriMessage = "レコード シート出力中"
+    frmProgressVar.priMessage = "レコード シート出力中"
     
     DoEvents
 
@@ -542,7 +546,7 @@ End Sub
 ' =========================================================
 Private Sub select__ReflectionRecord(ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriMessage = "レコード シート出力完了"
+    frmProgressVar.priMessage = "レコード シート出力完了"
     
     DoEvents
 
@@ -567,7 +571,7 @@ End Sub
 ' =========================================================
 Private Sub update_readColumnListBegin(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "カラム定義読み込み中"
+    frmProgressVar.initPri cnt, "カラム定義読み込み中"
     
     DoEvents
 End Sub
@@ -577,7 +581,7 @@ End Sub
 ' =========================================================
 Private Sub update_readColumn(column As ValDbDefineColumn)
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
     
     DoEvents
 End Sub
@@ -585,9 +589,9 @@ End Sub
 ' =========================================================
 ' ▼更新イベント - カラムリスト読み込み完了
 ' =========================================================
-Private Sub update_readColumnList(columnList As sutredlib.GenericCollection)
+Private Sub update_readColumnList(columnList As ValCollection)
 
-    frmProgress.PriMessage = "カラム定義読み込み完了"
+    frmProgressVar.priMessage = "カラム定義読み込み完了"
     
     DoEvents
 End Sub
@@ -597,7 +601,7 @@ End Sub
 ' =========================================================
 Private Sub update_readRecordListSize(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "レコードリストサイズ読み込み完了"
+    frmProgressVar.initPri cnt, "レコードリストサイズ読み込み完了"
 End Sub
 
 ' =========================================================
@@ -610,12 +614,12 @@ Private Sub update_readRecordListBegin(ByVal cnt As Long)
     
         ' 分割して処理を実行していることが分かるように
         ' 処理レコードの範囲をメッセージ（その他）に埋め込む
-        frmProgress.PriMessage = "・・・"
-        frmProgress.InitSec applicationSetting.recProcessCountCustom, "レコードリスト読み込み中"
+        frmProgressVar.priMessage = "・・・"
+        frmProgressVar.initSec applicationSetting.recProcessCountCustom, "レコードリスト読み込み中"
         
     Else
     
-        frmProgress.PriMessage = "レコードリスト読み込み中"
+        frmProgressVar.priMessage = "レコードリスト読み込み中"
         
     End If
     
@@ -633,13 +637,13 @@ Private Sub update_readRecordList(recordList As ValRecordList)
         ' 分割して処理を実行していることが分かるように
         ' 処理レコードの範囲をメッセージ（その他）に埋め込む
         
-        frmProgress.SecMessage = "レコードリスト読み込み完了"
-        frmProgress.SecCount = VBUtil.arraySize(recordList.values)
+        frmProgressVar.secMessage = "レコードリスト読み込み完了"
+        frmProgressVar.secCount = VBUtil.arraySize(recordList.values)
         
     Else
     
-        frmProgress.PriMessage = "レコードリスト読み込み完了"
-        frmProgress.PriCount = VBUtil.arraySize(recordList.values)
+        frmProgressVar.priMessage = "レコードリスト読み込み完了"
+        frmProgressVar.priCount = VBUtil.arraySize(recordList.values)
     End If
     
     DoEvents
@@ -656,10 +660,10 @@ Private Sub update_ExecuteSqlBegin(ByVal count As Long)
         ' 分割して処理を実行していることが分かるように
         ' 処理レコードの範囲をメッセージ（その他）に埋め込む
         
-        frmProgress.InitSec count, "SQL実行中"
+        frmProgressVar.initSec count, "SQL実行中"
     Else
     
-        frmProgress.InitPri count, "SQL実行中"
+        frmProgressVar.initPri count, "SQL実行中"
         
     End If
     
@@ -692,10 +696,10 @@ Private Sub update_ExecuteSql(ByRef tableSheet As ValTableWorksheet _
         ' 処理単位が設定されている場合
         If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
         
-            frmProgress.InclimentSec
+            frmProgressVar.inclimentSec
         Else
         
-            frmProgress.InclimentPri
+            frmProgressVar.inclimentPri
         End If
         
         ' クエリー種類がDELETEの場合
@@ -790,12 +794,12 @@ Private Sub update_ExecuteSqlSuccessful(ByVal count As Long)
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
     
-        frmProgress.SecMessage = "SQL実行完了"
-        frmProgress.PriCount = frmProgress.PriCount + count
+        frmProgressVar.secMessage = "SQL実行完了"
+        frmProgressVar.priCount = frmProgressVar.priCount + count
         
     Else
     
-        frmProgress.PriMessage = "SQL実行完了"
+        frmProgressVar.priMessage = "SQL実行完了"
     End If
     
     DoEvents
@@ -822,10 +826,10 @@ Private Sub update_ExecuteSqlError(ByRef tableSheet As ValTableWorksheet _
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
     
-        frmProgress.SecMessage = "SQL実行エラー"
+        frmProgressVar.secMessage = "SQL実行エラー"
     Else
     
-        frmProgress.PriMessage = "SQL実行エラー"
+        frmProgressVar.priMessage = "SQL実行エラー"
     End If
     
     DoEvents
@@ -893,13 +897,13 @@ Private Sub update_ExecuteSqlCancel(ByVal count As Long)
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
     
-        frmProgress.PriCount = frmProgress.PriCount - count
-        frmProgress.SecCount = 0
-        frmProgress.SecMessage = "SQL実行キャンセル"
+        frmProgressVar.priCount = frmProgressVar.priCount - count
+        frmProgressVar.secCount = 0
+        frmProgressVar.secMessage = "SQL実行キャンセル"
     Else
     
-        frmProgress.PriCount = frmProgress.PriCount - count
-        frmProgress.PriMessage = "SQL実行キャンセル"
+        frmProgressVar.priCount = frmProgressVar.priCount - count
+        frmProgressVar.priMessage = "SQL実行キャンセル"
     End If
 
     ' クエリー種類がDELETEの場合
@@ -935,7 +939,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__readColumnListBegin(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "カラム定義読み込み中"
+    frmProgressVar.initPri cnt, "カラム定義読み込み中"
     
     DoEvents
 End Sub
@@ -945,7 +949,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__readColumn(column As ValDbDefineColumn)
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
     
     DoEvents
 End Sub
@@ -953,9 +957,9 @@ End Sub
 ' =========================================================
 ' ▼更新イベント（選択） - カラムリスト読み込み完了
 ' =========================================================
-Private Sub updateSelection__readColumnList(columnList As sutredlib.GenericCollection)
+Private Sub updateSelection__readColumnList(columnList As ValCollection)
 
-    frmProgress.PriMessage = "カラム定義読み込み完了"
+    frmProgressVar.priMessage = "カラム定義読み込み完了"
     
     DoEvents
 End Sub
@@ -965,7 +969,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__readRecordListBySelectionBegin(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "レコードリスト読み込み中"
+    frmProgressVar.initPri cnt, "レコードリスト読み込み中"
     
     DoEvents
 End Sub
@@ -979,7 +983,7 @@ Private Sub updateSelection__readRecordListBySelectionOne(recordList As ValRecor
     
     count = VBUtil.arraySize(recordList.values)
     
-    frmProgress.PriCount = frmProgress.PriCount + count
+    frmProgressVar.priCount = frmProgressVar.priCount + count
     
     DoEvents
 End Sub
@@ -989,12 +993,12 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__readRecordListBySelection(recordLists As ValCollection)
 
-    frmProgress.PriMessage = "レコードリスト読み込み完了"
+    frmProgressVar.priMessage = "レコードリスト読み込み完了"
     
     ' カウント数を一旦0クリアする（カウント総数はそのまま）
     ' ExecuteSqlBeginイベントはセル選択時の場合は複数回呼び出されるので
     ' カウントをリセットするような処理はせずに、その手前で呼び出される本イベントでリセットを実施する
-    frmProgress.PriCount = 0
+    frmProgressVar.priCount = 0
     
     DoEvents
 End Sub
@@ -1004,7 +1008,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__ExecuteSqlBegin(ByVal count As Long)
 
-    frmProgress.PriMessage = "SQL実行中"
+    frmProgressVar.priMessage = "SQL実行中"
     
     DoEvents
 End Sub
@@ -1031,7 +1035,7 @@ Private Sub updateSelection__ExecuteSql(ByRef tableSheet As ValTableWorksheet _
     ' 結果件数が1件以上の場合のみインクリメントする
     If count > 0 Then
         
-        frmProgress.InclimentPri
+        frmProgressVar.inclimentPri
         
         ' クエリー種類がDELETEの場合
         If updateSelection_.queryType = updateSelection_.QUERY_TYPE_DELETE Then
@@ -1123,7 +1127,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__ExecuteSqlSuccessful(ByVal count As Long)
 
-    frmProgress.PriMessage = "SQL実行完了"
+    frmProgressVar.priMessage = "SQL実行完了"
 
     DoEvents
 
@@ -1146,7 +1150,7 @@ Private Sub updateSelection__ExecuteSqlError(ByRef tableSheet As ValTableWorkshe
     queryResultInfo.processCount = queryResultInfo.processCount + 1
     queryResultInfo.errorCount = queryResultInfo.errorCount + 1
 
-    frmProgress.PriMessage = "SQL実行エラー"
+    frmProgressVar.priMessage = "SQL実行エラー"
     
     DoEvents
     
@@ -1212,11 +1216,11 @@ Private Sub updateSelection__ExecuteSqlCancel(ByVal count As Long)
 
     Dim current As Long
     
-    current = frmProgress.PriCount
+    current = frmProgressVar.priCount
     current = current - count
     
-    frmProgress.PriCount = current
-    frmProgress.PriMessage = "SQL実行キャンセル"
+    frmProgressVar.priCount = current
+    frmProgressVar.priMessage = "SQL実行キャンセル"
 
     ' クエリー種類がDELETEの場合
     ' キャンセルされた数だけ、削除対象レコードリストの要素を削除する
@@ -1240,8 +1244,8 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ExecuteSql(sql As String)
 
-    frmProgress.InitPri -1, "SQL実行中"
-    frmProgress.PriCount = 0
+    frmProgressVar.initPri -1, "SQL実行中"
+    frmProgressVar.priCount = 0
     
     ' デバッグモードのみの実行
     #If (DEBUG_MODE = 1) Then
@@ -1251,7 +1255,9 @@ Private Sub queryExecution_ExecuteSql(sql As String)
 
     DoEvents
 
-    SutWhite.showHourglassWindowOnCenterPt
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init True
+
 End Sub
 
 ' =========================================================
@@ -1259,11 +1265,12 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ExecuteSqlCancel(ByVal count As Long)
 
-    frmProgress.PriMessage = "SQL実行キャンセル"
+    frmProgressVar.priMessage = "SQL実行キャンセル"
 
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
     
 End Sub
 
@@ -1272,11 +1279,12 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ExecuteSqlSuccessful(sql As String)
 
-    frmProgress.PriMessage = "SQL実行完了"
+    frmProgressVar.priMessage = "SQL実行完了"
     
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
     
 End Sub
 
@@ -1285,7 +1293,7 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ExecuteSqlError(sql As String, sqlState As String, message As String)
 
-    frmProgress.PriMessage = "SQL実行エラー"
+    frmProgressVar.priMessage = "SQL実行エラー"
     
     ' デバッグモードのみの実行
     #If (DEBUG_MODE = 1) Then
@@ -1308,7 +1316,8 @@ Private Sub queryExecution_ExecuteSqlError(sql As String, sqlState As String, me
 
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
     
 End Sub
 
@@ -1317,11 +1326,12 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ReflectionRecordGetBegin(ByVal recordListSize As Long)
 
-    frmProgress.PriMessage = "レコード取得中"
+    frmProgressVar.priMessage = "レコード取得中"
 
     DoEvents
 
-    SutWhite.showHourglassWindowOnCenterPt
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init True
 
 End Sub
 
@@ -1330,12 +1340,13 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ReflectionRecordGet(ByVal recordListSizeActual As Long, ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriCount = frmProgress.PriCount + recordListSize
-    frmProgress.PriMessage = "レコード取得完了"
+    frmProgressVar.priCount = frmProgressVar.priCount + recordListSize
+    frmProgressVar.priMessage = "レコード取得完了"
     
     DoEvents
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理のカーソル解除処理
+    Dim cursorWait As New ExcelCursorWait: cursorWait.forceRestore
 
 End Sub
 
@@ -1344,7 +1355,7 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ReflectionRecordConvertBegin(ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriMessage = "レコード情報変換中"
+    frmProgressVar.priMessage = "レコード情報変換中"
     
     DoEvents
 
@@ -1355,7 +1366,7 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ReflectionRecordConvert(ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriMessage = "レコード情報変換完了"
+    frmProgressVar.priMessage = "レコード情報変換完了"
     
     DoEvents
 
@@ -1366,7 +1377,7 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ReflectionRecordBegin(ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriMessage = "レコード シート出力中"
+    frmProgressVar.priMessage = "レコード シート出力中"
     
     DoEvents
 
@@ -1377,7 +1388,7 @@ End Sub
 ' =========================================================
 Private Sub queryExecution_ReflectionRecord(ByVal recordListSize As Long, recordList As Variant)
 
-    frmProgress.PriMessage = "レコード シート出力完了"
+    frmProgressVar.priMessage = "レコード シート出力完了"
     
     DoEvents
 
@@ -1441,25 +1452,18 @@ End Sub
 ' =========================================================
 Private Sub Class_Terminate()
 
-    If Not frmProgress Is Nothing Then
-        frmProgress.Close
-    End If
-    If Not frmQueryEditor Is Nothing Then
-        frmQueryEditor.Close
-    End If
-
     ' プログレスフォームを破棄する
-    Set frmProgress = Nothing
+    Set frmProgressVar = Nothing
     ' SELECT条件生成フォームを破棄する
     Set frmSelectConditionCreatorVar = Nothing
     ' レコード追加・削除フォームを破棄する
     Set frmRecAppender = Nothing
-    ' クエリエディタを破棄する
-    Set frmQueryEditor = Nothing
     ' 一括クエリフォームを破棄する
     Set frmDbQueryBatchVar = Nothing
     ' クエリ結果フォームを破棄する
     Set frmQueryResultVar = Nothing
+    ' クエリエディタを破棄する（ !!! 未実装 !!! ）
+    'Set frmQueryEditorVar = Nothing
     
     ' レコード情報生成オブジェクトを破棄する
     Set tableSheetReader = Nothing
@@ -1498,7 +1502,9 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
               , Optional ByVal clearQueryResults As Boolean = True)
 
     ' フォームを設定する
-    Set frmProgress = New sutredlib.Progress
+    Load frmProgress
+    ' フォームを設定する
+    Set frmProgressVar = frmProgress
     
     ' フォームをロードする
     Load frmSelectConditionCreator
@@ -1515,18 +1521,16 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
     ' フォームを設定する
     Set frmQueryResultVar = frmQueryResult
     
+    ' フォームをロードする（ !!! 未実装 !!! ）
+    'Load frmQueryEditor
+    ' フォームを設定する（ !!! 未実装 !!! ）
+    'Set frmQueryEditorVar = frmQueryEditor
+    
     If queryResultSetInfo Is Nothing Then
         Set queryResultSetInfo = New ValQueryResultSetInfo
     End If
     
     Set queryResultInfo = Nothing
-    
-    ' クエリエディタを初期化する
-    If frmQueryEditor Is Nothing Then
-    
-        Set frmQueryEditor = New sutredlib.queryEditor
-        frmQueryEditor.ExcelApplication = Excel.Application
-    End If
     
     If clearQueryResults Then
     
@@ -1575,7 +1579,7 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
 End Sub
 
 ' =========================================================
-' ▽INSERT and UPDATE実行（全レコード）
+' ▽INSERT + UPDATE実行（全レコード）
 '
 ' 概要　　　：
 ' 引数　　　：
@@ -1598,11 +1602,11 @@ Public Sub insertUpdateAll()
     ' プログレスウィンドウを表示する
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
-        frmProgress.Show ExcelUtil.getApplicationHWnd, True
+        frmProgressVar.ShowExt vbModeless, True
     Else
-        frmProgress.Show ExcelUtil.getApplicationHWnd, False
+        frmProgressVar.ShowExt vbModeless, False
     End If
-    frmProgress.title = "INSERT and UPDATE - 全て" & createProgressTitleOptionalMessage
+    frmProgressVar.title = "INSERT + UPDATE - 全て" & createProgressTitleOptionalMessage
 
     ' クエリを実行する
     update.queryType = update.QUERY_TYPE_INSERT_UPDATE
@@ -1614,7 +1618,7 @@ Public Sub insertUpdateAll()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -1631,7 +1635,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリエラーが発生した場合
     If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -1652,7 +1656,7 @@ err:
 End Sub
 
 ' =========================================================
-' ▽INSERT and UPDATE実行（選択範囲）
+' ▽INSERT + UPDATE実行（選択範囲）
 '
 ' 概要　　　：
 ' 引数　　　：
@@ -1673,8 +1677,8 @@ Public Sub insertUpdateSelection()
     Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
     
     ' プログレスウィンドウを表示する
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "INSERT and UPDATE - 範囲選択"
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "INSERT + UPDATE - 範囲選択"
 
     ' クエリを実行する
     updateSelection_.queryType = updateSelection_.QUERY_TYPE_INSERT_UPDATE
@@ -1686,7 +1690,7 @@ Public Sub insertUpdateSelection()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -1703,7 +1707,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリエラーが発生した場合
     If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -1746,11 +1750,11 @@ Public Sub insertAll()
     ' プログレスウィンドウを表示する
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
-        frmProgress.Show ExcelUtil.getApplicationHWnd, True
+        frmProgressVar.ShowExt vbModeless, True
     Else
-        frmProgress.Show ExcelUtil.getApplicationHWnd, False
+        frmProgressVar.ShowExt vbModeless, False
     End If
-    frmProgress.title = "INSERT - 全て" & createProgressTitleOptionalMessage
+    frmProgressVar.title = "INSERT - 全て" & createProgressTitleOptionalMessage
 
     ' クエリを実行する
     update.queryType = update.QUERY_TYPE_INSERT
@@ -1762,7 +1766,7 @@ Public Sub insertAll()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -1779,7 +1783,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリエラーが発生した場合
     If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -1821,8 +1825,8 @@ Public Sub insertSelection()
     Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
     
     ' プログレスウィンドウを表示する
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "INSERT - 範囲選択"
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "INSERT - 範囲選択"
 
     ' クエリを実行する
     updateSelection_.queryType = updateSelection_.QUERY_TYPE_INSERT
@@ -1834,7 +1838,7 @@ Public Sub insertSelection()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -1851,7 +1855,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリエラーが発生した場合
     If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -1895,11 +1899,11 @@ Public Sub updateAll()
     ' プログレスウィンドウを表示する
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
-        frmProgress.Show ExcelUtil.getApplicationHWnd, True
+        frmProgressVar.ShowExt vbModeless, True
     Else
-        frmProgress.Show ExcelUtil.getApplicationHWnd, False
+        frmProgressVar.ShowExt vbModeless, False
     End If
-    frmProgress.title = "UPDATE - 全て" & createProgressTitleOptionalMessage
+    frmProgressVar.title = "UPDATE - 全て" & createProgressTitleOptionalMessage
     
     ' クエリを実行する
     update.queryType = update.QUERY_TYPE_UPDATE
@@ -1911,7 +1915,7 @@ Public Sub updateAll()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -1928,7 +1932,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリエラーが発生した場合
     If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -1970,8 +1974,8 @@ Public Sub updateSelection()
     Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
     
     ' プログレスウィンドウを表示する
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "UPDATE - 範囲選択"
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "UPDATE - 範囲選択"
     
     ' クエリを実行する
     updateSelection_.queryType = updateSelection_.QUERY_TYPE_UPDATE
@@ -1983,7 +1987,7 @@ Public Sub updateSelection()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -2000,7 +2004,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリエラーが発生した場合
     If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -2050,11 +2054,11 @@ Public Sub deleteAll()
     ' プログレスウィンドウを表示する
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
-        frmProgress.Show ExcelUtil.getApplicationHWnd, True
+        frmProgressVar.ShowExt vbModeless, True
     Else
-        frmProgress.Show ExcelUtil.getApplicationHWnd, False
+        frmProgressVar.ShowExt vbModeless, False
     End If
-    frmProgress.title = "DELETE - 全て" & createProgressTitleOptionalMessage
+    frmProgressVar.title = "DELETE - 全て" & createProgressTitleOptionalMessage
     
     ' クエリを実行する
     update.queryType = update.QUERY_TYPE_DELETE
@@ -2066,7 +2070,7 @@ Public Sub deleteAll()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -2089,7 +2093,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリエラーが発生した場合
     If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -2137,8 +2141,8 @@ Public Sub deleteSelection()
     Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
     
     ' プログレスウィンドウを表示する
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "DELETE - 範囲選択"
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "DELETE - 範囲選択"
     
     ' クエリを実行する
     updateSelection_.queryType = updateSelection_.QUERY_TYPE_DELETE
@@ -2150,7 +2154,7 @@ Public Sub deleteSelection()
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -2172,7 +2176,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリエラーが発生した場合
     If errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -2426,8 +2430,8 @@ Public Sub selectAll()
     ' レコード取得件数
     Dim resultCount
 
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "SELECT - 全て" & createProgressTitleOptionalMessage
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "SELECT - 全て" & createProgressTitleOptionalMessage
 
     select_.appendSheet = False
     resultCount = select_.executeSelect
@@ -2437,7 +2441,7 @@ Public Sub selectAll()
     ' そのため、ExcelLongTimeProcessingオブジェクトを明示的に破棄する
     Set longTimeProcessing = Nothing
 
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -2469,8 +2473,6 @@ Public Sub selectAll()
     registry.setValue REG_SUB_KEY_SELECT_LATEST_SQL, ""
 
     Set registry = Nothing
-
-    SutWhite.closeHourglassWindow
     
     Exit Sub
     
@@ -2480,9 +2482,7 @@ err:
 
     Set longTimeProcessing = Nothing
     
-    SutWhite.closeHourglassWindow
-    
-    frmProgress.Close
+    frmProgressVar.HideExt
 
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -2554,7 +2554,7 @@ err:
 End Sub
 
 ' =========================================================
-' ▽クエリエディタ
+' ▽クエリエディタ（ !!! 未実装 !!! ）
 '
 ' 概要　　　：
 ' 引数　　　：
@@ -2564,8 +2564,8 @@ Public Sub queryEditor()
 
     On Error GoTo err
 
-    ' クエリエディタを表示する
-    frmQueryEditor.Show ExcelUtil.getApplicationHWnd
+    ' クエリエディタを表示する（ !!! 未実装 !!! ）
+    'frmQueryEditorVar.ShowExt vbModeless
     
     Exit Sub
     
@@ -2727,8 +2727,8 @@ Private Sub frmSelectConditionCreatorVar_ok(ByVal sql As String, ByVal append As
     ' レコード取得件数
     Dim resultCount
     
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "SELECT - 条件指定" & createProgressTitleOptionalMessage
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "SELECT - 条件指定" & createProgressTitleOptionalMessage
     
     ' テーブル定義
     Dim tableSheet As ValTableWorksheet
@@ -2744,7 +2744,7 @@ Private Sub frmSelectConditionCreatorVar_ok(ByVal sql As String, ByVal append As
     ' そのため、ExcelLongTimeProcessingオブジェクトを明示的に破棄する
     Set longTimeProcessing = Nothing
     
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -2772,8 +2772,6 @@ Private Sub frmSelectConditionCreatorVar_ok(ByVal sql As String, ByVal append As
 
     Set registry = Nothing
     
-    SutWhite.closeHourglassWindow
-    
     Exit Sub
     
 err:
@@ -2782,9 +2780,7 @@ err:
 
     Set longTimeProcessing = Nothing
     
-    SutWhite.closeHourglassWindow
-    
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
@@ -2876,8 +2872,8 @@ Public Sub selectReExecute()
     ' レコード取得件数
     Dim resultCount
     
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "SELECT - 再実行" & createProgressTitleOptionalMessage
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "SELECT - 再実行" & createProgressTitleOptionalMessage
     
     If latestType = REG_SUB_KEY_SELECT_LATEST_TYPE_CONDITION Then
         
@@ -2902,7 +2898,7 @@ Public Sub selectReExecute()
     ' そのため、ExcelLongTimeProcessingオブジェクトを明示的に破棄する
     Set longTimeProcessing = Nothing
     
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing Then
@@ -2913,8 +2909,6 @@ Public Sub selectReExecute()
         queryResultSetInfo.addInfo queryResultInfo
     End If
     
-    SutWhite.closeHourglassWindow
-    
     Exit Sub
     
 err:
@@ -2923,9 +2917,7 @@ err:
 
     Set longTimeProcessing = Nothing
     
-    SutWhite.closeHourglassWindow
-    
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
     If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then

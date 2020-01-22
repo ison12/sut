@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' SELECT条件生成フォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/04/03　新規作成
 '
 ' 特記事項：
@@ -149,7 +149,8 @@ Private Sub cmdTest_Click()
 
     On Error GoTo err
 
-    SutWhite.showHourglassWindowOnCenterPt Me
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init
     
     Dim resultSet   As Object
     Dim resultCount As Long
@@ -161,15 +162,14 @@ Private Sub cmdTest_Click()
 
     lblResultCount.Caption = resultCount & "件"
 
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理が終了したのでマウスカーソルを元に戻す
+    cursorWait.destroy
     
     Exit Sub
     
 err:
 
     Main.ShowErrorMessage
-
-    SutWhite.closeHourglassWindow
 End Sub
 
 ' =========================================================
@@ -578,7 +578,7 @@ Private Sub cmdPkCondition_Click()
     ' テーブル制約リストからPK制約を取得する
     For Each tableConstTmp In table.constraintsList.col
     
-        If tableConstTmp.constraintType = sutredlib.tableConstPk Then
+        If tableConstTmp.constraintType = TABLE_CONSTANTS_TYPE.tableConstPk Then
         
             Set tableConstPk = tableConstTmp
             Exit For

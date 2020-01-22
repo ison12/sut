@@ -18,7 +18,7 @@ Option Explicit
 ' *********************************************************
 ' DBカラム書式設定フォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2020/01/14　新規作成
 '
 ' 特記事項：
@@ -74,7 +74,7 @@ Public Sub ShowExt(ByVal modal As FormShowConstants, ByVal info As ValDbColumnFo
     activate
     
     Main.restoreFormPosition Me.name, Me
-    Me.Show vbModal
+    Me.Show modal
 End Sub
 
 ' =========================================================

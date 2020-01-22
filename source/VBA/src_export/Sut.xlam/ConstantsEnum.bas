@@ -4,7 +4,7 @@ Option Explicit
 ' *********************************************************
 ' 列挙型定数モジュール
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/12/07　新規作成
 '
 ' 特記事項：
@@ -40,9 +40,9 @@ Public Enum REC_FORMAT
 End Enum
 
 ' =========================================================
-' ▽一括クエリ実行種類
+' ▽DBクエリバッチ種類
 '
-' 概要　　　：一括クエリ実行種類
+' 概要　　　：DBクエリバッチ種類
 '
 ' =========================================================
 Public Enum DB_QUERY_BATCH_TYPE
@@ -59,6 +59,51 @@ Public Enum DB_QUERY_BATCH_TYPE
 
 End Enum
 
+' =========================================================
+' ▽アイコンリソース
+'
+' 概要　　　：アイコンリソース
+'
+' =========================================================
+Public Enum RESOURCE_ICON
+
+    Add = 1
+    addFile = 2
+    addFolder = 3
+    addFolder2 = 4
+    alert = 5
+    alertMessage = 6
+    book = 7
+    buttonHelp = 8
+    database = 9
+    databaseSetting = 10
+    databaseSearch = 11
+    delete = 12
+    deleteDatabase = 13
+    devil = 14
+    Edit = 15
+    remove = 16
+    Run = 17
+    SaveAs = 18
+    Search = 19
+    searchWindow = 20
+    settings = 21
+    smile = 22
+    windowImport = 23
+    flagGreen = 24
+    flagBlue = 25
+    flagRed = 26
+    areaAdd = 27
+    areaEdit = 28
+    areaRemove = 29
+    areaSearch = 30
+    bug = 31
+    Paste = 32
+    Forward = 33
+    
+End Enum
+
+' 一括クエリ実行種類名称
 Private dbQueryTypeNames As ValCollection
 
 ' =========================================================

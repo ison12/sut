@@ -1,15 +1,15 @@
-・DBエクスプローラのフォームの設定は必要ない気がする
-・errハンドラで、関数コールしている個所は、SwapErrしてエラーオブジェクトを退避すること
+�EDB�G�N�X�v���[���̃t�H�[���̐ݒ�͕K�v�Ȃ��C������
+�Eerr�n���h���ŁA�֐��R�[�����Ă�����́ASwapErr���ăG���[�I�u�W�F�N�g��ޔ����邱��
 
-    ' エラー情報を退避する
+    ' �G���[����ޔ�����
     Dim errT As errInfo: errT = VBUtil.swapErr
     
-    ' 退避したエラー情報を設定しなおす
+    ' �ޔ������G���[����ݒ肵�Ȃ���
     VBUtil.setErr errT
 
-・Class_Terminateでエラーが発生した場合は、通常とは異なるエラーになるので回避したい。単一ファイル出力時に、FileWriterでファイルエラーになった場合に、おかしな挙動になる模様
+�EClass_Terminate�ŃG���[�����������ꍇ�́A�ʏ�Ƃ͈قȂ�G���[�ɂȂ�̂ŉ���������B�P��t�@�C���o�͎��ɁAFileWriter�Ńt�@�C���G���[�ɂȂ����ꍇ�ɁA�������ȋ����ɂȂ�͗l
 
-・RegistManipulationとBookPropを統合する（片方だけ保存、両方に保存可能なように選択できるようにする）
-・SutワークシートのdataTypeXxxは一つのシートに統合したい（処理を軽くするために）
-・DBの読み込み対応としてAccessに対応する
-・Progressフォームの作成
+�ERegistManipulation��BookProp�𓝍�����i�Е������ۑ��A�����ɕۑ��\�Ȃ悤�ɑI���ł���悤�ɂ���j
+�ESut���[�N�V�[�g��dataTypeXxx�͈�̃V�[�g�ɓ����������i�������y�����邽�߂Ɂj
+�EDB�̓ǂݍ��ݑΉ��Ƃ���Access�ɑΉ�����
+�EProgress�t�H�[���̍쐬

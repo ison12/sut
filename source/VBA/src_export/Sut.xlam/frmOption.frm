@@ -18,7 +18,7 @@ Option Explicit
 ' *********************************************************
 ' オプション設定を行うフォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/03/14　新規作成
 '
 ' 特記事項：
@@ -79,7 +79,7 @@ Public Sub ShowExt(ByVal modal As FormShowConstants _
     activate
     
     Main.restoreFormPosition Me.name, Me
-    Me.Show vbModal
+    Me.Show modal
 End Sub
 
 ' =========================================================

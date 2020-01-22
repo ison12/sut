@@ -18,7 +18,7 @@ Option Explicit
 ' *********************************************************
 ' クエリ結果フォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2020/01/18　新規作成
 '
 ' 特記事項：
@@ -150,42 +150,14 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
-' ▽テーブルシートリスト　ダブルクリック時のイベントプロシージャ
+' ▽テーブルシートリスト　選択肢変更時のイベントプロシージャ
 '
 ' 概要　　　：
 ' 引数　　　：
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstTableSheet_DblClick(ByVal cancel As MSForms.ReturnBoolean)
-
-    selectedTable
-End Sub
-
-' =========================================================
-' ▽テーブルシートリスト　キー押下時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub lstTableSheet_KeyPress(ByVal KeyAscii As MSForms.ReturnInteger)
-    
-    If KeyAscii = vbKeyReturn Or KeyAscii = vbKeySpace Then
-    
-        selectedTable
-    End If
-    
-End Sub
-
-' =========================================================
-' ▽選択ボタンクリック時のイベントプロシージャ
-'
-' 概要　　　：
-'
-' =========================================================
-Private Sub cmdSelect_Click()
+Private Sub lstTableSheet_Change()
 
     selectedTable
 End Sub
@@ -252,13 +224,31 @@ Private Sub activate()
     
     lblErrorMessage.visible = False
     
+    Dim queryResultInfo As ValQueryResultInfo
+    
     ' テーブルシートリストに表示情報を反映する
     Set tableSheetList = New CntListBox: tableSheetList.init lstTableSheet
     addTableSheetList queryResultSetInfoParam.queryResultInfoList
 
+    Dim i As Long: i = 0
+    Dim selectedIndex As Long: selectedIndex = -1
+    
+    For Each queryResultInfo In tableSheetList.collection.col
+    
+        If queryResultInfo.sheetName = ActiveSheet.name Then
+            selectedIndex = i
+        End If
+    
+        i = i + 1
+    Next
+    
+    If selectedIndex <> -1 Then
+        ' アクティブシートを選択状態にする
+        tableSheetList.setSelectedIndex selectedIndex
+    End If
+
     ' エラーがある場合に、エラーメッセージを表示する
     Dim erroredResultInfoCount As Long
-    Dim queryResultInfo As ValQueryResultInfo
     
     erroredResultInfoCount = 0
     For Each queryResultInfo In tableSheetList.collection.col

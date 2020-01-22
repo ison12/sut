@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmShortcutKey 
    Caption         =   "ショートカットキーの設定"
-   ClientHeight    =   5835
+   ClientHeight    =   5775
    ClientLeft      =   45
    ClientTop       =   360
-   ClientWidth     =   6585
+   ClientWidth     =   6390
    OleObjectBlob   =   "frmShortcutKey.frx":0000
 End
 Attribute VB_Name = "frmShortcutKey"
@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' ショートカットキーの設定
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/06/02　新規作成
 '
 ' 特記事項：
@@ -74,7 +74,7 @@ Public Sub ShowExt(ByVal modal As FormShowConstants, ByRef var As ValApplication
     activate
     
     Main.restoreFormPosition Me.name, Me
-    Me.Show vbModal
+    Me.Show modal
 End Sub
 
 ' =========================================================
@@ -343,9 +343,9 @@ End Sub
 ' =========================================================
 ' ▽ショートカットキーの設定ダイアログでOKボタンが押下された場合のイベント
 ' =========================================================
-Private Sub frmShortcutKeySettingVar_ok(ByVal keyCode As String, ByVal keyLabel As String)
+Private Sub frmShortcutKeySettingVar_ok(ByVal KeyCode As String, ByVal keyLabel As String)
 
-    appMenuListSelectedItem.shortcutKeyCode = keyCode
+    appMenuListSelectedItem.shortcutKeyCode = KeyCode
     appMenuListSelectedItem.shortcutKeyLabel = keyLabel
     
     lstAppList.list(appMenuListSelectedIndex, 1) = keyLabel

@@ -4,7 +4,7 @@ Option Explicit
 ' *********************************************************
 ' user32.dllで定義されている関数郡や定数。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/10/11　新規作成
 '
 ' 特記事項：
@@ -40,14 +40,9 @@ Option Explicit
 '
 ' =========================================================
 #If VBA7 And Win64 Then
-
-    Public Declare PtrSafe Function GetWindowLongPtr Lib "user32" Alias "GetWindowLongPtrA" _
+    Public Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongPtrA" _
            (ByVal hWnd As LongPtr, _
-            ByVal nIndex As Long) As LongPtr
-                                                           
-    Public Declare PtrSafe Function GetWindowLong Lib "user32.dll" Alias "GetWindowLongA" _
-            (ByVal hWnd As LongPtr _
-           , ByVal nIndex As Long) As Long
+            ByVal nIndex As Long) As Long
 #Else
     Public Declare Function GetWindowLong Lib "user32.dll" Alias "GetWindowLongA" _
             (ByVal hWnd As Long _
@@ -746,6 +741,7 @@ End Type
 ' ---------------------------------------------------------
 Public Const GWL_WNDPROC = (-4)
 Public Const GWL_STYLE = (-16)
+Public Const GWL_EXSTYLE = (-20&)
 
 Public Const WS_OVERLAPPED       As Long = &H0&
 Public Const WS_POPUP            As Long = &H80000000
@@ -768,6 +764,7 @@ Public Const WS_MINIMIZEBOX      As Long = &H20000
 Public Const WS_MAXIMIZEBOX      As Long = &H10000
 Public Const WS_OVERLAPPEDWINDOW As Long = &HCF0000
 Public Const WS_POPUPWINDOW      As Long = &H80880000
+Public Const WS_EX_DLGMODALFRAME As Long = &H1&
 
 Public Const WH_MOUSE_LL         As Long = 14
 

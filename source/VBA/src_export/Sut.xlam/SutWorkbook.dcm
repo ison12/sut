@@ -11,61 +11,11 @@ Option Explicit
 ' *********************************************************
 ' ワークブック
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/02/16　新規作成
 '
 ' 特記事項：
 ' *********************************************************
-
-' ---------------------------------------------------------
-' Excel2013のクローズ処理対応について
-'
-' Excel2013以降、従来のMDIからSDIに変更されたのを受けて
-' 最初にSutを起動したブックを閉じた後にすでに開かれているブックを閉じると
-' なぞのフリーズ現象が発生するという事象を発見した。
-
-' そのため、Sutを起動したブック（＝所有ブックと呼称）は
-' 同一プロセス内で一番最後に閉じなければならない。
-
-' したがって、各ブックの閉じるイベントを監視しながら
-' 所有ブックが閉じられた場合に、非表示にしておき
-' その他のブックが最後に閉じられた場合に
-' 非表示になった所有ブックを合わせて閉じるという処理を行うようにした。
-' ---------------------------------------------------------
-' 所有ブック
-Private ownerBook_ As Workbook
-' 所有ブック
-Private ownerBookSpecialClose As Excel2013SpecialClose
-
-' =========================================================
-' ▽所有ブック取得
-' =========================================================
-Public Property Get ownerBook() As Workbook
-
-    Set ownerBook = ownerBook_
-End Property
-
-' =========================================================
-' ▽所有ブック設定
-' =========================================================
-Public Property Let ownerBook(ByVal vNewValue As Workbook)
-
-    Set ownerBook_ = vNewValue
-    Set ownerBookSpecialClose = New Excel2013SpecialClose
-    ownerBookSpecialClose.book = vNewValue
-End Property
-
-' =========================================================
-' ▽データを解放する
-'
-' 概要　　　：
-'
-' =========================================================
-Public Sub releaseData()
-
-    Set ownerBook_ = Nothing
-    Set ownerBookSpecialClose = Nothing
-End Sub
 
 ' =========================================================
 ' ▽アドインとして組み込まれた際に発生するイベント
@@ -94,8 +44,6 @@ Private Sub Workbook_AddinUninstall()
     
         Debug.Print "Workbook_AddinUninstall"
     #End If
-    
-    'VBUtil.showMessageBoxForInformation "Workbook_AddinUninstall", "テスト"
     
 End Sub
 
@@ -141,8 +89,6 @@ Private Sub Workbook_BeforeClose(cancel As Boolean)
     
         Debug.Print "Workbook_BeforeClose"
     #End If
-    
-    'VBUtil.showMessageBoxForInformation "Workbook_BeforeClose", "テスト"
     
     SutDestroy
     

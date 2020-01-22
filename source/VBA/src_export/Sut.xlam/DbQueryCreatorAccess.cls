@@ -15,7 +15,7 @@ Implements IDbQueryCreator
 ' DBのクエリを生成するインターフェース。
 ' Microsoft Access DB向けの実装。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2010/11/06　新規作成
 '
 ' 特記事項：
@@ -371,7 +371,7 @@ Private Function IDbQueryCreator_createSelect(ByRef table As ValDbDefineTable _
         
         If recRangeOffset <> condition.REC_RANGE_NONE And recRangeOffset > 0 Then
         
-            Dim innerTable As New sutredlib.SutString
+            Dim innerTable As New StringBuilder
             
             Dim from As String
             from = DBUtil.concatSchemaTable( _
@@ -383,7 +383,7 @@ Private Function IDbQueryCreator_createSelect(ByRef table As ValDbDefineTable _
             innerTable.append (" AS MAIN LEFT JOIN ")
             innerTable.append ("(")
             ' 終了オフセット位置のTOP句を指定する
-            innerTable.append("SELECT TOP ").append(recRangeOffset).append(" * FROM ").append(from).append (" ")
+            innerTable.append("SELECT TOP ").append(CStr(recRangeOffset)).append(" * FROM ").append(from).append (" ")
             
             
             ' 並び順が指定されている場合、over句を指定する
@@ -397,7 +397,7 @@ Private Function IDbQueryCreator_createSelect(ByRef table As ValDbDefineTable _
             innerTable.append (" AS SUB ON ")
             innerTable.append (pkJoinSingleLine)
         
-            statementFrom = innerTable
+            statementFrom = innerTable.str
             
             If statementWhere = "" Then
             

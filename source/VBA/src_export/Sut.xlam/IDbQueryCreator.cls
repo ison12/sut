@@ -13,7 +13,7 @@ Option Explicit
 ' DBのクエリを生成するインターフェース。
 ' 対応するDB毎に本インターフェースをImplementsする。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/03/28　新規作成
 '
 ' 特記事項：

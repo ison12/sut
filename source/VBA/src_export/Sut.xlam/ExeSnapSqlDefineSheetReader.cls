@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' シートからスナップショットSQL定義情報を読み取る処理を定義したクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/01/04　新規作成
 '
 ' 特記事項：
@@ -41,7 +41,7 @@ Public Event readSqlDefineInfoBegin()
 ' 引数　　　：sqlDefineSheet SQL定義シート
 '
 ' =========================================================
-Public Event readSqlDefineInfo(ByRef sqlDefineSheet As sutredlib.SnapSqlDefineWorkSheet)
+Public Event readSqlDefineInfo(ByRef sqlDefineSheet As ValSnapSqlDefineWorkSheet)
 
 ' =========================================================
 ' ▽パラメータリスト読込開始前イベント
@@ -59,7 +59,7 @@ Public Event readParamListBegin(ByVal cnt As Long)
 ' 引数　　　：param パラメータ情報
 '
 ' =========================================================
-Public Event readParam(ByRef param As sutredlib.SnapSqlDefineParam)
+Public Event readParam(ByRef param As ValSnapSqlDefineParam)
 
 ' =========================================================
 ' ▽パラメータリスト読込イベント
@@ -86,7 +86,7 @@ Public Event readSqlListBegin(ByVal cnt As Long)
 ' 引数　　　：sql SQL情報
 '
 ' =========================================================
-Public Event readSql(ByRef sql As sutredlib.SnapSqlDefineSql)
+Public Event readSql(ByRef sql As ValSnapSqlDefineSql)
 
 ' =========================================================
 ' ▽SQLリスト読込イベント
@@ -177,16 +177,16 @@ End Sub
 ' 戻り値　　：テーブルシート
 '
 ' =========================================================
-Public Function readSqlDefineInfo() As sutredlib.SnapSqlDefineWorkSheet
+Public Function readSqlDefineInfo() As ValSnapSqlDefineWorkSheet
 
     ' SQL定義
-    Dim sqlDefine As sutredlib.snapSqlDefine
+    Dim sqlDefine As ValSnapSqlDefine
     ' SQL定義情報を生成する
-    Set sqlDefine = New sutredlib.snapSqlDefine
+    Set sqlDefine = New ValSnapSqlDefine
     ' SQL定義シート
-    Dim sqlDefineSheet As sutredlib.SnapSqlDefineWorkSheet
+    Dim sqlDefineSheet As ValSnapSqlDefineWorkSheet
     ' SQL定義シート情報を生成する
-    Set sqlDefineSheet = New sutredlib.SnapSqlDefineWorkSheet
+    Set sqlDefineSheet = New ValSnapSqlDefineWorkSheet
     sqlDefineSheet.snapSqlDefine = sqlDefine
     
     ' 名前
@@ -228,7 +228,7 @@ End Function
 ' 戻り値　　：
 '
 ' =========================================================
-Private Function readSqlDefineParamsInfo(ByRef sqlDefineSheet As sutredlib.SnapSqlDefineWorkSheet)
+Private Function readSqlDefineParamsInfo(ByRef sqlDefineSheet As ValSnapSqlDefineWorkSheet)
 
     Dim i As Long
     
@@ -236,11 +236,11 @@ Private Function readSqlDefineParamsInfo(ByRef sqlDefineSheet As sutredlib.SnapS
     Dim newline As String: newline = vbLf
 
     ' SQL定義
-    Dim sqlDefine      As sutredlib.snapSqlDefine
+    Dim sqlDefine      As ValSnapSqlDefine
     Set sqlDefine = sqlDefineSheet.snapSqlDefine
     
     ' パラメータ
-    Dim param     As sutredlib.SnapSqlDefineParam
+    Dim param     As ValSnapSqlDefineParam
     
     ' ループ継続フラグ
     Dim continue   As Variant
@@ -280,7 +280,7 @@ Private Function readSqlDefineParamsInfo(ByRef sqlDefineSheet As sutredlib.SnapS
         Do While continue <> Empty
         
             ' レコードにカラムを一つ追加する
-            Set param = New sutredlib.SnapSqlDefineParam
+            Set param = New ValSnapSqlDefineParam
             
             ' パラメータ名を取得
             paramName = .Cells(currentRow, ConstantsSnapSqlDefine.PARAM_NAME_COL)
@@ -324,7 +324,7 @@ End Function
 ' 戻り値　　：
 '
 ' =========================================================
-Private Function readSqlDefineSqlsInfo(ByRef sqlDefineSheet As sutredlib.SnapSqlDefineWorkSheet)
+Private Function readSqlDefineSqlsInfo(ByRef sqlDefineSheet As ValSnapSqlDefineWorkSheet)
 
     Dim i As Long
     
@@ -332,12 +332,12 @@ Private Function readSqlDefineSqlsInfo(ByRef sqlDefineSheet As sutredlib.SnapSql
     Dim newline As String: newline = vbLf
 
     ' SQL定義
-    Dim sqlDefine      As sutredlib.snapSqlDefine
+    Dim sqlDefine      As ValSnapSqlDefine
     Set sqlDefine = sqlDefineSheet.snapSqlDefine
     
     ' SQL
-    Dim sql   As sutredlib.SnapSqlDefineSql
-    Dim sqlPkObj As sutredlib.SnapSqlDefineSqlPk
+    Dim sql   As ValSnapSqlDefineSql
+    Dim sqlPkObj As ValSnapSqlDefineSqlPk
     
     ' ループ継続フラグ
     Dim continue   As Variant
@@ -402,7 +402,7 @@ Private Function readSqlDefineSqlsInfo(ByRef sqlDefineSheet As sutredlib.SnapSql
         Do While continue <> Empty
         
             ' レコードにカラムを一つ追加する
-            Set sql = New sutredlib.SnapSqlDefineSql
+            Set sql = New ValSnapSqlDefineSql
             
             ' パラメータ名を取得
             sqlText = .Cells(currentRow, ConstantsSnapSqlDefine.SQL_DEFINE_SQL_COL)
@@ -413,7 +413,7 @@ Private Function readSqlDefineSqlsInfo(ByRef sqlDefineSheet As sutredlib.SnapSql
             sqlPkArr = Split(sqlPk, newline)
             
             For i = LBound(sqlPkArr) To UBound(sqlPkArr)
-                Set sqlPkObj = New sutredlib.SnapSqlDefineSqlPk
+                Set sqlPkObj = New ValSnapSqlDefineSqlPk
                 sqlPkObj.pk = sqlPkArr(i)
                 sql.addPk sqlPkObj
             Next i

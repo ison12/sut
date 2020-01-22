@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' ブック設定情報にアクセスするクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/12/03　新規作成
 '
 ' 特記事項：
@@ -34,8 +34,14 @@ Private m_propertiesSheet As Worksheet
 ' =========================================================
 Public Property Let sheet(ByVal vNewValue As Variant)
 
+    ' シートを設定する
     Set m_sheet = vNewValue
-    Set m_book = m_sheet.parent
+    
+    If Not vNewValue Is Nothing Then
+        ' シートが未設定の可能性があるのでチェックする
+        Set m_book = m_sheet.parent
+    End If
+    
 End Property
 
 ' =========================================================
@@ -57,13 +63,19 @@ End Sub
 ' =========================================================
 Public Function isExistsProperties() As Boolean
 
+    If m_book Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        isExistsProperties = False
+        Exit Function
+    End If
+
     Dim sheetName As String
     sheetName = ConstantsBookProperties.BOOK_PROPERTIES_SHEET_NAME
 
     On Error Resume Next
 
     ' 対象シート
-    Dim targetSheet     As Worksheet
+    Dim targetSheet As Worksheet
     ' 対象シートを取得する
     Set targetSheet = m_book.Worksheets(sheetName)
 
@@ -87,6 +99,13 @@ End Function
 '
 ' =========================================================
 Private Function createPropertiesSheet() As Worksheet
+
+    If m_book Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        Set m_propertiesSheet = Nothing
+        Set createPropertiesSheet = Nothing
+        Exit Function
+    End If
 
     If Not m_propertiesSheet Is Nothing Then
     
@@ -142,7 +161,10 @@ End Function
 ' =========================================================
 Public Sub setValue(ByVal table As Long, ByVal name As String, ByVal value As String)
 
-    createPropertiesSheet
+    If createPropertiesSheet Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        Exit Sub
+    End If
     
     Dim findRow    As Long
     
@@ -185,7 +207,10 @@ End Sub
 ' =========================================================
 Public Sub removeValue(ByVal table As Long, ByVal name As String)
 
-    createPropertiesSheet
+    If createPropertiesSheet Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        Exit Sub
+    End If
     
     Dim findRow    As Long
     
@@ -229,7 +254,10 @@ End Sub
 ' =========================================================
 Public Sub removeValueByPrefixName(ByVal table As Long, ByVal prefixName As String)
 
-    createPropertiesSheet
+    If createPropertiesSheet Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        Exit Sub
+    End If
     
     Dim findRow    As Long
     
@@ -267,7 +295,10 @@ End Sub
 ' =========================================================
 Public Sub removeAllValue(ByVal table As Long)
 
-    createPropertiesSheet
+    If createPropertiesSheet Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        Exit Sub
+    End If
     
     Dim currentRow As Long
     Dim currentVal As String
@@ -298,7 +329,10 @@ End Sub
 ' =========================================================
 Public Function getValues(ByVal table As Long) As ValCollection
 
-    createPropertiesSheet
+    If createPropertiesSheet Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        Exit Function
+    End If
     
     Dim ret As ValCollection
     Set ret = New ValCollection
@@ -331,7 +365,10 @@ End Function
 ' =========================================================
 Public Function getValuesOfElementArray(ByVal table As Long) As ValCollection
 
-    createPropertiesSheet
+    If createPropertiesSheet Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        Exit Function
+    End If
     
     Dim ret As ValCollection
     Set ret = New ValCollection
@@ -364,7 +401,10 @@ End Function
 ' =========================================================
 Public Function getValuesByPrefixName(ByVal table As Long, ByVal prefixName As String) As ValCollection
 
-    createPropertiesSheet
+    If createPropertiesSheet Is Nothing Then
+        ' ブックが未設定の場合は、設定情報が存在しない
+        Exit Function
+    End If
     
     Dim ret As ValCollection
     Set ret = New ValCollection

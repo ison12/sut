@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' DB接続を行うフォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/09/06　新規作成
 '
 ' 特記事項：
@@ -462,12 +462,14 @@ Private Sub cmdConnectTest_Click()
 
     On Error GoTo err
     
-    SutWhite.showHourglassWindowOnCenterPt Me
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init
     
     ' 接続テスト処理を実施する
     connectDBTest
     
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理が終了したのでマウスカーソルを元に戻す
+    cursorWait.destroy
     
     ' 成功した場合
     VBUtil.showMessageBoxForInformation "DBの接続に成功しました。", ConstantsCommon.APPLICATION_NAME
@@ -475,8 +477,6 @@ Private Sub cmdConnectTest_Click()
     Exit Sub
     
 err:
-
-    SutWhite.closeHourglassWindow
 
     Main.ShowErrorMessage
     
@@ -525,12 +525,14 @@ Private Sub cmdOk_Click()
     
     On Error Resume Next
     
-    SutWhite.showHourglassWindowOnCenterPt Me
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init
     
     ' DBに接続する
     connStr = connectDBTest
     
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    cursorWait.destroy
 
     If err.Number <> 0 Then
         
@@ -611,8 +613,6 @@ Private Sub cmdOk_Click()
     Exit Sub
     
 err:
-    
-    SutWhite.closeHourglassWindow
 
     Main.ShowErrorMessage
     

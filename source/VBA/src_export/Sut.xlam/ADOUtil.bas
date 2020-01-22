@@ -4,7 +4,7 @@ Option Explicit
 ' *********************************************************
 ' ADOを簡便に利用するためのユーティリティモジュール
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2007/12/01　新規作成
 '
 ' 特記事項：Microsoft ActiveX Data Objects Libraryを参照

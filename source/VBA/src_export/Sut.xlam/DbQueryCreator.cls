@@ -13,7 +13,7 @@ Option Explicit
 ' DBのクエリを生成するインターフェース。
 ' 全DBで共通する汎用的な実装インターフェース。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/03/28　新規作成
 '
 ' 特記事項：
@@ -191,11 +191,11 @@ Public Function createInsert(ByRef table As ValDbDefineTable _
     Const CONNECT_FIRST            As String = "    "
         
     ' SQL本体
-    Dim statement         As New sutredlib.SutString
+    Dim statement         As New StringBuilder
     ' SQLカラム句
-    Dim columnStatement   As New sutredlib.SutString
+    Dim columnStatement   As New StringBuilder
     ' SQLバリュー句
-    Dim valuesStatement   As New sutredlib.SutString
+    Dim valuesStatement   As New StringBuilder
 
     ' クエリー値（実際にクエリーに埋め込む値）
     Dim queryValue        As String
@@ -217,7 +217,7 @@ Public Function createInsert(ByRef table As ValDbDefineTable _
     ' -------------------------------------------------
     ' テンプレートSQLステートメントを取得
     ' -------------------------------------------------
-    statement = SutWorkbook.Worksheets(SHEET_NAME_SQL_DEFINE).Range(CELL_SQL_DEFINE_INSERT)
+    statement.append SutWorkbook.Worksheets(SHEET_NAME_SQL_DEFINE).Range(CELL_SQL_DEFINE_INSERT)
 
 
     ' -------------------------------------------------
@@ -316,22 +316,22 @@ continue:
     Next
     
     ' COLUMN句に一つ以上カラムが設定されている場合
-    If columnStatement <> "" Then
+    If columnStatement.str <> "" Then
 
         ' 前方に付加された冗長な","と"\r\n"を取り除く
-        columnStatement.Erase , Len(newline & CONNECT_COMMA)
-        columnStatement.insert 0, CONNECT_FIRST
+        columnStatement.remove 1, Len(newline & CONNECT_COMMA)
+        columnStatement.insert 1, CONNECT_FIRST
                                 
         ' 前方に付加された冗長な","と"\r\n"を取り除く
-        valuesStatement.Erase , Len(newline & CONNECT_COMMA)
-        valuesStatement.insert 0, CONNECT_FIRST
+        valuesStatement.remove 1, Len(newline & CONNECT_COMMA)
+        valuesStatement.insert 1, CONNECT_FIRST
 
         ' カラム指定部分を埋め込む
-        statement.replace "${columns}", columnStatement
+        statement.replace "${columns}", columnStatement.str
         ' 値指定部分を埋め込む
-        statement.replace "${values}", valuesStatement
+        statement.replace "${values}", valuesStatement.str
 
-        createInsert = statement
+        createInsert = statement.str
 
     End If
 
@@ -360,12 +360,12 @@ Public Function createUpdate(ByRef table As ValDbDefineTable, ByRef record As Va
     Const CONNECT_FIRST            As String = "    "
 
     ' SQL本体
-    Dim statement             As New sutredlib.SutString
+    Dim statement             As New StringBuilder
     ' SQLカラム値句
-    Dim columnValuesStatement As New sutredlib.SutString
+    Dim columnValuesStatement As New StringBuilder
 
     ' SQL条件句
-    Dim conditionStatement    As New sutredlib.SutString
+    Dim conditionStatement    As New StringBuilder
 
     ' クエリー値（バリューをクエリー用の値に変換）
     Dim queryValue        As String
@@ -385,7 +385,7 @@ Public Function createUpdate(ByRef table As ValDbDefineTable, ByRef record As Va
     ' テーブル制約リストからPK制約を取得する
     For Each tableConstTmp In table.constraintsList.col
     
-        If tableConstTmp.constraintType = sutredlib.tableConstPk Then
+        If tableConstTmp.constraintType = TABLE_CONSTANTS_TYPE.tableConstPk Then
         
             Set tableConstPk = tableConstTmp
             Exit For
@@ -401,7 +401,7 @@ Public Function createUpdate(ByRef table As ValDbDefineTable, ByRef record As Va
     ' -------------------------------------------------
     ' テンプレートSQLステートメントを取得
     ' -------------------------------------------------
-    statement = SutWorkbook.Worksheets(SHEET_NAME_SQL_DEFINE).Range(CELL_SQL_DEFINE_UPDATE)
+    statement.append SutWorkbook.Worksheets(SHEET_NAME_SQL_DEFINE).Range(CELL_SQL_DEFINE_UPDATE)
 
     ' -------------------------------------------------
     ' SQLを生成する
@@ -518,22 +518,22 @@ continue:
     Next
     
     ' COLUMN句またはWHERE句に一つ以上カラムが設定されている場合
-    If conditionStatement <> "" And columnValuesStatement <> "" Then
+    If conditionStatement.str <> "" And columnValuesStatement.str <> "" Then
 
         ' 前方に付加された冗長な","と改行コードを取り除く
-        columnValuesStatement.Erase , Len(newline & CONNECT_COMMA)
-        columnValuesStatement.insert 0, CONNECT_FIRST
+        columnValuesStatement.remove 1, Len(newline & CONNECT_COMMA)
+        columnValuesStatement.insert 1, CONNECT_FIRST
                                 
         ' 前方に付加された冗長な"AND "と改行コードを取り除く
-        conditionStatement.Erase , Len(newline & CONNECT_AND)
-        conditionStatement.insert 0, CONNECT_FIRST
+        conditionStatement.remove 1, Len(newline & CONNECT_AND)
+        conditionStatement.insert 1, CONNECT_FIRST
                                 
         ' カラム指定部分を埋め込む
-        statement.replace "${columnValues}", columnValuesStatement
+        statement.replace "${columnValues}", columnValuesStatement.str
         ' 値指定部分を埋め込む
-        statement.replace "${condition}", conditionStatement
+        statement.replace "${condition}", conditionStatement.str
 
-        createUpdate = statement
+        createUpdate = statement.str
 
     End If
 
@@ -562,9 +562,9 @@ Public Function createDelete(ByRef table As ValDbDefineTable, ByRef record As Va
     Const CONNECT_FIRST            As String = "    "
 
     ' SQL本体
-    Dim statement            As New sutredlib.SutString
+    Dim statement            As New StringBuilder
     ' SQL条件句
-    Dim conditionStatement   As New sutredlib.SutString
+    Dim conditionStatement   As New StringBuilder
 
     ' クエリー値（実際にクエリーに埋め込む値）
     Dim queryValue        As String
@@ -585,7 +585,7 @@ Public Function createDelete(ByRef table As ValDbDefineTable, ByRef record As Va
     ' テーブル制約リストからPK制約を取得する
     For Each tableConstTmp In table.constraintsList.col
     
-        If tableConstTmp.constraintType = sutredlib.tableConstPk Then
+        If tableConstTmp.constraintType = TABLE_CONSTANTS_TYPE.tableConstPk Then
         
             Set tableConstPk = tableConstTmp
             Exit For
@@ -601,7 +601,7 @@ Public Function createDelete(ByRef table As ValDbDefineTable, ByRef record As Va
     ' -------------------------------------------------
     ' テンプレートSQLステートメントを取得
     ' -------------------------------------------------
-    statement = SutWorkbook.Worksheets(SHEET_NAME_SQL_DEFINE).Range(CELL_SQL_DEFINE_DELETE)
+    statement.append SutWorkbook.Worksheets(SHEET_NAME_SQL_DEFINE).Range(CELL_SQL_DEFINE_DELETE)
 
     ' -------------------------------------------------
     ' SQLを生成する
@@ -688,17 +688,17 @@ continue:
     Next
     
     ' WHERE句に一つ以上カラムが設定されている場合
-    If conditionStatement <> "" Then
+    If conditionStatement.str <> "" Then
 
         ' 前方に付加された冗長な"AND "と"\r\n"を取り除く
-        conditionStatement.Erase , Len(newline & CONNECT_AND)
-        conditionStatement.insert 0, CONNECT_FIRST
+        conditionStatement.remove 1, Len(newline & CONNECT_AND)
+        conditionStatement.insert 1, CONNECT_FIRST
                                 
         ' COLUMN = VALUE句
-        statement.replace "${condition}", conditionStatement
+        statement.replace "${condition}", conditionStatement.str
 
         ' 全てのステートメントを結合して、戻り値として格納する
-        createDelete = statement
+        createDelete = statement.str
 
     End If
 
@@ -719,12 +719,12 @@ End Function
 Public Function createDeleteOfAllTable(ByRef table As ValDbDefineTable) As String
 
     ' SQL本体
-    Dim statement As New sutredlib.SutString
+    Dim statement As New StringBuilder
     
     ' -------------------------------------------------
     ' テンプレートSQLステートメントを取得
     ' -------------------------------------------------
-    statement = SutWorkbook.Worksheets(SHEET_NAME_SQL_DEFINE).Range(CELL_SQL_DEFINE_DELETE_ALL)
+    statement.append SutWorkbook.Worksheets(SHEET_NAME_SQL_DEFINE).Range(CELL_SQL_DEFINE_DELETE_ALL)
 
     ' -------------------------------------------------
     ' SQLを生成する
@@ -732,7 +732,7 @@ Public Function createDeleteOfAllTable(ByRef table As ValDbDefineTable) As Strin
     statement.replace "${tableName}", DBUtil.concatSchemaTable(DBUtil.escapeTableColumn(m_dbms, table.schemaName, m_tableColumnEscape), DBUtil.escapeTableColumn(m_dbms, table.tableName, m_tableColumnEscape), m_schemaUse)
 
     ' 戻り値として格納する
-    createDeleteOfAllTable = statement
+    createDeleteOfAllTable = statement.str
 
 End Function
 
@@ -756,7 +756,8 @@ Public Function createSelectForColumn(ByRef table As ValDbDefineTable _
                                     , Optional ByVal identifier As String = "") As String
 
     ' 戻り値
-    Dim ret As New sutredlib.SutString
+    Dim ret As StringBuilder
+    Set ret = New StringBuilder
 
     ' カラムリスト
     Dim columnList      As ValCollection
@@ -765,7 +766,7 @@ Public Function createSelectForColumn(ByRef table As ValDbDefineTable _
     ' カラム書式情報
     Dim columnFormat    As ValDbColumnTypeColInfo
     ' カラム名
-    Dim columnName      As New sutredlib.SutString
+    Dim columnName      As New StringBuilder
     
     ' カラムリストを取得
     Set columnList = table.columnList
@@ -795,7 +796,7 @@ Public Function createSelectForColumn(ByRef table As ValDbDefineTable _
         
         End If
         
-        columnName.Erase
+        columnName.clear
         
         If columnFormat.formatSelect = COLUMN_FORMAT_REPLACE_CHAR_EXCLUDE Then
         
@@ -809,24 +810,24 @@ Public Function createSelectForColumn(ByRef table As ValDbDefineTable _
         ElseIf convert = True Then
         
             ' カラム名の変換処理実行
-            columnName = convertSelectFormat(m_dbms, columnFormat.formatSelect, identifier & DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape))
+            columnName.append convertSelectFormat(m_dbms, columnFormat.formatSelect, identifier & DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape))
             
         Else
         
             ' 変換しない場合、カラム名をそのまま設定
-            columnName = identifier & DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape)
+            columnName.append identifier & DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape)
         End If
         
         ' COLUMN句
-        ret.append(vbLf).append(INDENT).append("   ,").append (columnName)
+        ret.append(vbLf).append(INDENT).append("   ,").append (columnName.str)
     Next
 
     ' 前方に付加された冗長な","と"\n"を取り除く
-    ret.Erase , Len(vbLf & INDENT & "   ,")
-    ret.insert 0, INDENT & "    "
+    ret.remove 1, Len(vbLf & INDENT & "   ,")
+    ret.insert 1, INDENT & "    "
                             
     ' 戻り値を設定する
-    createSelectForColumn = ret
+    createSelectForColumn = ret.str
     
 End Function
 
@@ -863,9 +864,9 @@ Public Sub createSelectForWhereOrderby(ByVal table As ValDbDefineTable _
     Const CONNECT_LEFT_RIGHT_IS     As String = " IS "
 
     ' WHERE句の内容
-    Dim where       As New sutredlib.SutString
+    Dim where       As New StringBuilder
     ' ORDER BY句の内容
-    Dim order       As New sutredlib.SutString
+    Dim order       As New StringBuilder
     
     ' カラムリスト
     Dim columnList As ValCollection
@@ -1003,28 +1004,28 @@ continue:
     
                   
     ' WHERE句が１文字でも生成されていたら"WHERE"を付加
-    If where <> "" Then
+    If where.str <> "" Then
     
         ' 前方に付加されている冗長な改行コードと連結文字列を除外する
-        where.Erase , Len(vbLf & CONNECT_AND)
-        where.insert 0, CONNECT_FIRST
-        where.insert 0, "WHERE" & vbLf
+        where.remove 1, Len(vbLf & CONNECT_AND)
+        where.insert 1, CONNECT_FIRST
+        where.insert 1, "WHERE" & vbLf
     End If
                   
     ' ORDER BY句が１文字でも生成されていたら"ORDER BY"を付加
-    If order <> "" Then
+    If order.str <> "" Then
     
         ' 前方に付加されている冗長な改行コードと連結文字列を除外する
-        order.Erase , Len(vbLf & CONNECT_COMMA)
-        order.insert 0, CONNECT_FIRST
-        order.insert 0, "ORDER BY" & vbLf
+        order.remove 1, Len(vbLf & CONNECT_COMMA)
+        order.insert 1, CONNECT_FIRST
+        order.insert 1, "ORDER BY" & vbLf
     End If
                   
     ' 戻り値を設定する
-    statementWhere = where
+    statementWhere = where.str
     
     ' 戻り値を設定する
-    statementOrderby = order
+    statementOrderby = order.str
     
 End Sub
 
@@ -1047,7 +1048,7 @@ Public Function createSelectForOrderby(ByVal table As ValDbDefineTable _
     Const CONNECT_COMMA            As String = ", "
 
     ' ORDER BY句の内容
-    Dim order       As New sutredlib.SutString
+    Dim order       As New StringBuilder
     
     ' カラムリスト
     Dim columnList As ValCollection
@@ -1098,15 +1099,15 @@ continue:
     Next
     
     ' ORDER BY句が１文字でも生成されていたら"ORDER BY"を付加
-    If order <> "" Then
+    If order.str <> "" Then
     
         ' 前方に付加されている冗長な改行コードと連結文字列を除外する
-        order.Erase , Len(CONNECT_COMMA)
-        order.insert 0, "ORDER BY "
+        order.remove 1, Len(CONNECT_COMMA)
+        order.insert 1, "ORDER BY "
     End If
                   
     ' 戻り値を設定する
-    createSelectForOrderby = order
+    createSelectForOrderby = order.str
     
 End Function
 
@@ -1136,7 +1137,7 @@ Public Function createSelectForPkJoin(ByRef table As ValDbDefineTable _
     Const CONNECT_FIRST            As String = ""
 
     ' SQL条件句
-    Dim conditionStatement    As New sutredlib.SutString
+    Dim conditionStatement    As New StringBuilder
 
     ' カラムリスト
     Dim columnList      As ValCollection
@@ -1149,9 +1150,9 @@ Public Function createSelectForPkJoin(ByRef table As ValDbDefineTable _
     
     Dim tableConstTmp   As ValDbDefineTableConstraints
     ' テーブル制約リストからPK制約を取得する
-    For Each tableConstTmp In table.constraintsList
+    For Each tableConstTmp In table.constraintsList.col
     
-        If tableConstTmp.constraintType = sutredlib.tableConstPk Then
+        If tableConstTmp.constraintType = TABLE_CONSTANTS_TYPE.tableConstPk Then
         
             Set tableConstPk = tableConstTmp
             Exit For
@@ -1217,15 +1218,15 @@ continue:
     Next
     
     ' COLUMN句またはWHERE句に一つ以上カラムが設定されている場合
-    If conditionStatement <> "" Then
+    If conditionStatement.str <> "" Then
 
         ' 前方に付加された冗長な"AND "と改行コードを取り除く
-        conditionStatement.Erase , Len(CONNECT_AND)
-        conditionStatement.insert 0, CONNECT_FIRST
+        conditionStatement.remove 1, Len(CONNECT_AND)
+        conditionStatement.insert 1, CONNECT_FIRST
                                 
     End If
     
-    createSelectForPkJoin = conditionStatement.value
+    createSelectForPkJoin = conditionStatement.str
 
 End Function
 

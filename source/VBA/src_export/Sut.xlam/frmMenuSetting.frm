@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmMenuSetting
    ClientHeight    =   6030
    ClientLeft      =   45
    ClientTop       =   360
-   ClientWidth     =   7665
+   ClientWidth     =   7440
    OleObjectBlob   =   "frmMenuSetting.frx":0000
 End
 Attribute VB_Name = "frmMenuSetting"
@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' 右クリックメニューの設定
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/06/02　新規作成
 '
 ' 特記事項：
@@ -141,7 +141,7 @@ Public Sub ShowExt(ByRef parent As Object _
     activate
     
     Main.restoreFormPosition Me.name, Me
-    Me.Show vbModal
+    Me.Show modal
 End Sub
 
 ' =========================================================

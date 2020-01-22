@@ -13,7 +13,7 @@ Option Explicit
 ' DBのデフォルトのカラム書式情報を表現するクラス
 ' 対応するDB毎に本インターフェースをImplementsする。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/08/14　新規作成
 '
 ' 特記事項：

@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' クエリを実行するクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2013/06/19　新規作成
 '
 ' 特記事項：
@@ -191,7 +191,7 @@ End Sub
 ' 戻り値　　：レコード取得件数
 '
 ' =========================================================
-Public Function execute(ByRef queryList As sutredlib.GenericCollection) As Long
+Public Function execute(ByRef queryList As ValCollection) As Long
 
     On Error GoTo err
 
@@ -274,7 +274,7 @@ Public Function execute(ByRef queryList As sutredlib.GenericCollection) As Long
     executingSql = False
     executingSqlError = False
     
-    For Each var In queryList
+    For Each var In queryList.col
     
         sql = var.query
     

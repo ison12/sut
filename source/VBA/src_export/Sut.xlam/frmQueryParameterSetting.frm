@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' クエリパラメータの一件毎の編集（子画面）
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/12/08　新規作成
 '
 ' 特記事項：
@@ -64,7 +64,7 @@ Public Sub ShowExt(ByVal modal As FormShowConstants, ByVal queryParameter As Val
     txtParameter.SetFocus
     
     Main.restoreFormPosition Me.name, Me
-    Me.Show vbModal
+    Me.Show modal
 
 End Sub
 

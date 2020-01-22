@@ -17,9 +17,8 @@ Option Explicit
 ' 内部で保持しラベルとオブジェクトを１セットで追加・取得可
 ' 能なインターフェースを定義している。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/09/23　新規作成
-'           2010/03/06  SutRedLib.GenericCollectionによるデータ追加に対応
 '
 ' 特記事項：
 ' *********************************************************
@@ -565,79 +564,6 @@ Public Sub addNestedProperty(ByVal col As ValCollection _
     End If
     
     Set m_collection = col
-    
-End Sub
-
-' =========================================================
-' ▽要素追加
-'
-' 概要　　　：要素をまとめて追加する。
-'
-' 引数　　　：col       コレクション
-' 　　　　　　labelProp1 ラベルとして利用する【col】に格納されている要素のプロパティ
-' 　　　　　　labelProp2 ラベルとして利用する【col】に格納されている要素のプロパティ
-'
-' 戻り値　　：無し
-' =========================================================
-Public Sub addAllByGenericCollection(ByVal col As sutredlib.GenericCollection _
-                                   , Optional ByVal labelProp1 As String = "" _
-                                   , Optional ByVal labelProp2 As String = "")
-
-    Dim var As Variant
-    
-    Dim i As Long: i = 0
-    
-    Dim Label1 As String
-    Dim Label2 As String
-    
-    ' コレクションオブジェクトを新しく生成する
-    Set m_collection = New ValCollection
-    ' リストコントロールから要素を全て削除する
-    m_control.clear
-    
-    ' リストコントロールに要素を追加する
-    ' ラベルプロパティ1・2が設定されている場合
-    If labelProp1 <> "" And labelProp2 <> "" Then
-    
-        For Each var In col
-        
-            Label1 = CallByName(var, labelProp1, VbGet)
-            Label2 = CallByName(var, labelProp2, VbGet)
-            
-            m_control.addItem
-            m_control.list(i, 0) = Label1
-            m_control.list(i, 1) = Label2
-            
-            m_collection.setItem var
-            
-            i = i + 1
-        Next
-    
-    ' ラベルプロパティ1が設定されている場合
-    ElseIf labelProp1 <> "" Then
-    
-        For Each var In col
-        
-            Label1 = CallByName(var, labelProp1, VbGet)
-        
-            m_control.addItem
-            m_control.list(i, 0) = Label1
-            
-            m_collection.setItem var
-            
-            i = i + 1
-        Next
-    
-    ' ラベルプロパティが設定されていない場合、colから取得した要素自身をリストに追加する
-    Else
-    
-        For Each var In col
-        
-            m_control.addItem var
-            m_collection.setItem var
-        Next
-    
-    End If
     
 End Sub
 

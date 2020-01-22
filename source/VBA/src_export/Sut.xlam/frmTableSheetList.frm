@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmTableSheetList 
    Caption         =   "テーブルシート一覧"
-   ClientHeight    =   9225.001
+   ClientHeight    =   8415.001
    ClientLeft      =   45
    ClientTop       =   360
    ClientWidth     =   10905
@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' テーブルシート一覧フォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/04/03　新規作成
 '
 ' 特記事項：
@@ -203,6 +203,9 @@ Private Sub activate()
     Set tableList = New ValCollection
     Set tableSheetWithoutFilterList = New ValCollection
     
+    Dim i As Long: i = 0
+    Dim selectedIndex As Long: selectedIndex = -1
+    
     ' ブックに含まれているシートを1件ずつ処理する
     For Each sheet In book.Worksheets
     
@@ -216,12 +219,23 @@ Private Sub activate()
             
             tableList.setItem tableWorksheet
             tableSheetWithoutFilterList.setItem tableWorksheet
+            
+            If tableWorksheet.sheetName = ActiveSheet.name Then
+                selectedIndex = i
+            End If
+        
+            i = i + 1
         End If
     
     Next
     
     ' リストコントロールにテーブルシート情報を追加する
     addTableSheetList tableList, False
+    
+    If selectedIndex <> -1 Then
+        ' アクティブシートを選択状態にする
+        tableSheetList.setSelectedIndex selectedIndex
+    End If
     
 End Sub
 
@@ -238,33 +252,16 @@ Private Sub deactivate()
 End Sub
 
 ' =========================================================
-' ▽テーブルシートリスト　ダブルクリック時のイベントプロシージャ
+' ▽テーブルシートリスト　選択肢変更時のイベントプロシージャ
 '
 ' 概要　　　：
 ' 引数　　　：
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstTableSheet_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstTableSheet_Change()
 
     selectedTable
-End Sub
-
-' =========================================================
-' ▽テーブルシートリスト　キー押下時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub lstTableSheet_KeyPress(ByVal KeyAscii As MSForms.ReturnInteger)
-    
-    If KeyAscii = vbKeyReturn Or KeyAscii = vbKeySpace Then
-    
-        selectedTable
-    End If
-    
 End Sub
 
 ' =========================================================
@@ -278,18 +275,6 @@ End Sub
 Private Sub cmdTableSheetListUpdate_Click()
 
     activate
-End Sub
-
-' =========================================================
-' ▽選択ボタン押下時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub cmdSelect_Click()
-    selectedTable
 End Sub
 
 ' =========================================================

@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' スナップショットのクエリを実行するクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/01/05　新規作成
 '
 ' 特記事項：
@@ -114,7 +114,7 @@ End Sub
 ' 戻り値　　：レコード取得情報
 '
 ' =========================================================
-Public Function execute(ByRef sqlDefineWorkSheet As sutredlib.SnapSqlDefineWorkSheet) As ValSnapRecordsSet
+Public Function execute(ByRef sqlDefineWorkSheet As ValSnapSqlDefineWorkSheet) As ValSnapRecordsSet
 
     On Error GoTo err
 
@@ -163,8 +163,8 @@ Public Function execute(ByRef sqlDefineWorkSheet As sutredlib.SnapSqlDefineWorkS
     Dim varOfSqlList   As Variant
     Dim varOfParamList As Variant
     
-    Dim sqlDefineSql   As sutredlib.SnapSqlDefineSql
-    Dim sqlDefineParam As sutredlib.SnapSqlDefineParam
+    Dim sqlDefineSql   As ValSnapSqlDefineSql
+    Dim sqlDefineParam As ValSnapSqlDefineParam
     
     Dim sqlTemplate As String
     Dim sql As String
@@ -281,7 +281,7 @@ Public Function execute(ByRef sqlDefineWorkSheet As sutredlib.SnapSqlDefineWorkS
             snapRecords.recordList = recordList
             Set snapRecords.pkList = sqlDefineSql.pkList
 
-            execute.list.Add snapRecords
+            execute.list.setItem snapRecords
 
         End If
             

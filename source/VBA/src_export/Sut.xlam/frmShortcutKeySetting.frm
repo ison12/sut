@@ -18,7 +18,7 @@ Option Explicit
 ' *********************************************************
 ' ショートカットキーの設定（子画面）
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/06/02　新規作成
 '
 ' 特記事項：
@@ -32,7 +32,7 @@ Option Explicit
 ' 引数　　　：applicationSetting アプリケーション設定情報
 '
 ' =========================================================
-Public Event ok(ByVal keyCode As String, ByVal keyLabel As String)
+Public Event ok(ByVal KeyCode As String, ByVal keyLabel As String)
 
 ' =========================================================
 ' ▽キャンセルされた場合に呼び出されるイベント
@@ -58,9 +58,9 @@ Private keyCodeBefore As String
 ' 戻り値　　：
 '
 ' =========================================================
-Public Sub ShowExt(ByVal modal As FormShowConstants, ByVal keyCode As String)
+Public Sub ShowExt(ByVal modal As FormShowConstants, ByVal KeyCode As String)
 
-    keyCodeBefore = keyCode
+    keyCodeBefore = KeyCode
     
     activate
     
@@ -68,7 +68,7 @@ Public Sub ShowExt(ByVal modal As FormShowConstants, ByVal keyCode As String)
     cboKey.SetFocus
     
     Main.restoreFormPosition Me.name, Me
-    Me.Show vbModal
+    Me.Show modal
 
 End Sub
 
@@ -221,8 +221,8 @@ Private Sub cmdOk_Click()
     HideExt
     
     ' キーコードを分解し、対応する変数に格納する
-    Dim keyCode As String
-    keyCode = VBUtil.getAppOnKeyCodeBySomeParams( _
+    Dim KeyCode As String
+    KeyCode = VBUtil.getAppOnKeyCodeBySomeParams( _
                                    chbCtrl.value _
                                  , chbShift.value _
                                  , chbAlt.value _
@@ -236,7 +236,7 @@ Private Sub cmdOk_Click()
                                  , cboKey.value)
 
     ' OKイベントを送信する
-    RaiseEvent ok(keyCode, keyName)
+    RaiseEvent ok(KeyCode, keyName)
     
     Exit Sub
     

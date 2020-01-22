@@ -4,7 +4,7 @@ Option Explicit
 ' *********************************************************
 ' 共通の定数モジュール
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/03/31　新規作成
 '
 ' 特記事項：
@@ -23,16 +23,6 @@ Public Const version As String = "1.10"
 
 ' ヘルプファイル
 Public Const HELP_FILE As String = "Sut.chm"
-
-' セッション鍵のパスワード情報
-Public Const SESSION_KEY_PASSWORD As String = "SUT_20090518_RaweV%@-Asdv"
-
-' 試用期間の日付
-Public Const PROBATION_DAY As Long = 14
-' 試用期間のキー
-Public Const PROBATION_REG_DIR As String = "Data"
-' 試用期間のキー
-Public Const PROBATION_REG_KEY As String = "Kernel Key"
 
 ' コマンドバーメニューの名称
 Public Const COMMANDBAR_MENU_NAME       As String = "Sut by Ison"

@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' テーブルシート更新フォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/04/03　新規作成
 '
 ' 特記事項：
@@ -31,7 +31,7 @@ Option Explicit
 ' 引数　　　：recFormat 行フォーマット
 '
 ' =========================================================
-Public Event ok(ByVal recFormat As sutredlib.REC_FORMAT)
+Public Event ok(ByVal recFormat As REC_FORMAT)
 
 ' =========================================================
 ' ▽処理がキャンセルされた場合に呼び出されるイベント
@@ -167,7 +167,7 @@ End Sub
 Private Sub activate()
 
     ' 行フォーマット
-    Dim recFormat As sutredlib.REC_FORMAT
+    Dim recFormat As REC_FORMAT
     
     ' アクティブなテーブルシートの行フォーマットを取得し
     ' オプションボタンに反映する
@@ -179,7 +179,7 @@ Private Sub activate()
         
     recFormat = tableSheetReader.getRowFormat
     
-    If recFormat = sutredlib.recFormatToUnder Then
+    If recFormat = REC_FORMAT.recFormatToUnder Then
     
         optRowFormatToUnder.value = True
     
@@ -216,19 +216,19 @@ Private Sub cmdOk_Click()
     ' 行フォーマット定数を利用するために、ValTableを生成する
     Dim table As ValDbDefineTable
     ' 行フォーマット
-    Dim recFormat As sutredlib.REC_FORMAT
+    Dim recFormat As REC_FORMAT
     
     ' オプションボタンで選択されている値を
     ' Long型の行フォーマット定数に変換する。
     If optRowFormatToUnder.value = True Then
     
         ' 行フォーマットXのラジオボタンが選択されている場合
-        recFormat = sutredlib.recFormatToUnder
+        recFormat = REC_FORMAT.recFormatToUnder
     
     Else
     
         ' 行フォーマットYのラジオボタンが選択されている場合
-        recFormat = sutredlib.recFormatToRight
+        recFormat = REC_FORMAT.recFormatToRight
         
     End If
     

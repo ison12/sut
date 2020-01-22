@@ -12,15 +12,15 @@ Option Explicit
 ' *********************************************************
 ' メニュー操作時の処理 - File
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/03/14　新規作成
 '
 ' 特記事項：
 ' *********************************************************
 
-' プログレスフォーム（イベント受信用に定義）
-Private WithEvents frmProgress                  As sutredlib.Progress
-Attribute frmProgress.VB_VarHelpID = -1
+' プログレスフォーム
+Private WithEvents frmProgressVar               As frmProgress
+Attribute frmProgressVar.VB_VarHelpID = -1
 ' ファイル出力フォーム
 Private WithEvents frmFileOutputVar             As frmFileOutput
 Attribute frmFileOutputVar.VB_VarHelpID = -1
@@ -50,7 +50,7 @@ Private applicationSetting As ValApplicationSetting
 ' ________________________________________________________
 ' イベント定義
 ' ________________________________________________________
-Private Sub frmProgress_OnCancel()
+Private Sub frmProgressVar_cancel()
 
     ' キャンセルフラグをONにする
     tableSheetReader.canceled = True
@@ -117,11 +117,11 @@ Private Function execFileOutput(table As ValTableWorksheet _
     ' プログレスウィンドウを表示する
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
-        frmProgress.Show ExcelUtil.getApplicationHWnd, True
+        frmProgressVar.ShowExt vbModeless, True
     Else
-        frmProgress.Show ExcelUtil.getApplicationHWnd, False
+        frmProgressVar.ShowExt vbModeless, False
     End If
-    frmProgress.title = "ファイル出力 - " & frmFileOutputVar.lblHeader.Caption
+    frmProgressVar.title = "ファイル出力 - " & frmFileOutputVar.lblHeader.Caption
     
     resultCount = update.execute
     
@@ -131,7 +131,7 @@ Private Function execFileOutput(table As ValTableWorksheet _
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     execFileOutput = True
     
@@ -144,7 +144,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
 
 End Function
 
@@ -195,7 +195,7 @@ End Sub
 ' =========================================================
 Private Sub update_readColumnListBegin(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "カラム定義読み込み中"
+    frmProgressVar.initPri cnt, "カラム定義読み込み中"
     
     DoEvents
 End Sub
@@ -205,7 +205,7 @@ End Sub
 ' =========================================================
 Private Sub update_readColumn(column As ValDbDefineColumn)
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
     
     DoEvents
 End Sub
@@ -213,9 +213,9 @@ End Sub
 ' =========================================================
 ' ▼更新イベント - カラムリスト読み込み完了
 ' =========================================================
-Private Sub update_readColumnList(columnList As sutredlib.GenericCollection)
+Private Sub update_readColumnList(columnList As ValCollection)
 
-    frmProgress.PriMessage = "カラム定義読み込み完了"
+    frmProgressVar.priMessage = "カラム定義読み込み完了"
     
     DoEvents
 End Sub
@@ -225,7 +225,7 @@ End Sub
 ' =========================================================
 Private Sub update_readRecordListSize(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "レコードリストサイズ読み込み完了"
+    frmProgressVar.initPri cnt, "レコードリストサイズ読み込み完了"
 End Sub
 
 ' =========================================================
@@ -239,12 +239,12 @@ Private Sub update_readRecordListBegin(ByVal cnt As Long)
         ' 分割して処理を実行していることが分かるように
         ' 処理レコードの範囲をメッセージ（その他）に埋め込む
         
-        frmProgress.PriMessage = "・・・"
-        frmProgress.InitSec applicationSetting.recProcessCountCustom, "レコードリスト読み込み中"
+        frmProgressVar.priMessage = "・・・"
+        frmProgressVar.initSec applicationSetting.recProcessCountCustom, "レコードリスト読み込み中"
         
     Else
     
-        frmProgress.PriMessage = "レコードリスト読み込み中"
+        frmProgressVar.priMessage = "レコードリスト読み込み中"
         
     End If
     
@@ -262,13 +262,13 @@ Private Sub update_readRecordList(recordList As ValRecordList)
         ' 分割して処理を実行していることが分かるように
         ' 処理レコードの範囲をメッセージ（その他）に埋め込む
         
-        frmProgress.SecMessage = "レコードリスト読み込み完了"
-        frmProgress.SecCount = VBUtil.arraySize(recordList.values)
+        frmProgressVar.secMessage = "レコードリスト読み込み完了"
+        frmProgressVar.secCount = VBUtil.arraySize(recordList.values)
         
     Else
     
-        frmProgress.PriMessage = "レコードリスト読み込み完了"
-        frmProgress.PriCount = VBUtil.arraySize(recordList.values)
+        frmProgressVar.priMessage = "レコードリスト読み込み完了"
+        frmProgressVar.priCount = VBUtil.arraySize(recordList.values)
     End If
     
     DoEvents
@@ -285,10 +285,10 @@ Private Sub update_ExecuteSqlBegin(ByVal count As Long)
         ' 分割して処理を実行していることが分かるように
         ' 処理レコードの範囲をメッセージ（その他）に埋め込む
         
-        frmProgress.InitSec count, "SQLファイル出力中"
+        frmProgressVar.initSec count, "SQLファイル出力中"
     Else
     
-        frmProgress.InitPri count, "SQLファイル出力中"
+        frmProgressVar.initPri count, "SQLファイル出力中"
         
     End If
     
@@ -309,10 +309,10 @@ Private Sub update_ExecuteSql(ByRef tableSheet As ValTableWorksheet _
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
     
-        frmProgress.InclimentSec
+        frmProgressVar.inclimentSec
     Else
     
-        frmProgress.InclimentPri
+        frmProgressVar.inclimentPri
     End If
     
     DoEvents
@@ -335,12 +335,12 @@ Private Sub update_ExecuteSqlSuccessful(ByVal count As Long)
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
     
-        frmProgress.SecMessage = "SQLファイル出力完了"
-        frmProgress.PriCount = frmProgress.PriCount + count
+        frmProgressVar.secMessage = "SQLファイル出力完了"
+        frmProgressVar.priCount = frmProgressVar.priCount + count
         
     Else
     
-        frmProgress.PriMessage = "SQLファイル出力完了"
+        frmProgressVar.priMessage = "SQLファイル出力完了"
     End If
     
     DoEvents
@@ -352,7 +352,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__readColumnListBegin(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "カラム定義読み込み中"
+    frmProgressVar.initPri cnt, "カラム定義読み込み中"
     
     DoEvents
 End Sub
@@ -362,7 +362,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__readColumn(column As ValDbDefineColumn)
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
     
     DoEvents
 End Sub
@@ -370,9 +370,9 @@ End Sub
 ' =========================================================
 ' ▼更新イベント（選択） - カラムリスト読み込み完了
 ' =========================================================
-Private Sub updateSelection__readColumnList(columnList As sutredlib.GenericCollection)
+Private Sub updateSelection__readColumnList(columnList As ValCollection)
 
-    frmProgress.PriMessage = "カラム定義読み込み完了"
+    frmProgressVar.priMessage = "カラム定義読み込み完了"
     
     DoEvents
 End Sub
@@ -382,7 +382,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__readRecordListBySelectionBegin(ByVal cnt As Long)
 
-    frmProgress.InitPri cnt, "レコードリスト読み込み中"
+    frmProgressVar.initPri cnt, "レコードリスト読み込み中"
 
     DoEvents
 End Sub
@@ -396,7 +396,7 @@ Private Sub updateSelection__readRecordListBySelectionOne(recordList As ValRecor
     
     count = VBUtil.arraySize(recordList.values)
     
-    frmProgress.PriCount = frmProgress.PriCount + count
+    frmProgressVar.priCount = frmProgressVar.priCount + count
     
     DoEvents
 End Sub
@@ -406,12 +406,12 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__readRecordListBySelection(recordLists As ValCollection)
 
-    frmProgress.PriMessage = "レコードリスト読み込み完了"
+    frmProgressVar.priMessage = "レコードリスト読み込み完了"
     
     ' カウント数を一旦0クリアする（カウント総数はそのまま）
     ' ExecuteSqlBeginイベントはセル選択時の場合は複数回呼び出されるので
     ' カウントをリセットするような処理はせずに、その手前で呼び出される本イベントでリセットを実施する
-    frmProgress.PriCount = 0
+    frmProgressVar.priCount = 0
     
     DoEvents
 End Sub
@@ -421,7 +421,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__ExecuteSqlBegin(ByVal count As Long)
 
-    frmProgress.PriMessage = "SQLファイル出力中"
+    frmProgressVar.priMessage = "SQLファイル出力中"
     
     DoEvents
 End Sub
@@ -435,7 +435,7 @@ Private Sub updateSelection__ExecuteSql(ByRef table As ValTableWorksheet _
                             , ByRef sql As String _
                             , ByVal count As Long)
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
 
     ' デバッグモードのみの実行
     #If (DEBUG_MODE = 1) Then
@@ -452,7 +452,7 @@ End Sub
 ' =========================================================
 Private Sub updateSelection__ExecuteSqlSuccessful(ByVal count As Long)
 
-    frmProgress.PriMessage = "SQL実行完了"
+    frmProgressVar.priMessage = "SQL実行完了"
     
     DoEvents
 
@@ -485,11 +485,11 @@ Private Sub frmFileOutputVar_ok(ByVal filePath As String, ByVal characterCode As
     ' プログレスウィンドウを表示する
     ' 処理単位が設定されている場合
     If applicationSetting.recProcessCount = applicationSetting.REC_PROCESS_COUNT_COSTOM Then
-        frmProgress.Show ExcelUtil.getApplicationHWnd, True
+        frmProgressVar.ShowExt vbModeless, True
     Else
-        frmProgress.Show ExcelUtil.getApplicationHWnd, False
+        frmProgressVar.ShowExt vbModeless, False
     End If
-    frmProgress.title = "ファイル出力 - " & frmFileOutputVar.lblHeader.Caption
+    frmProgressVar.title = "ファイル出力 - " & frmFileOutputVar.lblHeader.Caption
     
     ' 更新を実行する
     If updateCurrent Is update Then
@@ -506,7 +506,7 @@ Private Sub frmFileOutputVar_ok(ByVal filePath As String, ByVal characterCode As
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     ' メッセージボックスに実行件数を表示する
     VBUtil.showMessageBoxForInformation resultCount & "件処理しました。", ConstantsCommon.APPLICATION_NAME
@@ -518,7 +518,7 @@ err:
     Set longTimeProcessing = Nothing
     
     ' プログレスウィンドウを非表示にする
-    frmProgress.Close
+    frmProgressVar.HideExt
 
     ' エラー発生
     Main.ShowErrorMessage
@@ -538,10 +538,6 @@ End Sub
 ' =========================================================
 Private Sub Class_Terminate()
 
-    If Not frmProgress Is Nothing Then
-        frmProgress.Close
-    End If
-    
     ' プログレスフォームを破棄する
     Set frmProgress = Nothing
     ' ファイル出力フォームを破棄する
@@ -576,7 +572,9 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
               , ByRef conn As Object)
 
     ' フォームを設定する
-    Set frmProgress = New sutredlib.Progress
+    Load frmProgress
+    ' フォームを設定する
+    Set frmProgressVar = frmProgress
     
     ' フォームをロードする
     Load frmFileOutput
@@ -608,7 +606,7 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
 End Sub
 
 ' =========================================================
-' ▽INSERT and UPDATE 実行（全レコード）
+' ▽INSERT + UPDATE 実行（全レコード）
 '
 ' 概要　　　：
 ' 引数　　　：
@@ -631,7 +629,7 @@ Public Sub insertUpdateAll()
     updateCurrent.queryType = updateCurrent.QUERY_TYPE_INSERT_UPDATE
     
     frmFileOutputVar.ShowExt vbModal _
-                            , "INSERT and UPDATE SQL" _
+                            , "INSERT + UPDATE SQL" _
                             , tableSheet.table.schemaTableName & ".sql"
 
     Exit Sub
@@ -644,7 +642,7 @@ err:
 End Sub
 
 ' =========================================================
-' ▽INSERT and UPDATE 実行（選択範囲）
+' ▽INSERT + UPDATE 実行（選択範囲）
 '
 ' 概要　　　：
 ' 引数　　　：
@@ -667,7 +665,7 @@ Public Sub insertUpdateSelection()
     updateCurrent.queryType = updateCurrent.QUERY_TYPE_INSERT_UPDATE
     
     frmFileOutputVar.ShowExt vbModal _
-                            , "INSERT and UPDATE SQL（範囲選択）" _
+                            , "INSERT + UPDATE SQL（範囲選択）" _
                             , tableSheet.table.schemaTableName & ".sql"
 
     Exit Sub

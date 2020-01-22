@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' テーブルシート作成フォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/01/25　新規作成
 '
 ' 特記事項：
@@ -671,7 +671,8 @@ Private Sub initPageChoiceSchema()
 
     On Error GoTo err
 
-    SutWhite.showHourglassWindowOnCenterPt Me
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init
 
     ' 一時変数
     Dim var As ValCollection
@@ -681,7 +682,8 @@ Private Sub initPageChoiceSchema()
     Dim dbInfo As IDbMetaInfoGetter
     Set dbInfo = dbObjFactory.createMetaInfoGetterObject(dbConn)
     
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理が終了したのでマウスカーソルを元に戻す
+    cursorWait.destroy
     
     Set var = dbInfo.getSchemaList
     
@@ -692,8 +694,6 @@ Private Sub initPageChoiceSchema()
     
 err:
 
-    SutWhite.closeHourglassWindow
-    
     err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
     
 End Sub
@@ -766,8 +766,8 @@ Private Sub activatePageChoiceTable()
 
     On Error GoTo err
 
-    ' 砂時計ウィンドウを表示する
-    SutWhite.showHourglassWindowOnCenterPt Me
+    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+    Dim cursorWait As New ExcelCursorWait: cursorWait.init
 
     ' 一時変数
     Dim var  As ValCollection
@@ -789,16 +789,13 @@ Private Sub activatePageChoiceTable()
         tableInfoList.addAll var, "SchemaTableName", "TableComment"
     End If
     
-    ' 砂時計ウィンドウを閉じる
-    SutWhite.closeHourglassWindow
+    ' 長時間の処理が終了したのでマウスカーソルを元に戻す
+    cursorWait.destroy
     
     Exit Sub
     
 err:
 
-    ' 砂時計ウィンドウを閉じる
-    SutWhite.closeHourglassWindow
-    
     err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
     
 End Sub
@@ -899,10 +896,10 @@ Private Sub fixPageComplete()
         ' リストコントロールにて選択されているかを判定する
         If lstTableListRowFormat.selected(i) = True Then
         
-            tableSheet.recFormat = sutredlib.recFormatToRight
+            tableSheet.recFormat = REC_FORMAT.recFormatToRight
         Else
         
-            tableSheet.recFormat = sutredlib.recFormatToUnder
+            tableSheet.recFormat = REC_FORMAT.recFormatToUnder
         End If
         
         tableSheetList.setItem tableSheet, varObj.schemaTableName

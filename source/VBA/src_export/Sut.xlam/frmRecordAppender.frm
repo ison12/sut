@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' ワークシートの行数を変更するフォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/11/15　新規作成
 '
 ' 特記事項：
@@ -177,7 +177,7 @@ Private Sub cmdOk_Click()
     
     Dim recStart As Long
     
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         recStart = ConstantsTable.U_RECORD_OFFSET_ROW
     Else
@@ -208,8 +208,6 @@ Private Sub cmdOk_Click()
     Exit Sub
     
 err:
-    
-    SutWhite.closeHourglassWindow
 
     Main.ShowErrorMessage
     

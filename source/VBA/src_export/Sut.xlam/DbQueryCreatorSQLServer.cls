@@ -15,7 +15,7 @@ Implements IDbQueryCreator
 ' DBのクエリを生成するインターフェース。
 ' Microsoft SQLServer DB向けの実装。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2010/11/06　新規作成
 '
 ' 特記事項：
@@ -317,7 +317,7 @@ Private Function IDbQueryCreator_createSelect(ByRef table As ValDbDefineTable _
         Dim orderbySingleLine As String
         orderbySingleLine = queryCreatorCommon.createSelectForOrderby(table, condition)
         
-        Dim innerTable As New sutredlib.SutString
+        Dim innerTable As New StringBuilder
         
         innerTable.append (INDENT)
         innerTable.append ("(SELECT *, ROW_NUMBER()")
@@ -331,7 +331,7 @@ Private Function IDbQueryCreator_createSelect(ByRef table As ValDbDefineTable _
         innerTable.append (" AS row_number")
         innerTable.append(" FROM ").append(DBUtil.concatSchemaTable(DBUtil.escapeTableColumn(m_dbms, table.schemaName, m_tableColumnEscape), DBUtil.escapeTableColumn(m_dbms, table.tableName, m_tableColumnEscape), m_schemaUse)).append(") ").append (DBUtil.escapeTableColumn(m_dbms, table.tableName, m_tableColumnEscape))
     
-        statementFrom = innerTable
+        statementFrom = innerTable.str
                                 
         Dim statementRecRangeStart As String
         Dim statementRecRangeEnd   As String

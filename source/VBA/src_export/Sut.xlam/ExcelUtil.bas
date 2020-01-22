@@ -4,7 +4,7 @@ Option Explicit
 ' *********************************************************
 ' Excelを簡便に利用するためのユーティリティモジュール
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2007/12/01　新規作成
 ' 　　　　　2009/06/21　Excelのバージョン取得関数を修正
 ' 　　　　　          　これにより、Excel2002が正常に認識されない(?)バグが修正された。
@@ -137,14 +137,14 @@ End Function
 
     Public Function getApplicationHWnd() As LongPtr
     
-        Dim E As ExcelVersion
+        Dim e As ExcelVersion
         
         Dim app As Object
         Set app = Excel.Application
         
-        E = getExcelVersion
+        e = getExcelVersion
         
-        If E >= Ver2002 Then
+        If e >= Ver2002 Then
         
             getApplicationHWnd = app.hWnd
         
@@ -158,14 +158,14 @@ End Function
 
     Public Function getApplicationHWnd() As Long
     
-        Dim E As ExcelVersion
+        Dim e As ExcelVersion
         
         Dim app As Object
         Set app = Excel.Application
         
-        E = getExcelVersion
+        e = getExcelVersion
         
-        If E >= Ver2002 Then
+        If e >= Ver2002 Then
         
             getApplicationHWnd = app.hWnd
         
@@ -226,7 +226,63 @@ Public Sub setUserFormTopMost(ByVal form As Object, Optional ByVal topmost As Bo
     
 End Sub
 
+' =========================================================
+' ▽タイトルバーを外したウィンドウスタイルを設定する。
+'
+' 概要　　　：
+' 引数　　　：uForm ユーザーフォーム
+'
+' 戻り値　　：true 成功、false 失敗
+'
+' =========================================================
+Public Function setNonTitleBarWindowStyle(ByRef uForm As Object) As Boolean
 
+    Dim ret As Long
+
+    ' ウィンドウハンドル
+    #If VBA7 And Win64 Then
+        Dim hWnd As LongPtr
+    #Else
+        Dim hWnd As Long
+    #End If
+  
+    ' スタイル適用前のフォームのサイズを取得する
+    Dim formWidth  As Double
+    Dim formHeight As Double
+    
+    formWidth = uForm.InsideWidth
+    formHeight = uForm.InsideHeight
+  
+    ' ウィンドウハンドルを取得する
+    WinAPI_OLEACC.WindowFromAccessibleObject uForm, hWnd
+
+    ' ダイアログの枠を除去
+    ret = WinAPI_User.SetWindowLong(hWnd _
+                      , GWL_EXSTYLE _
+                      , WinAPI_User.GetWindowLong(hWnd, GWL_EXSTYLE) And Not WS_EX_DLGMODALFRAME)
+    If ret = 0 Then
+        setNonTitleBarWindowStyle = False
+    End If
+    
+    ' タイトルバーを除去
+    ret = WinAPI_User.SetWindowLong(hWnd _
+                      , GWL_STYLE _
+                      , WinAPI_User.GetWindowLong(hWnd, GWL_STYLE) And Not WS_CAPTION)
+    If ret = 0 Then
+        setNonTitleBarWindowStyle = False
+    End If
+    
+    ' メニューバーを再描画
+    ret = WinAPI_User.DrawMenuBar(hWnd)
+    If ret = 0 Then
+        setNonTitleBarWindowStyle = False
+    End If
+    
+    ' サイズ調整
+    uForm.Width = uForm.Width - uForm.InsideWidth + formWidth
+    uForm.Height = uForm.Height - uForm.InsideHeight + formHeight
+    
+End Function
 
 ' =========================================================
 ' ▽セルをアクティブにする

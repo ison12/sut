@@ -13,7 +13,7 @@ Option Explicit
 ' Excelマクロで長時間処理する際に不必要なプロパティを
 ' 一時的にオフにして、本クラスのオブジェクトが削除される際に元に戻す。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/04/12　新規作成
 
 ' 使用方法：
@@ -50,9 +50,6 @@ Private Sub Class_Initialize()
 
     On Error Resume Next
     
-    ' 計算方法を設定しておく
-    tmpCalculation = Application.calculation
-    
     On Error GoTo 0
     
 End Sub
@@ -79,12 +76,13 @@ End Sub
 ' 　　　　　　cursor           マウスカーソル
 ' 　　　　　　screenUpdating   画面更新の有効・無効
 ' 　　　　　　calculation      Excelワークシートの計算方式
+' 　　　　　　interactive      対話モード（キーボードやマウスからの入力有無）
 '
 ' =========================================================
 Public Sub init(Optional ByVal displayAlerts As Boolean = True _
               , Optional ByVal enableCancelKey As Boolean = True _
               , Optional ByVal enableEvents As Boolean = True _
-              , Optional ByVal cursor As Boolean = True _
+              , Optional ByVal cursor As Boolean = False _
               , Optional ByVal screenUpdating As Boolean = False _
               , Optional ByVal calculation As Boolean = True _
               , Optional ByVal interactive As Boolean = True)
@@ -100,6 +98,19 @@ Public Sub init(Optional ByVal displayAlerts As Boolean = True _
     
     ' アプリケーションの各種プロパティをメンバ変数の値に従って設定する
     setApplicationProp
+
+End Sub
+
+' =========================================================
+' ▽破棄処理
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub destroy()
+
+    ' アプリケーションの各種プロパティを元に戻す
+    restoreApplicationProp
 
 End Sub
 

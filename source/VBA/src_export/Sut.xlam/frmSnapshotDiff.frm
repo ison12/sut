@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' スナップショット比較フォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/09/06　新規作成
 '
 ' 特記事項：
@@ -33,7 +33,7 @@ Option Explicit
 '             desIndex 比較先インデックス
 '
 ' =========================================================
-Public Event execDiff(ByRef snapShotList As GenericCollection, ByVal srcIndex As Long, ByVal desIndex As Long)
+Public Event execDiff(ByRef snapShotList As ValCollection, ByVal srcIndex As Long, ByVal desIndex As Long)
 
 ' =========================================================
 ' ▽キャンセルイベント
@@ -50,7 +50,7 @@ Public Event cancel()
 Private Const REG_SUB_KEY_SNAPSHOT_DIFF As String = "snapshotDiff"
 
 ' スナップショットリスト
-Private snapShotList        As GenericCollection
+Private snapShotList        As ValCollection
 ' 比較元スナップショットリスト
 Private srcSnapshotList     As CntListBox
 ' 比較先スナップショットリスト
@@ -66,7 +66,7 @@ Private desSnapshotList     As CntListBox
 ' 戻り値　　：
 '
 ' =========================================================
-Public Sub ShowExt(ByVal modal As FormShowConstants, ByRef snapshotList_ As GenericCollection)
+Public Sub ShowExt(ByVal modal As FormShowConstants, ByRef snapshotList_ As ValCollection)
 
     Set snapShotList = snapshotList_
     

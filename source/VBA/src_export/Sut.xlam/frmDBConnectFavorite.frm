@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBConnectFavorite 
    Caption         =   "DB接続の管理"
-   ClientHeight    =   9120.001
+   ClientHeight    =   8670.001
    ClientLeft      =   45
    ClientTop       =   375
    ClientWidth     =   12630
@@ -17,7 +17,7 @@ Option Explicit
 ' *********************************************************
 ' DB接続お気に入りフォーム
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2020/01/14　新規作成
 '
 ' 特記事項：
@@ -79,7 +79,7 @@ Public Sub ShowExt(ByVal modal As FormShowConstants)
     activate
     
     Main.restoreFormPosition Me.name, Me
-    Me.Show vbModal
+    Me.Show modal
 End Sub
 
 ' =========================================================
@@ -803,7 +803,7 @@ End Sub
 '
 ' =========================================================
 Private Sub unInitial()
-    scrollableControl.unhookScroll
+
 End Sub
 
 ' =========================================================

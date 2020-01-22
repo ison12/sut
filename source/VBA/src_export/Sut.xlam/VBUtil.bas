@@ -4,7 +4,7 @@ Option Explicit
 ' *********************************************************
 ' VB関連の共通関数モジュール
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/08/10　新規作成
 '
 ' 特記事項：
@@ -340,7 +340,7 @@ End Function
 ' 戻り値　　：
 '
 ' =========================================================
-Public Function resolveAppOnKey(ByVal keyCode As String _
+Public Function resolveAppOnKey(ByVal KeyCode As String _
                                       , ByRef shiftCtrl As Boolean _
                                       , ByRef shiftShift As Boolean _
                                       , ByRef shiftAlt As Boolean _
@@ -362,12 +362,12 @@ Public Function resolveAppOnKey(ByVal keyCode As String _
     keyName = ""
     
     ' keyCodeの長さを取得する
-    length = Len(keyCode)
+    length = Len(KeyCode)
     
     For i = 1 To length
     
         ' 1文字抽出する
-        char = Mid$(keyCode, i, 1)
+        char = Mid$(KeyCode, i, 1)
         
         ' Ctrlキー
         If char = KEY_CODE_CTRL Then
@@ -387,7 +387,7 @@ Public Function resolveAppOnKey(ByVal keyCode As String _
         ' その他のキー
         Else
         
-            keyName = getAppOnKeyNameByCode(Mid$(keyCode, i, length))
+            keyName = getAppOnKeyNameByCode(Mid$(KeyCode, i, length))
             Exit For
         End If
         
@@ -509,14 +509,14 @@ Public Function getAppOnKeyNameBySomeParams(ByVal shiftCtrl As Boolean _
 
 End Function
 
-Public Function getAppOnKeyNameByMultipleCode(ByVal keyCode As String) As String
+Public Function getAppOnKeyNameByMultipleCode(ByVal KeyCode As String) As String
 
     Dim a As Boolean
     Dim b As Boolean
     Dim c As Boolean
     Dim d As String
 
-    resolveAppOnKey keyCode _
+    resolveAppOnKey KeyCode _
                             , a _
                             , b _
                             , c _
@@ -1655,45 +1655,45 @@ Public Function createDir(ByVal filePath As String) As Boolean
         
 End Function
 
-Public Function convertKeyCodeToKeyAscii(ByVal keyCode As Long) As String
+Public Function convertKeyCodeToKeyAscii(ByVal KeyCode As Long) As String
 
-    If vbKey0 = keyCode Then
+    If vbKey0 = KeyCode Then
         convertKeyCodeToKeyAscii = "0"
-    ElseIf vbKey1 = keyCode Then convertKeyCodeToKeyAscii = "1"
-    ElseIf vbKey2 = keyCode Then convertKeyCodeToKeyAscii = "2"
-    ElseIf vbKey3 = keyCode Then convertKeyCodeToKeyAscii = "3"
-    ElseIf vbKey4 = keyCode Then convertKeyCodeToKeyAscii = "4"
-    ElseIf vbKey5 = keyCode Then convertKeyCodeToKeyAscii = "5"
-    ElseIf vbKey6 = keyCode Then convertKeyCodeToKeyAscii = "6"
-    ElseIf vbKey7 = keyCode Then convertKeyCodeToKeyAscii = "7"
-    ElseIf vbKey8 = keyCode Then convertKeyCodeToKeyAscii = "8"
-    ElseIf vbKey9 = keyCode Then convertKeyCodeToKeyAscii = "9"
-    ElseIf vbKeyA = keyCode Then convertKeyCodeToKeyAscii = "A"
-    ElseIf vbKeyB = keyCode Then convertKeyCodeToKeyAscii = "B"
-    ElseIf vbKeyC = keyCode Then convertKeyCodeToKeyAscii = "C"
-    ElseIf vbKeyD = keyCode Then convertKeyCodeToKeyAscii = "D"
-    ElseIf vbKeyE = keyCode Then convertKeyCodeToKeyAscii = "E"
-    ElseIf vbKeyF = keyCode Then convertKeyCodeToKeyAscii = "F"
-    ElseIf vbKeyG = keyCode Then convertKeyCodeToKeyAscii = "G"
-    ElseIf vbKeyH = keyCode Then convertKeyCodeToKeyAscii = "H"
-    ElseIf vbKeyI = keyCode Then convertKeyCodeToKeyAscii = "I"
-    ElseIf vbKeyJ = keyCode Then convertKeyCodeToKeyAscii = "J"
-    ElseIf vbKeyK = keyCode Then convertKeyCodeToKeyAscii = "K"
-    ElseIf vbKeyL = keyCode Then convertKeyCodeToKeyAscii = "L"
-    ElseIf vbKeyM = keyCode Then convertKeyCodeToKeyAscii = "M"
-    ElseIf vbKeyN = keyCode Then convertKeyCodeToKeyAscii = "N"
-    ElseIf vbKeyO = keyCode Then convertKeyCodeToKeyAscii = "O"
-    ElseIf vbKeyP = keyCode Then convertKeyCodeToKeyAscii = "P"
-    ElseIf vbKeyQ = keyCode Then convertKeyCodeToKeyAscii = "Q"
-    ElseIf vbKeyR = keyCode Then convertKeyCodeToKeyAscii = "R"
-    ElseIf vbKeyS = keyCode Then convertKeyCodeToKeyAscii = "S"
-    ElseIf vbKeyT = keyCode Then convertKeyCodeToKeyAscii = "T"
-    ElseIf vbKeyU = keyCode Then convertKeyCodeToKeyAscii = "U"
-    ElseIf vbKeyV = keyCode Then convertKeyCodeToKeyAscii = "V"
-    ElseIf vbKeyW = keyCode Then convertKeyCodeToKeyAscii = "W"
-    ElseIf vbKeyX = keyCode Then convertKeyCodeToKeyAscii = "X"
-    ElseIf vbKeyY = keyCode Then convertKeyCodeToKeyAscii = "Y"
-    ElseIf vbKeyZ = keyCode Then convertKeyCodeToKeyAscii = "Z"
+    ElseIf vbKey1 = KeyCode Then convertKeyCodeToKeyAscii = "1"
+    ElseIf vbKey2 = KeyCode Then convertKeyCodeToKeyAscii = "2"
+    ElseIf vbKey3 = KeyCode Then convertKeyCodeToKeyAscii = "3"
+    ElseIf vbKey4 = KeyCode Then convertKeyCodeToKeyAscii = "4"
+    ElseIf vbKey5 = KeyCode Then convertKeyCodeToKeyAscii = "5"
+    ElseIf vbKey6 = KeyCode Then convertKeyCodeToKeyAscii = "6"
+    ElseIf vbKey7 = KeyCode Then convertKeyCodeToKeyAscii = "7"
+    ElseIf vbKey8 = KeyCode Then convertKeyCodeToKeyAscii = "8"
+    ElseIf vbKey9 = KeyCode Then convertKeyCodeToKeyAscii = "9"
+    ElseIf vbKeyA = KeyCode Then convertKeyCodeToKeyAscii = "A"
+    ElseIf vbKeyB = KeyCode Then convertKeyCodeToKeyAscii = "B"
+    ElseIf vbKeyC = KeyCode Then convertKeyCodeToKeyAscii = "C"
+    ElseIf vbKeyD = KeyCode Then convertKeyCodeToKeyAscii = "D"
+    ElseIf vbKeyE = KeyCode Then convertKeyCodeToKeyAscii = "E"
+    ElseIf vbKeyF = KeyCode Then convertKeyCodeToKeyAscii = "F"
+    ElseIf vbKeyG = KeyCode Then convertKeyCodeToKeyAscii = "G"
+    ElseIf vbKeyH = KeyCode Then convertKeyCodeToKeyAscii = "H"
+    ElseIf vbKeyI = KeyCode Then convertKeyCodeToKeyAscii = "I"
+    ElseIf vbKeyJ = KeyCode Then convertKeyCodeToKeyAscii = "J"
+    ElseIf vbKeyK = KeyCode Then convertKeyCodeToKeyAscii = "K"
+    ElseIf vbKeyL = KeyCode Then convertKeyCodeToKeyAscii = "L"
+    ElseIf vbKeyM = KeyCode Then convertKeyCodeToKeyAscii = "M"
+    ElseIf vbKeyN = KeyCode Then convertKeyCodeToKeyAscii = "N"
+    ElseIf vbKeyO = KeyCode Then convertKeyCodeToKeyAscii = "O"
+    ElseIf vbKeyP = KeyCode Then convertKeyCodeToKeyAscii = "P"
+    ElseIf vbKeyQ = KeyCode Then convertKeyCodeToKeyAscii = "Q"
+    ElseIf vbKeyR = KeyCode Then convertKeyCodeToKeyAscii = "R"
+    ElseIf vbKeyS = KeyCode Then convertKeyCodeToKeyAscii = "S"
+    ElseIf vbKeyT = KeyCode Then convertKeyCodeToKeyAscii = "T"
+    ElseIf vbKeyU = KeyCode Then convertKeyCodeToKeyAscii = "U"
+    ElseIf vbKeyV = KeyCode Then convertKeyCodeToKeyAscii = "V"
+    ElseIf vbKeyW = KeyCode Then convertKeyCodeToKeyAscii = "W"
+    ElseIf vbKeyX = KeyCode Then convertKeyCodeToKeyAscii = "X"
+    ElseIf vbKeyY = KeyCode Then convertKeyCodeToKeyAscii = "Y"
+    ElseIf vbKeyZ = KeyCode Then convertKeyCodeToKeyAscii = "Z"
     End If
 
 End Function

@@ -611,7 +611,7 @@ Private Sub testValAppSettingColFormatW()
     
     Dim i As Long
     
-    Dim dbInfo1 As New sutredlib.DbColumnTypeDbInfo
+    Dim dbInfo1 As New ValDbColumnFormatInfo
     dbInfo1.dbName = "oracle"
 
     Dim colList1(0 To 10) As ValDbColumnTypeColInfo
@@ -628,7 +628,7 @@ Private Sub testValAppSettingColFormatW()
     
     Set dbInfo1.columnList = colList1
 
-    Dim dbInfo2 As New sutredlib.DbColumnTypeDbInfo
+    Dim dbInfo2 As New ValDbColumnFormatInfo
     dbInfo2.dbName = "postgre"
 
     a.dbList.setItem dbInfo1
@@ -640,7 +640,7 @@ End Sub
 
 Private Sub testExeDataTypeReader()
 
-    Dim ct As sutredlib.DbColumnTypeDbInfo
+    Dim ct As ValDbColumnFormatInfo
 
     Dim impl As IDbColumnType
     Dim fac As New DbObjectFactory
@@ -1058,3 +1058,225 @@ Public Sub testFilterWildcard()
     Debug.Print "testFilterWildcard complete"
 
 End Sub
+
+' =========================================================
+' ▽ExcelCursorWaitクラスのテスト
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub testExcelLongTimeProcessing()
+
+    Dim tmpCalculation As XlCalculation
+    tmpCalculation = Application.calculation
+
+    Dim e As ExcelLongTimeProcessing
+    Set e = New ExcelLongTimeProcessing
+    
+    ' ---------------------------------------------
+    ' 初期化～破棄 destroy
+    e.init True, True, True, True, True, True, True
+    assert Application.calculation = xlCalculationManual
+    assert Application.displayAlerts = False
+    'assert Application.enableCancelKey = xlDisabled ' Debug時はプロパティの設定が有効にならないのでassertしない
+    assert Application.enableEvents = False
+    assert Application.cursor = xlWait
+    assert Application.screenUpdating = False
+    'assert Application.interactive = False ' Debug時はプロパティの設定が有効にならないのでassertしない
+    
+    e.destroy
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    ' ---------------------------------------------
+        
+    ' ---------------------------------------------
+    ' 初期化～破棄 nothing
+    e.init True, True, True, True, True, True, True
+    assert Application.calculation = xlCalculationManual
+    assert Application.displayAlerts = False
+    'assert Application.enableCancelKey = xlDisabled ' Debug時はプロパティの設定が有効にならないのでassertしない
+    assert Application.enableEvents = False
+    assert Application.cursor = xlWait
+    assert Application.screenUpdating = False
+    'assert Application.interactive = False ' Debug時はプロパティの設定が有効にならないのでassertしない
+    
+    Set e = Nothing
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    ' ---------------------------------------------
+
+    Set e = New ExcelLongTimeProcessing
+         
+    ' ---------------------------------------------
+    ' 初期化～破棄 displayAlerts のみ有効
+    e.init True, False, False, False, False, False, False
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = False
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    
+    e.destroy
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    ' ---------------------------------------------
+         
+    ' ---------------------------------------------
+    ' 初期化～破棄 enableEvents のみ有効
+    e.init False, False, True, False, False, False, False
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = False
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    
+    e.destroy
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    ' ---------------------------------------------
+
+    ' ---------------------------------------------
+    ' 初期化～破棄 cursor のみ有効
+    e.init False, False, False, True, False, False, False
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlWait
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    
+    e.destroy
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    ' ---------------------------------------------
+
+    ' ---------------------------------------------
+    ' 初期化～破棄 screenUpdating のみ有効
+    e.init False, False, False, False, True, False, False
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = False
+    assert Application.interactive = True
+    
+    e.destroy
+    assert Application.calculation = tmpCalculation
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    ' ---------------------------------------------
+
+    ' ---------------------------------------------
+    ' 初期化～破棄 calculation のみ有効
+    Application.calculation = xlCalculationSemiautomatic
+    e.init False, False, False, False, False, True, False
+    assert Application.calculation = xlCalculationManual
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    
+    e.destroy
+    assert Application.calculation = xlCalculationSemiautomatic
+    assert Application.displayAlerts = True
+    assert Application.enableCancelKey = xlInterrupt
+    assert Application.enableEvents = True
+    assert Application.cursor = xlDefault
+    assert Application.screenUpdating = True
+    assert Application.interactive = True
+    ' ---------------------------------------------
+
+    assert Application.calculation = tmpCalculation
+End Sub
+
+' =========================================================
+' ▽ExcelCursorWaitクラスのテスト
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub testExcelCursorWait()
+
+    Application.cursor = xlDefault
+
+    Dim w As ExcelCursorWait
+    Set w = New ExcelCursorWait
+    
+    ' ---------------------------------------------
+    ' 初期化～破棄 destroy
+    w.init
+    assert Application.cursor = xlWait
+    
+    w.destroy
+    assert Application.cursor = xlDefault
+    ' ---------------------------------------------
+    
+    ' ---------------------------------------------
+    ' 初期化～破棄 forceRestore
+    w.init
+    assert Application.cursor = xlWait
+    
+    w.forceRestore
+    assert Application.cursor = xlDefault
+    ' ---------------------------------------------
+    
+    ' ---------------------------------------------
+    ' 初期化～破棄 nothing
+    w.init
+    assert Application.cursor = xlWait
+    
+    Set w = Nothing
+    assert Application.cursor = xlDefault
+    ' ---------------------------------------------
+    
+    ' ---------------------------------------------
+    ' 初期化～破棄 終了後も継続して待機状態にするのでxlWaitのまま
+    Set w = New ExcelCursorWait
+    w.init True
+    assert Application.cursor = xlWait
+    
+    Set w = Nothing
+    assert Application.cursor = xlWait
+    ' ---------------------------------------------
+
+    Application.cursor = xlDefault
+
+End Sub
+

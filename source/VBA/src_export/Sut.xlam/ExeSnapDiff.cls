@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' スナップショットの比較結果を出力するクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/01/06　新規作成
 '
 ' 特記事項：
@@ -189,7 +189,7 @@ Private Function diffRecordsSet(ByRef sheet As Worksheet, ByRef diff1 As ValSnap
         ' キャンセルフラグをチェックする
         checkCancel
     
-        Set diff2Rec = diff2.list.item(recordSetIndex + 1)
+        Set diff2Rec = diff2.list.getItemByIndex(recordSetIndex + 1)
         
         offsetRow = diffRecords(recordSetIndex, sheet, offsetRow, diff1Rec, diff2Rec)
 

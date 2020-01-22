@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' レコードを更新するクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2008/02/01　新規作成
 '
 ' 特記事項：
@@ -28,7 +28,7 @@ Option Explicit
 ' =========================================================
 Public Event readColumnListBegin(ByVal cnt As Long)
 Public Event readColumn(ByRef column As ValDbDefineColumn)
-Public Event readColumnList(ByRef columnList As sutredlib.GenericCollection)
+Public Event readColumnList(ByRef columnList As ValCollection)
 Public Event readTableInfoBegin()
 Public Event readTableInfo(ByRef table As ValTableWorksheet)
 Public Event readRecordListSize(ByVal cnt As Long)
@@ -160,7 +160,7 @@ Public createdSql As String
 Private writer As FileWriter
 
 ' =========================================================
-' ▽クエリー種類 INSERT and UPDATE
+' ▽クエリー種類 INSERT + UPDATE
 ' =========================================================
 Public Property Get QUERY_TYPE_INSERT_UPDATE() As Variant
     
@@ -921,7 +921,7 @@ Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Varia
             ' カラム
             Dim column     As ValDbDefineColumn
             ' カラムリスト
-            Dim columnList As sutredlib.GenericCollection
+            Dim columnList As ValCollection
             
             ' テーブル制約情報(PK)
             Dim tableConstPk    As New ValDbDefineTableConstraints
@@ -930,9 +930,9 @@ Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Varia
             
             Dim tableConstTmp   As ValDbDefineTableConstraints
             ' テーブル制約リストからPK制約を取得する
-            For Each tableConstTmp In table.constraintsList
+            For Each tableConstTmp In table.constraintsList.col
             
-                If tableConstTmp.constraintType = sutredlib.tableConstPk Then
+                If tableConstTmp.constraintType = TABLE_CONSTANTS_TYPE.tableConstPk Then
                 
                     Set tableConstPk = tableConstTmp
                     Exit For
@@ -943,7 +943,7 @@ Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Varia
             Set columnList = table.columnList
             
             ' カラムリストを1件ずつ処理する
-            For Each column In columnList
+            For Each column In columnList.col
                     
                 ' PK制約であるかどうかを判定する
                 If tableConstPk.columnList.getItem(column.columnName) Is Nothing Then
@@ -1051,7 +1051,7 @@ Private Sub tableSheetReader_readColumnListBegin(ByVal cnt As Long)
     RaiseEvent readColumnListBegin(cnt)
 End Sub
 
-Private Sub tableSheetReader_readColumnList(columnList As sutredlib.GenericCollection)
+Private Sub tableSheetReader_readColumnList(columnList As ValCollection)
 
     RaiseEvent readColumnList(columnList)
 End Sub

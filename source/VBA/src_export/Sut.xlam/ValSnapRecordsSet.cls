@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' スナップショットのレコードセット情報
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/01/06　新規作成
 '
 ' 特記事項：
@@ -26,14 +26,14 @@ Public getDate     As Date
 Public recordCount As Long
 
 ' リスト
-Public list As sutredlib.GenericCollection
+Public list As ValCollection
 
 ' =========================================================
 ' ▽クラス初期化メソッド
 ' =========================================================
 Private Sub Class_Initialize()
 
-    Set list = New GenericCollection
+    Set list = New ValCollection
 End Sub
 
 ' =========================================================
@@ -43,6 +43,3 @@ Private Sub Class_Terminate()
     
     Set list = Nothing
 End Sub
-
-
-

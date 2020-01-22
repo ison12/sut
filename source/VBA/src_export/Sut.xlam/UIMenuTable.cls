@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' メニュー操作時の処理 - テーブル
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/01/24　新規作成
 '
 ' 特記事項：
@@ -21,24 +21,27 @@ Option Explicit
 ' ________________________________________________________
 ' メンバ変数
 ' ________________________________________________________
-' DBエクスプローラ（イベント受信用に定義）
+' DBエクスプローラ
 Private WithEvents frmDBExplorerVar        As frmDBExplorer
 Attribute frmDBExplorerVar.VB_VarHelpID = -1
-' テーブルシート作成フォーム（イベント受信用に定義）
+' テーブルシート作成フォーム
 Private WithEvents frmTableSheetCreatorVar As frmTableSheetCreator
 Attribute frmTableSheetCreatorVar.VB_VarHelpID = -1
-' テーブルシートリストフォーム（イベント受信用に定義）
+' テーブルシートリストフォーム
 Private WithEvents frmTableSheetListVar    As frmTableSheetList
 Attribute frmTableSheetListVar.VB_VarHelpID = -1
-' テーブルシートリストフォーム（イベント受信用に定義）
+' テーブルシートリストフォーム
 Private WithEvents frmTableSheetUpdateVar  As frmTableSheetUpdate
 Attribute frmTableSheetUpdateVar.VB_VarHelpID = -1
 ' テーブルシート生成
 Private WithEvents tableSheetCreator       As ExeTableSheetCreator
 Attribute tableSheetCreator.VB_VarHelpID = -1
-' プログレスフォーム（イベント受信用に定義）
-Private WithEvents frmProgress             As sutredlib.Progress
-Attribute frmProgress.VB_VarHelpID = -1
+' プログレスフォーム
+Private WithEvents frmProgressVar          As frmProgress
+Attribute frmProgressVar.VB_VarHelpID = -1
+' レコード情報生成
+Private WithEvents tableSheetReader        As ExeTableSheetReader
+Attribute tableSheetReader.VB_VarHelpID = -1
 
 ' DBコネクション
 Private dbConn As Object
@@ -74,7 +77,7 @@ End Sub
 ' =========================================================
 Private Sub tableSheetCreator_createTableSheetsBegin(tableSheetList As ValCollection)
 
-    frmProgress.InitPri tableSheetList.count, "テーブルシート作成中"
+    frmProgressVar.initPri tableSheetList.count, "テーブルシート作成中"
     
     DoEvents
 End Sub
@@ -84,8 +87,8 @@ End Sub
 ' =========================================================
 Private Sub tableSheetCreator_createTableSheets(tableSheetList As ValCollection)
 
-    frmProgress.PriMessage = "テーブルシート作成完了"
-    frmProgress.PriCount = tableSheetList.count
+    frmProgressVar.priMessage = "テーブルシート作成完了"
+    frmProgressVar.priCount = tableSheetList.count
     
     DoEvents
 End Sub
@@ -95,7 +98,7 @@ End Sub
 ' =========================================================
 Private Sub tableSheetCreator_createTableSheetBegin(tableSheet As ValTableWorksheet)
 
-    frmProgress.PriMessage = "テーブルシート作成中・・・" & tableSheet.table.schemaTableName
+    frmProgressVar.priMessage = "テーブルシート作成中・・・" & tableSheet.table.schemaTableName
     
     DoEvents
 End Sub
@@ -105,7 +108,7 @@ End Sub
 ' =========================================================
 Private Sub tableSheetCreator_createTableSheet(tableSheet As ValTableWorksheet)
 
-    frmProgress.InclimentPri
+    frmProgressVar.inclimentPri
     
     DoEvents
 End Sub
@@ -113,18 +116,16 @@ End Sub
 ' =========================================================
 ' ▼処理がキャンセルされた場合に呼び出されるイベント
 ' =========================================================
-Private Sub frmProgress_OnCancel()
+Private Sub frmProgressVar_cancel()
 
     If Not tableSheetCreator Is Nothing Then
-    
-        ' 中止メッセージボックスを表示する
-        ' Yesを押下された場合、キャンセルする
-        If frmProgress.ShowStopConfMessage = 6 Then
-        
-            tableSheetCreator.canceled = True
-        End If
-        
+        tableSheetCreator.canceled = True
     End If
+    
+    If Not tableSheetReader Is Nothing Then
+        tableSheetReader.canceled = True
+    End If
+
 End Sub
 
 ' =========================================================
@@ -158,8 +159,8 @@ Private Sub frmTableSheetCreatorVar_complete(createTargetTable As ValCollection)
         book.activate
     End If
 
-    frmProgress.Show ExcelUtil.getApplicationHWnd, False
-    frmProgress.title = "テーブルシート作成"
+    frmProgressVar.ShowExt vbModeless, False
+    frmProgressVar.title = "テーブルシート作成"
     
     DoEvents
 
@@ -173,14 +174,14 @@ Private Sub frmTableSheetCreatorVar_complete(createTargetTable As ValCollection)
     ' そのため、ExcelLongTimeProcessingオブジェクトを明示的に破棄する
     Set longTimeProcessing = Nothing
     
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     Exit Sub
 err:
 
     Set longTimeProcessing = Nothing
     
-    frmProgress.Close
+    frmProgressVar.HideExt
     
     Main.ShowErrorMessage
 
@@ -189,7 +190,7 @@ End Sub
 ' =========================================================
 ' ▼テーブルシート更新フォーム - OKボタン押下時に呼び出されるイベント
 ' =========================================================
-Private Sub frmTableSheetUpdateVar_ok(ByVal recFormat As sutredlib.REC_FORMAT)
+Private Sub frmTableSheetUpdateVar_ok(ByVal recFormat As REC_FORMAT)
 
     On Error GoTo err
 
@@ -303,16 +304,13 @@ End Sub
 ' =========================================================
 Private Sub Class_Terminate()
     
-    If Not frmProgress Is Nothing Then
-        frmProgress.Close
-    End If
-
     Set frmDBExplorerVar = Nothing
     Set frmTableSheetCreatorVar = Nothing
     Set frmTableSheetListVar = Nothing
     Set frmTableSheetUpdateVar = Nothing
-    Set frmProgress = Nothing
+    Set frmProgressVar = Nothing
     Set tableSheetCreator = Nothing
+    Set tableSheetReader = Nothing
 
     Set applicationSetting = Nothing
     Set dbConn = Nothing
@@ -329,8 +327,10 @@ End Sub
 Public Sub init(ByRef appSetting As ValApplicationSetting _
               , ByRef conn As Object)
 
-    ' イベント受信用の変数にプログレスフォームを設定する
-    Set frmProgress = New sutredlib.Progress
+    ' フォームを設定する
+    Load frmProgress
+    ' フォームを設定する
+    Set frmProgressVar = frmProgress
 
     ' DBエクスプローラフォームをロードする
     Load frmDBExplorer
@@ -351,6 +351,11 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
     Load frmTableSheetUpdate
     ' イベント受信用の変数にテーブルシート更新フォームを設定する
     Set frmTableSheetUpdateVar = frmTableSheetUpdate
+    
+    ' レコード情報生成オブジェクトを生成する
+    Set tableSheetReader = New ExeTableSheetReader
+    Set tableSheetReader.conn = conn
+    Set tableSheetReader.sheet = ActiveSheet
     
     ' アプリケーション設定情報を設定する
     Set applicationSetting = appSetting
@@ -459,6 +464,9 @@ End Sub
 Public Sub updateTableSheet()
 
     On Error GoTo err
+    
+    ' テーブルシートかどうかを確認する。（失敗した場合、エラーが発行される）
+    tableSheetReader.validTableSheet
     
     ' テーブルシート更新フォームを表示する
     frmTableSheetUpdateVar.ShowExt vbModal

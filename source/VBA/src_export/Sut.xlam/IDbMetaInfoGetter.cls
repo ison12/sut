@@ -13,7 +13,7 @@ Option Explicit
 ' DBのメタ情報を取得するインターフェース。
 ' 対応するDB毎に本インターフェースをImplementsする。
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2009/02/11　新規作成
 '
 ' 特記事項：

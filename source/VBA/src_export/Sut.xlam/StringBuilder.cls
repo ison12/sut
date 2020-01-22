@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' VBA用のStringBuilderクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/12/07　新規作成
 '
 ' 特記事項：
@@ -118,8 +118,8 @@ Public Function append(ByRef str As String) As StringBuilder
     
 End Function
 
-Public Function insert(ByRef str As String, _
-                       ByVal position As Long) As StringBuilder
+Public Function insert(ByVal position As Long, _
+                       ByRef str As String) As StringBuilder
     
     ' 引数チェック
     If position < 1 Then
@@ -173,7 +173,7 @@ Public Function replace(ByRef strFind As String, ByRef strReplace As String) As 
         ' 検索文字列を一度削除する
         Me.remove findIndex, strFindLen
         ' 置換文字列で置き換える
-        Me.insert strReplace, findIndex
+        Me.insert findIndex, strReplace
         
         instrStartIndex = findIndex + strFindLen
         

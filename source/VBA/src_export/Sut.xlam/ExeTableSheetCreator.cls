@@ -12,7 +12,7 @@ Option Explicit
 ' *********************************************************
 ' テーブルシートを生成するクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2007/12/01 新規作成
 '           2008/05/05 31文字超シート名対応
 '           2008/05/05 カラム256超対応
@@ -143,15 +143,15 @@ Public Sub createSheets(ByRef tableSheetList As ValCollection)
         ' 未ロード時、ロードを実行する
         If Not tableSheet.table.isLoad Then
         
-            ' DBにアクセスするのでロード画像を表示する
-            SutWhite.showHourglassWindowOnCenterPt Nothing, 0, -50
+            ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
+            Dim cursorWait As New ExcelCursorWait: cursorWait.init
         
             Set reloadTable = DbMetaInfoGetter.getTable(tableSheet.table.schemaName, tableSheet.table.tableName)
             
             If reloadTable Is Nothing Then
             
-                ' DBにアクセスしたのでロード画像を非表示にする
-                SutWhite.closeHourglassWindow
+                ' 長時間の処理が終了したのでマウスカーソルを元に戻す
+                cursorWait.destroy
             
                 ' テーブル情報が取得できない場合エラーを発行する
                 err.Raise ERR_NUMBER_NOT_EXIST_TABLE_INFO _
@@ -164,8 +164,8 @@ Public Sub createSheets(ByRef tableSheetList As ValCollection)
             
             Set tableSheet.table = reloadTable
             
-            ' DBにアクセスしたのでロード画像を非表示にする
-            SutWhite.closeHourglassWindow
+            ' 長時間の処理が終了したのでマウスカーソルを元に戻す
+            cursorWait.destroy
         
         End If
         ' テーブルシートを生成する
@@ -197,7 +197,7 @@ Public Sub createSheet(ByRef tableSheet As ValTableWorksheet)
     createSheetHeader tableSheet
     
     ' テーブルシートの本体部分を生成する
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         createSheetToUnder tableSheet
     Else
@@ -989,7 +989,7 @@ Private Sub deleteAndInsertSheet(ByRef tableSheet As ValTableWorksheet, ByRef ta
     Dim copySheetName As String
 
     ' 行フォーマットによってコピーシートを変更する
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         copySheetName = ConstantsTable.U_SHEET_NAME_TEMPLATE
     
@@ -1164,7 +1164,7 @@ Public Sub insertEmptyCell(ByRef tableSheet As ValTableWorksheet _
         recordSize = 10
     End If
         
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         ' オフセット値が0の場合、デフォルトの位置を設定する
         If recordOffset = 0 Then
@@ -1386,7 +1386,7 @@ Public Sub deleteCellOfRecord(ByRef tableSheet As ValTableWorksheet, Optional By
     ' 削除終了位置
     Dim length As Long
     
-    If tableSheet.recFormat = sutredlib.recFormatToUnder Then
+    If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
         ' レコードオフセットをデフォルト値に設定する
         If recordOffset = 0 Then

@@ -13,7 +13,7 @@ Option Explicit
 ' DBメタ情報クエリ生成ヘルパークラス
 ' DbMetaInfoQueryCreatorの各クラスで共通使用するメソッドなどを定義
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/12/15　新規作成
 '
 ' 特記事項：

@@ -15,7 +15,7 @@ Option Explicit
 '
 ' IDbMetaInfoQueryCreatorを実装したクラス
 '
-' 作成者　：Hideki Isobe
+' 作成者　：Ison
 ' 履歴　　：2019/12/15　新規作成
 '
 ' 特記事項：
