@@ -388,6 +388,17 @@ Private Sub cmdOk_Click()
     Dim newline As String
     ' フォルダ作成の成功有無
     Dim isSuccessCreateDir As Boolean
+    
+    Dim tableSelectedList As ValCollection
+    Set tableSelectedList = tableSheetList.selectedList
+    
+    If tableSelectedList.count <= 0 Then
+        err.Raise ERR_NUMBER_NOT_SELECTED_TABLE_SHEET _
+                , err.Source _
+                , ERR_DESC_NOT_SELECTED_TABLE_SHEET _
+                , err.HelpFile _
+                , err.HelpContext
+    End If
 
     ' ファイル出力時のみの処理
     If dbQueryBatchMode = FileOutput Then
@@ -432,7 +443,7 @@ Private Sub cmdOk_Click()
     HideExt
     
     ' OKイベントを送信する
-    RaiseEvent ok(dbQueryBatchMode, filePath, characterCode, VBUtil.convertNewLineStrToNewLineCode(cboChoiceNewLine.text), tableSheetList.selectedList)
+    RaiseEvent ok(dbQueryBatchMode, filePath, characterCode, VBUtil.convertNewLineStrToNewLineCode(cboChoiceNewLine.text), tableSelectedList)
     
     ' ファイル出力オプションを書き込む
     storeFileOutputOption

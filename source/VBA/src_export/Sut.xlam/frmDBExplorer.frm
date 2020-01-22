@@ -592,6 +592,11 @@ Private Sub exportProcess(ByVal recFormat As REC_FORMAT)
     Set exportTargets = tableInfoList.selectedList
     
     If exportTargets.count <= 0 Then
+        err.Raise ERR_NUMBER_NOT_SELECTED_TABLE _
+                , err.Source _
+                , ERR_DESC_NOT_SELECTED_TABLE _
+                , err.HelpFile _
+                , err.HelpContext
         Exit Sub
     End If
     

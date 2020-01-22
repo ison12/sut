@@ -105,7 +105,7 @@ Public Function readText() As String
     Set stream = CreateObject("ADODB.Stream")
     
     ' 読み取りで開く
-    stream.mode = 3
+    stream.Mode = 3
     ' テキストで開く
     stream.Type = 2
 

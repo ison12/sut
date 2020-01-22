@@ -30,10 +30,10 @@ Implements IDbConnectListener
 ' ▽決定した際に呼び出されるイベント
 '
 ' 概要　　　：
-' 引数　　　：connectInfo DB接続情報
+' 引数　　　：
 '
 ' =========================================================
-Public Event ok(ByVal connectInfo As ValDBConnectInfo)
+Public Event ok()
 
 ' =========================================================
 ' ▽キャンセルされた場合に呼び出されるイベント
@@ -56,15 +56,11 @@ Attribute frmDBConnectVar.VB_VarHelpID = -1
 
 ' DB接続のお気に入り情報リスト コントロール
 Private dbConnectFavoriteList As CntListBox
-'DB接続のお気に入り情報リスト（フィルタ条件適用なし）
-Private dbConnectFavoriteWithoutFilterList As ValCollection
 
 ' DB接続のお気に入り情報リストでの選択項目インデックス
 Private dbConnectFavoriteSelectedIndex As Long
 ' DB接続のお気に入り情報リストでの選択項目オブジェクト
 Private dbConnectFavoriteSelectedItem As ValDBConnectInfo
-
-Private inFilterProcess As Boolean
 
 ' =========================================================
 ' ▽フォーム表示
@@ -123,78 +119,6 @@ End Sub
 ' =========================================================
 Private Sub deactivate()
 
-    ' Nothingを設定することでイベントを受信しないようにする
-    Set frmDBConnectVar = Nothing
-    
-    ' フィルタを解除する
-    cboFilter.text = ""
-    
-    ' 情報を記録する
-    storeDBConnectFavorite
-
-End Sub
-
-' =========================================================
-' ▽フィルタコンボボックス変更時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub cboFilter_Change()
-
-    On Error GoTo err
-
-    Dim currentFilterText As String
-
-    ' 本イベントプロシージャ内部で、同コントロールを変更することによる変更イベントが
-    ' 再帰的に発生しても良いように
-    ' フラグを参照して再実行されないようにする判定を実施
-    If inFilterProcess = False Then
-
-        inFilterProcess = True
-    
-        currentFilterText = cboFilter.text
-        
-        If currentFilterText <> "" Then
-            changeEnabledListManipulationControl False
-        Else
-            changeEnabledListManipulationControl True
-        End If
-        
-        filterConnectList "*" & currentFilterText & "*"
-    
-        inFilterProcess = False
-
-    End If
-    
-    Exit Sub
-    
-err:
-    
-    inFilterProcess = False
-    
-    err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
-    
-End Sub
-
-' =========================================================
-' ▽リスト操作関連のコントロール類のEnabledフラグを制御する処理
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub changeEnabledListManipulationControl(ByVal enabled As Boolean)
-
-    cmdAdd.enabled = enabled
-    cmdDelete.enabled = enabled
-    cmdUp.enabled = enabled
-    cmdDown.enabled = enabled
-    cmdDbConnectFavoritePaste.enabled = enabled
-    
 End Sub
 
 ' =========================================================
@@ -209,24 +133,14 @@ Private Sub cmdOk_Click()
 
     On Error GoTo err
     
-    ' 現在選択されているインデックスを取得
-    dbConnectFavoriteSelectedIndex = dbConnectFavoriteList.getSelectedIndex
-
-    ' 未選択の場合
-    If dbConnectFavoriteSelectedIndex = -1 Then
-    
-        ' 終了する
-        Exit Sub
-    End If
+    ' 情報を記録する
+    storeDBConnectFavorite
     
     ' フォームを閉じる
     HideExt
-
-    ' 現在選択されている項目を取得
-    Set dbConnectFavoriteSelectedItem = dbConnectFavoriteList.getSelectedItem
     
     ' OKイベントを送信する
-    RaiseEvent ok(dbConnectFavoriteSelectedItem)
+    RaiseEvent ok
     
     Exit Sub
     
@@ -271,23 +185,7 @@ End Sub
 '
 ' =========================================================
 Private Sub lstDbConnectFavoriteList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
-    cmdOk_Click
-End Sub
-
-' =========================================================
-' ▽DB接続お気に入りリスト キー押下時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub lstDbConnectFavoriteList_KeyPress(ByVal KeyAscii As MSForms.ReturnInteger)
-    
-    If KeyAscii = vbKeyReturn Or KeyAscii = vbKeySpace Then
-        cmdOk_Click
-    End If
-    
+    editFavorite
 End Sub
 
 ' =========================================================
@@ -327,7 +225,6 @@ Private Sub cmdAdd_Click()
     list.setItem dbConnectFavorite
     
     addDbConnectFavorite dbConnectFavorite
-    Set dbConnectFavoriteWithoutFilterList = dbConnectFavoriteList.collection.copy
     
     dbConnectFavoriteList.setSelectedIndex cnt
     dbConnectFavoriteList.control.SetFocus
@@ -375,7 +272,8 @@ Private Sub editFavorite()
     ' 現在選択されている項目を取得
     Set dbConnectFavoriteSelectedItem = dbConnectFavoriteList.getSelectedItem
     
-    Set frmDBConnectVar = New frmDBConnect
+    Load frmDBConnect
+    Set frmDBConnectVar = frmDBConnect
     frmDBConnectVar.ShowExt vbModal, dbConnectFavoriteSelectedItem, Me
                             
     Set frmDBConnectVar = Nothing
@@ -478,8 +376,6 @@ Private Sub cmdDelete_Click()
     dbConnectFavoriteList.removeItem selectedIndex
     dbConnectFavoriteList.control.SetFocus
     
-    Set dbConnectFavoriteWithoutFilterList = dbConnectFavoriteList.collection.copy
-
 End Sub
 
 ' =========================================================
@@ -519,7 +415,6 @@ Private Sub cmdUp_Click()
     End If
     
     dbConnectFavoriteList.control.SetFocus
-    Set dbConnectFavoriteWithoutFilterList = dbConnectFavoriteList.collection.copy
         
     Exit Sub
     
@@ -566,7 +461,6 @@ Private Sub cmdDown_Click()
     End If
     
     dbConnectFavoriteList.control.SetFocus
-    Set dbConnectFavoriteWithoutFilterList = dbConnectFavoriteList.collection.copy
         
     Exit Sub
     
@@ -694,7 +588,6 @@ Private Sub cmddbConnectFavoritePaste_Click()
     Next
     
     addDbConnectFavoriteList dbConnectFavoriteObjList, isAppend:=True
-    Set dbConnectFavoriteWithoutFilterList = dbConnectFavoriteList.collection.copy
 
 End Sub
 
@@ -969,10 +862,8 @@ Private Sub restoredbConnectFavorite()
         Set registry = Nothing
     Next
     
-    cboFilter.text = ""
     Set dbConnectFavoriteList = New CntListBox: dbConnectFavoriteList.init lstDbConnectFavoriteList
     addDbConnectFavoriteList connectInfoList
-    Set dbConnectFavoriteWithoutFilterList = dbConnectFavoriteList.collection.copy
     
     ' 先頭を選択する
     dbConnectFavoriteList.setSelectedIndex 0
@@ -1007,9 +898,7 @@ Public Function registDbConnectInfo(ByVal connectInfo As ValDBConnectInfo)
     ' -------------------------------------------------------
     ' DB接続お気に入り情報の末尾に情報を追加する
     ' -------------------------------------------------------
-    cboFilter.text = ""
     addDbConnectFavorite connectInfo
-    Set dbConnectFavoriteWithoutFilterList = dbConnectFavoriteList.collection.copy
     
     ' -------------------------------------------------------
     ' DB接続お気に入り情報を保存する
@@ -1066,21 +955,4 @@ Private Sub setDbConnectFavorite(ByVal index As Long, ByVal rec As ValDBConnectI
     
     dbConnectFavoriteList.setItem index, rec, "displayName"
     
-End Sub
-
-' =========================================================
-' 接続情報リストをフィルタする処理
-'
-' 概要　　　：接続情報リストをフィルタする処理
-' 引数　　　：filterKeyword         フィルタキーワード
-' 戻り値　　：
-'
-' =========================================================
-Private Sub filterConnectList(ByVal filterKeyword As String)
-
-    Dim filterConnectList As ValCollection
-    Set filterConnectList = VBUtil.filterWildcard(dbConnectFavoriteWithoutFilterList, "displayName", filterKeyword)
-    
-    addDbConnectFavoriteList filterConnectList
-
 End Sub

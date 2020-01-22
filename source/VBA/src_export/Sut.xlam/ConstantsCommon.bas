@@ -19,7 +19,7 @@ Public Const COMPANY_NAME_ALIAS As String = "a-l6ia5s-8o11f35i789s5432_o1172_n-9
 ' アプリケーション名
 Public Const APPLICATION_NAME As String = "Sut"
 ' バージョン
-Public Const version As String = "1.10"
+Public Const version As String = "2.00"
 
 ' ヘルプファイル
 Public Const HELP_FILE As String = "Sut.chm"

@@ -181,15 +181,15 @@ Private Sub UserForm_KeyPress(ByVal KeyAscii As MSForms.ReturnInteger)
 End Sub
 
 ' =========================================================
-' ▽フォームアクティブ時のイベントプロシージャ
+' ▽スプラッシュ画像クリック時のイベントプロシージャ
 '
 ' 概要　　　：
 ' 引数　　　：
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_Activate()
-
+Private Sub imgSplash_Click()
+        cmdClose_Click
 End Sub
 
 ' =========================================================
@@ -201,6 +201,13 @@ End Sub
 '
 ' =========================================================
 Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdClose_Click
+    End If
     
 End Sub
 

@@ -76,10 +76,10 @@ Private controlEnable(1 To 5, 1 To 7) As Boolean
 ' ---------------------------------------------------------
 Private Const REG_SUB_KEY_DB_CONNECT As String = "db_connect"
 
-Private WithEvents history  As frmDBConnectHistory
-Attribute history.VB_VarHelpID = -1
-Private WithEvents favorite As frmDBConnectFavorite
-Attribute favorite.VB_VarHelpID = -1
+Private WithEvents frmDBConnectSelectorVar  As frmDBConnectSelector
+Attribute frmDBConnectSelectorVar.VB_VarHelpID = -1
+Private WithEvents frmDBConnectFavoriteVar  As frmDBConnectFavorite
+Attribute frmDBConnectFavoriteVar.VB_VarHelpID = -1
 
 Private dbConnectListener As IDbConnectListener
 
@@ -101,12 +101,14 @@ Public Sub ShowExt(ByVal modal As FormShowConstants, _
 
     If Not dbConnectListener_ Is Nothing Then
         cmdHistoryChoice.visible = False
+        cmdFavoriteChoice.visible = False
         cmdFavoriteSave.visible = False
-        cmdFavoriteLoad.visible = False
+        cmdFavoriteEdit.visible = False
     Else
         cmdHistoryChoice.visible = True
+        cmdFavoriteChoice.visible = True
         cmdFavoriteSave.visible = True
-        cmdFavoriteLoad.visible = True
+        cmdFavoriteEdit.visible = True
     End If
     
     ' DB接続情報の初期値を設定する
@@ -163,31 +165,72 @@ Private Sub setDbConnectInfo(ByRef connectInfo As ValDBConnectInfo)
     On Error GoTo 0
 End Sub
 
-Private Sub favorite_ok(ByVal connectInfo As ValDBConnectInfo)
+' =========================================================
+' ▽フォーム非表示
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub frmDBConnectSelectorVar_ok(ByVal connectInfo As ValDBConnectInfo)
 
     setDbConnectInfo connectInfo
 End Sub
 
-Private Sub history_ok(ByVal connectInfo As ValDBConnectInfo)
+' =========================================================
+' ▽設定から選択ボタンのイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub cmdFavoriteChoice_Click()
 
-    setDbConnectInfo connectInfo
+    ' --------------------------------------
+    ' 設定情報ウィンドウを表示する
+    Load frmDBConnectSelector
+    Set frmDBConnectSelectorVar = frmDBConnectSelector
+
+    frmDBConnectSelectorVar.ShowExt vbModal, DB_CONNECT_INFO_TYPE.favorite
+
+    Set frmDBConnectSelectorVar = Nothing
+    ' --------------------------------------
+    
 End Sub
 
+' =========================================================
+' ▽履歴から選択ボタンのイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
 Private Sub cmdHistoryChoice_Click()
 
     ' --------------------------------------
     ' 履歴情報ウィンドウを表示する
-    Load frmDBConnectHistory
-    Set history = frmDBConnectHistory
-    
-    history.ShowExt vbModal
-    
-    Set history = Nothing
+    Load frmDBConnectSelector
+    Set frmDBConnectSelectorVar = frmDBConnectSelector
+
+    frmDBConnectSelectorVar.ShowExt vbModal, DB_CONNECT_INFO_TYPE.history
+
+    Set frmDBConnectSelectorVar = Nothing
     ' --------------------------------------
 
 End Sub
 
-Private Sub cmdFavoriteLoad_Click()
+' =========================================================
+' ▽設定編集のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub cmdFavoriteEdit_Click()
 
     ' お気に入りフォームではfrmDBConnectフォームを編集用に開く必要がある。
     ' その際に、すでに開かれたfrmDBConnectフォームが存在しているとVBAの仕様上エラーになるため、一旦自フォームを閉じるようにする
@@ -198,11 +241,11 @@ Private Sub cmdFavoriteLoad_Click()
     ' --------------------------------------
     ' お気に入り情報ウィンドウを表示する
     Load frmDBConnectFavorite
-    Set favorite = frmDBConnectFavorite
+    Set frmDBConnectFavoriteVar = frmDBConnectFavorite
     
-    favorite.ShowExt vbModal
+    frmDBConnectFavoriteVar.ShowExt vbModal
     
-    Set favorite = Nothing
+    Set frmDBConnectFavoriteVar = Nothing
     ' --------------------------------------
     
     ' 自身のフォームを再度開く
@@ -210,6 +253,14 @@ Private Sub cmdFavoriteLoad_Click()
 
 End Sub
 
+' =========================================================
+' ▽現在の設定情報保存のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
 Private Sub cmdFavoriteSave_Click()
 
     ' DB接続情報を生成しコントロールから情報を集め設定する
@@ -559,7 +610,7 @@ Private Sub cmdOk_Click()
     ' 通常時の処理（リスナー未設定時=通常の接続、リスナー設定時＝DB接続お気に入りフォームなどからの呼び出し）
     If dbConnectListener Is Nothing Then
         ' DB接続情報を記録する
-        storeDbConnectInfo
+        storeDBConnectInfo
     End If
     
     ' フォームを閉じる
@@ -601,12 +652,12 @@ Private Sub cmdOk_Click()
     ' 通常時の処理（リスナー未設定時=通常の接続、リスナー設定時＝DB接続お気に入りフォームなどからの呼び出し）
     If dbConnectListener Is Nothing Then
         ' --------------------------------------
-        Load frmDBConnectHistory
-        Set history = frmDBConnectHistory
-        
-        history.registDbConnectInfo getDbConnectInfo
-        
-        Set history = Nothing
+        Load frmDBConnectSelector
+        Set frmDBConnectSelectorVar = frmDBConnectSelector
+
+        frmDBConnectSelectorVar.registDbConnectInfo getDbConnectInfo, DB_CONNECT_INFO_TYPE.history
+
+        Set frmDBConnectSelectorVar = Nothing
         ' --------------------------------------
     End If
     
@@ -876,8 +927,8 @@ End Sub
 ' =========================================================
 Private Sub unInitial()
 
-    Set history = Nothing
-    Set favorite = Nothing
+'    Set frmDBConnectSelectorVar = Nothing
+    Set frmDBConnectFavoriteVar = Nothing
 
 End Sub
 
@@ -1081,7 +1132,7 @@ End Function
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub storeDbConnectInfo()
+Private Sub storeDBConnectInfo()
 
     On Error GoTo err
     
@@ -1229,3 +1280,5 @@ err:
 
 
 End Sub
+
+

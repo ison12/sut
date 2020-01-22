@@ -173,6 +173,17 @@ err:
     
 End Sub
 
+' =========================================================
+' ▽クエリパラメータリストのダブルクリック時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub lstQueryParameterList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+    editQueryParameter
+End Sub
 
 ' =========================================================
 ' ▽新規ボタン押下時のイベントプロシージャ
@@ -682,7 +693,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub addQueryParameterList(ByVal ValQueryParameterList As ValCollection, Optional ByVal isAppend As Boolean = True)
+Private Sub addQueryParameterList(ByVal ValQueryParameterList As ValCollection, Optional ByVal isAppend As Boolean = False)
     
     queryParameterList.addAll ValQueryParameterList _
                        , "name" _

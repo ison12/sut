@@ -103,6 +103,16 @@ Public Enum RESOURCE_ICON
     
 End Enum
 
+' =========================================================
+' ¤DBÚ‘±î•ñí—Ş
+' =========================================================
+Public Enum DB_CONNECT_INFO_TYPE
+
+    favorite = 1
+    history = 2
+
+End Enum
+
 ' ˆêŠ‡ƒNƒGƒŠÀsí—Ş–¼Ì
 Private dbQueryTypeNames As ValCollection
 
