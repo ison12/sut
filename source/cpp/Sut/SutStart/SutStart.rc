@@ -1,0 +1,278 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 日本語 (日本) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)\r\n"
+    "LANGUAGE 17, 1\r\n"
+    "#pragma code_page(932)\r\n"
+    "#include ""res\\SutStart.rc2""  // Microsoft Visual C++ 以外で編集されたリソース\r\n"
+    "#include ""l.JPN\\afxres.rc""      // 標準コンポーネント\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\SutStart.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SUTSTART_DIALOG DIALOGEX 0, 0, 335, 198
+STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Sut"
+FONT 9, "Yu Gothic UI", 400, 0, 0x80
+BEGIN
+    CONTROL         "",IDC_STATIC,"Static",SS_WHITERECT,0,0,334,36
+    CONTROL         IDS_COM_CUR_DIR,IDC_STATIC,"Static",SS_BITMAP,270,6,61,25
+    LTEXT           "Sut インストーラ",IDC_STATIC_TITLE,8,13,43,8,0,WS_EX_TRANSPARENT
+    CONTROL         "",IDC_INSTALLED_EXCEL_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_TABSTOP,19,55,296,73
+    CONTROL         "レジストリデータ削除",IDC_CHK_REG_DELETE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,154,70,10
+    PUSHBUTTON      "インストール",IDC_INSTALL,7,177,50,14
+    PUSHBUTTON      "アンインストール",IDC_UNINSTALL,60,177,50,14
+    DEFPUSHBUTTON   "閉じる(&C)",IDOK,278,177,50,14
+    GROUPBOX        "Excel",IDC_STATIC,7,41,321,96
+    GROUPBOX        "アンインストール オプション",IDC_STATIC,7,143,321,27
+END
+
+IDD_PROGRESS_DIALOG DIALOGEX 0, 0, 191, 70
+STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Sut"
+FONT 9, "MS UI Gothic", 400, 0, 0x80
+BEGIN
+    PUSHBUTTON      "キャンセル",IDCANCEL,134,49,50,14
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,28,177,14
+    LTEXT           "現在使用されていないダイアログ",IDC_MESSAGE,7,7,177,19
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041103a4"
+        BEGIN
+            VALUE "CompanyName", "Ison"
+            VALUE "FileDescription", "SutをExcelアドインとして組み込むためのツールです。"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "SutStart.exe"
+            VALUE "LegalCopyright", "(C) Ison.  All rights reserved."
+            VALUE "OriginalFilename", "SutStart.exe"
+            VALUE "ProductName", "Sut"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x411, 932
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_SUTSTART_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 328
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
+
+    IDD_PROGRESS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 63
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_SUT_ICON            BITMAP                  "D:\\documents\\sut_v2\\repos\\source\\resource\\image\\sut_icon.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_SUTSTART_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_ADDIN_NAME          "Sut"
+    IDS_EXCEL_LIST_COLUMN_VERSION "Version"
+    IDS_EXCEL_LIST_COLUMN_PATH "Path"
+    IDS_INFO_EXCEL_LAUNCHED_FAILED "Excelの起動に失敗しました。"
+    IDS_INFO_EXCEL_ADDED_ADDIN_SUCCESS "アドインを追加しました。"
+    IDS_INFO_EXCEL_ADDED_ADDIN_FAILED "アドインの追加に失敗しました。"
+    IDS_INFO_EXCEL_REMOVE_ADDIN_SUCCESS "アドインの使用ステータスがオフになりました。"
+    IDS_INFO_EXCEL_REMOVE_ADDIN_FAILED "アドインの使用ステータスの変更に失敗しました。"
+    IDS_INFO_EXCEL_REACTION_PROCESS 
+                            "起動しているExcelを全て終了し、再度実行してください。それでも正常に処理できない場合は、手動でアドインを操作してください。"
+    IDS_INFO_EXCEL_REMOVE_ADDIN_NOT_FOUND "削除対象のアドインが見つかりませんでした。"
+    IDS_ADDIN_FILE_NAME     "Sut.xlam"
+    IDS_INFO_ADDIN_FILE_NOT_FOUND "アドインファイルが見つかりません。"
+    IDS_INFO_EXCEL_PROCESS_EXIST "Excelが起動しています。起動しているExcelを全て終了してください。"
+    IDS_INFO_CHECK_ADDIN_INSTALL_UNEXPECTED "アドインインストールの前提条件チェック中にエラーが発生しました。"
+    IDS_INFO_CHECK_ADDIN_INSTALL_NG "アドインインストールの前提条件が満たされていません。"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_INFO_CHECK_ADDIN_INSTALL_NG_DETAIL "ヘルプファイル等を参考にしてExcelの設定を行ってください。"
+    IDS_INFO_COMPLETELY_DELETE_ADDIN_CONFIRM 
+                            "アドインを完全に削除するために、レジストリの以下のパスから該当する値を削除する必要があります。よろしいですか？"
+    IDS_INFO_COMPLETELY_DELETE_ADDIN_CONFIRM2 
+                            "レジストリから以下の値が検出されました。削除します。よろしいですか？"
+    IDS_INFO_COMPLETELY_DELETE_ADDIN_OK "アドインを完全に削除しました。"
+    IDS_INFO_COMPLETELY_DELETE_ADDIN_NOT_FOUND 
+                            "該当する値を、レジストリから検出できませんでした。アドインは既に削除されている可能性があります。"
+    IDS_INFO_COMPLETELY_DELETE_ADDIN_SUSPEND 
+                            "アドインは完全に削除されませんでした。完全に削除する場合は再度アンインストールを実行してください。"
+    IDS_INFO_COMPLETELY_DELETE_ADDIN_UNEXPECTED "アドインの完全削除中にエラーが発生しました。"
+    IDS_INFO_COMPLETELY_DELETE_ADDIN_EXCEL_EXIT_PROCESS_RETRY 
+                            "Excelの終了処理の遅延により処理が続行できません。処理を続行するには、このままExcelが終了するのを待機する必要があります。待機してよろしいですか？"
+    IDS_INFO_COMPLETELY_DELETE_ADDIN_EXCEL_EXIT_PROCESS_ERROR 
+                            "Excelが終了しないため、処理を中断します。"
+    IDS_INFO_EXCEL_ADDED_ADDIN_ALREADY_INSTALLED "アドインは既にインストール済みです。"
+    IDS_COM_FILE_SUT_RED    "\\lib\\SutRed.dll"
+    IDS_INFO_COM_INSTALLED_FAILED "COMコンポーネントのインストールに失敗しました。"
+    IDS_INFO_COM_UNINSTALLED_FAILED "COMコンポーネントのアンインストールに失敗しました。"
+    IDS_COM_CUR_DIR         "\\lib"
+    IDS_SELECTED_ONE_MORE   "Excelを1つ以上選択してください。"
+    IDS_SELECTED_ONE_MORE_OR_UNINSTALL_OPTION 
+                            "Excelを1つ以上選択するか、アンインストールオプションを選択してください。"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_INFO_REG_DELETE_FAILED "レジストリデータの削除に失敗しました。"
+    IDS_INFO_COM_UNINSTALLED_SUCCESS "COMコンポーネントをアンインストールしました。"
+    IDS_INFO_REG_DELETE_SUCCESS "レジストリデータを削除しました。"
+    IDS_INFO_SECURITY_BLOCK_RELEASE_FAILED 
+                            "セキュリティブロックの解除に失敗しました。インストールは継続されますが、インストール終了後、手動でブロックの解除を実行してください。（対象ファイル：Sut.xlam）"
+END
+
+#endif    // 日本語 (日本) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+LANGUAGE 17, 1
+#pragma code_page(932)
+#include "res\SutStart.rc2"  // Microsoft Visual C++ 以外で編集されたリソース
+#include "l.JPN\afxres.rc"      // 標準コンポーネント
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

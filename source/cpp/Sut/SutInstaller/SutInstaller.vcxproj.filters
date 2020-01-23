@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\com">
+      <UniqueIdentifier>{ecb5ea98-9673-47a0-b4f4-bde45e4b2b30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\util">
+      <UniqueIdentifier>{58403b71-aa03-4f70-99f2-0fe497395801}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\excel">
+      <UniqueIdentifier>{a39a14ad-b60a-4489-b35f-01d85fe32cfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\command">
+      <UniqueIdentifier>{092d8a54-779f-4542-ac36-0cb9b1e9ce6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\com">
+      <UniqueIdentifier>{920c8116-31ea-4693-94e0-fd23deff5f14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\command">
+      <UniqueIdentifier>{6c995420-cc5a-4aeb-9c29-363479cc7942}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\excel">
+      <UniqueIdentifier>{6e3a4ec3-e1be-4cb9-9ab7-2e6e1803315d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\util">
+      <UniqueIdentifier>{13ebbe4a-cd88-4e62-8da7-47fc0e1d14f3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SutInstaller.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SutInstallerDlg.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="ComComponentRegister.h">
+      <Filter>ヘッダー ファイル\com</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandExecutor.h">
+      <Filter>ヘッダー ファイル\command</Filter>
+    </ClInclude>
+    <ClInclude Include="ExcelAddinRegistry.h">
+      <Filter>ヘッダー ファイル\excel</Filter>
+    </ClInclude>
+    <ClInclude Include="ExcelDispatchWrapper.h">
+      <Filter>ヘッダー ファイル\excel</Filter>
+    </ClInclude>
+    <ClInclude Include="ExcelInfoGetter.h">
+      <Filter>ヘッダー ファイル\excel</Filter>
+    </ClInclude>
+    <ClInclude Include="ExcelStartup.h">
+      <Filter>ヘッダー ファイル\excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+    <ClInclude Include="CsvReader.h">
+      <Filter>ヘッダー ファイル\util</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SutInstaller.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="SutInstallerDlg.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="ComComponentRegister.cpp">
+      <Filter>ソース ファイル\com</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandExecutor.cpp">
+      <Filter>ソース ファイル\command</Filter>
+    </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>ソース ファイル\util</Filter>
+    </ClCompile>
+    <ClCompile Include="CsvReader.cpp">
+      <Filter>ソース ファイル\util</Filter>
+    </ClCompile>
+    <ClCompile Include="ExcelAddinRegistry.cpp">
+      <Filter>ソース ファイル\excel</Filter>
+    </ClCompile>
+    <ClCompile Include="ExcelDispatchWrapper.cpp">
+      <Filter>ソース ファイル\excel</Filter>
+    </ClCompile>
+    <ClCompile Include="ExcelInfoGetter.cpp">
+      <Filter>ソース ファイル\excel</Filter>
+    </ClCompile>
+    <ClCompile Include="ExcelStartup.cpp">
+      <Filter>ソース ファイル\excel</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SutInstaller.rc">
+      <Filter>リソース ファイル</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\SutInstaller.rc2">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\SutInstaller.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\..\..\resource\image\sut_icon.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\..\..\resource\image\Data-base.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

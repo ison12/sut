@@ -1,0 +1,14 @@
+source/cpp/Sut/.vs
+source/cpp/Sut/packages
+source/cpp/Sut/Debug
+source/cpp/Sut/Release
+source/cpp/Sut/SutInstaller/Debug
+source/cpp/Sut/SutInstaller/Release
+source/cpp/Sut/SutInstaller/x64
+source/cpp/Sut/SutStart/Debug
+source/cpp/Sut/SutStart/Release
+source/cpp/Sut/SutStart/x64
+source/cpp/Sut/x64
+source/vba/src/~$Sut.xlam
+source/cpp/Sut/*.ncb
+source/cpp/Sut/*.suo
