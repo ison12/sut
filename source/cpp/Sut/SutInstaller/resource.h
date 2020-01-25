@@ -7,7 +7,6 @@
 #define IDD_SUTINSTALLER_DIALOG         102
 #define IDS_ADDIN_NAME                  129
 #define IDS_EXCEL_LIST_COLUMN_VERSION   130
-#define IDB_SUT_ICON                    130
 #define IDS_EXCEL_LIST_COLUMN_PATH      131
 #define IDI_ICON1                       131
 #define IDR_MAINFRAME                   131
@@ -16,7 +15,10 @@
 #define IDS_INFO_EXCEL_ADDED_ADDIN_FAILED 134
 #define IDS_INFO_EXCEL_REMOVE_ADDIN_SUCCESS 135
 #define IDS_INFO_EXCEL_REMOVE_ADDIN_FAILED 136
+#define IDB_SUT_ICON2                   136
 #define IDS_INFO_EXCEL_REACTION_PROCESS 137
+#define IDB_BITMAP1                     137
+#define IDB_SUT_ICON                    137
 #define IDS_INFO_EXCEL_REMOVE_ADDIN_NOT_FOUND 138
 #define IDS_ADDIN_FILE_NAME             139
 #define IDS_INFO_ADDIN_FILE_NOT_FOUND   140
@@ -43,19 +45,23 @@
 #define IDS_INFO_COM_UNINSTALLED_SUCCESS 161
 #define IDS_INFO_REG_DELETE_SUCCESS     162
 #define IDS_INFO_SECURITY_BLOCK_RELEASE_FAILED 163
+#define IDC_ICON2                       1000
+#define IDC_SUT_ICON2                   1000
 #define IDC_INSTALLED_EXCEL_LIST        1001
 #define IDC_INSTALL                     1002
 #define IDC_UNINSTALL                   1003
+#define IDC_SUT_ICON                    1004
 #define IDC_CHK_REG_DELETE              1007
 #define IDC_STATIC_TITLE                1009
+#define IDC_STATIC_TITLE2               1010
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

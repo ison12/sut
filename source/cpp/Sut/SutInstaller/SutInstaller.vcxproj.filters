@@ -127,6 +127,7 @@
       <Filter>リソース ファイル</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="SutInstaller-Excel.prop" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SutInstaller.ico">
@@ -136,6 +137,12 @@
       <Filter>リソース ファイル</Filter>
     </Image>
     <Image Include="..\..\..\resource\image\Data-base.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\..\..\resource\image\sut_mark_icon.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="..\..\..\resource\image\sut_mark_icon.bmp">
       <Filter>リソース ファイル</Filter>
     </Image>
   </ItemGroup>

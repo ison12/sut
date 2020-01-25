@@ -38,6 +38,7 @@ BEGIN_MESSAGE_MAP(CSutInstallerDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_INSTALL, &CSutInstallerDlg::OnBnClickedInstall)
 	ON_BN_CLICKED(IDC_UNINSTALL, &CSutInstallerDlg::OnBnClickedUninstall)
+    ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -92,29 +93,40 @@ void CSutInstallerDlg::OnPaint()
 	}
 }
 
-HBRUSH CSutInstallerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
-{
-
-    CWnd* target = NULL;
-
-    // タイトルコントロールを取得する
-    target = GetDlgItem(IDC_STATIC_TITLE);
-
-    if (target->GetSafeHwnd() == pWnd->GetSafeHwnd()) {
-        // タイトルコントロールの色を変更する
-        pDC->SetBkColor(RGB(0xFF, 0xFF, 0xFF));
-
-        return (HBRUSH)GetStockObject(WHITE_BRUSH);
-    }
-
-    return NULL;
-}
-
 // ユーザーが最小化したウィンドウをドラッグしているときに表示するカーソルを取得するために、
 //  システムがこの関数を呼び出します。
 HCURSOR CSutInstallerDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+HBRUSH CSutInstallerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+    HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+    std::vector<int> lists;
+    lists.push_back(IDC_STATIC_TITLE);
+    lists.push_back(IDC_STATIC_TITLE2);
+    lists.push_back(IDB_SUT_ICON);
+    lists.push_back(IDB_SUT_ICON2);
+
+    for (std::vector<int>::iterator i = lists.begin(); i != lists.end(); i++) //反復子による繰り返し
+    {
+
+        CWnd* target = NULL;
+
+        // タイトルコントロールを取得する
+        target = GetDlgItem(*i);
+
+        if (target->GetSafeHwnd() == pWnd->GetSafeHwnd()) {
+            // タイトルコントロールの色を変更する
+            pDC->SetBkColor(RGB(0xFF, 0xFF, 0xFF));
+
+            return (HBRUSH)GetStockObject(WHITE_BRUSH);
+        }
+    }
+
+    return hbr;
 }
 
 void CSutInstallerDlg::OnBnClickedInstall()
@@ -282,7 +294,9 @@ CString CSutInstallerDlg::getSutAddinPath()
 
 #ifdef _DEBUG
 
-    addinPath = _T("C:\\Users\\hideki.isobe\\Documents\\sut_work\\Release\\Sut.xlam");
+    addinPath = exePath;
+    addinPath.Append(_T("\\..\\..\\..\\vba\\src\\"));
+    addinPath.Append(addinFileName);
 #endif
 
     return addinPath;

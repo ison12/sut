@@ -38,7 +38,6 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnBnClickedInstall();
 	afx_msg void OnBnClickedUninstall();
 
@@ -118,4 +117,6 @@ protected:
      */
     void processUninstall();
 
+public:
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
