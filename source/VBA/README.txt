@@ -1,8 +1,6 @@
 ■ファイルの説明
 VBA
   |
-  + resource - アプリケーションで使用する画像などを格納
-  |
   + src - Sut.xlam本体を格納
   |
   + src_export - Sut.xlamからエクスポートしたモジュールファイル

@@ -4,10 +4,28 @@ SELECT
    ,table_comm.table_comment   as TABLE_COMMENT
    ,c.column_name              as COLUMN_NAME
    ,c.data_type                as COLUMN_TYPE
-   ,case
-       when c.is_nullable = 'YES' then 'Y'
-       else                            'N'
-    end                        as IS_NULL
+   ,CASE
+        WHEN position('CHAR'      in UPPER(c.data_type)) >= 1 AND c.character_maximum_length IS NOT NULL THEN c.data_type || '(' || CAST(c.character_maximum_length AS VARCHAR(32)) || ')'
+        WHEN position('TEXT'      in UPPER(c.data_type)) >= 1 AND c.character_maximum_length IS NOT NULL THEN c.data_type || '(' || CAST(c.character_maximum_length AS VARCHAR(32)) || ')'
+        WHEN position('BIT'       in UPPER(c.data_type)) >= 1 AND c.character_maximum_length IS NOT NULL THEN c.data_type || '(' || CAST(c.character_maximum_length AS VARCHAR(32)) || ')'
+        WHEN position('NUMERIC'   in UPPER(c.data_type)) >= 1 AND (c.numeric_precision IS NOT NULL AND c.numeric_precision > 0)
+                                                              AND (c.numeric_scale     IS NOT NULL AND c.numeric_scale     > 0)
+                                                              THEN c.data_type || '(' || CAST(c.numeric_precision AS VARCHAR(32)) || ',' || CAST(c.numeric_scale AS VARCHAR(32)) || ')'
+        WHEN position('NUMERIC'   in UPPER(c.data_type)) >= 1 AND (c.numeric_precision IS NOT NULL AND c.numeric_precision > 0)
+                                                              AND (c.numeric_scale     IS NULL      OR c.numeric_scale     = 0)
+                                                              THEN c.data_type || '(' || CAST(c.numeric_precision AS VARCHAR(32)) || ')'
+        WHEN position('TIMESTAMP' in UPPER(c.data_type)) >= 1 AND (c.datetime_precision IS NOT NULL AND c.datetime_precision > 0)
+                                                              THEN c.data_type || '(' || CAST(c.datetime_precision AS VARCHAR(32)) || ')'
+        WHEN position('TIME'      in UPPER(c.data_type)) >= 1 AND (c.datetime_precision IS NOT NULL AND c.datetime_precision > 0)
+                                                              THEN c.data_type || '(' || CAST(c.datetime_precision AS VARCHAR(32)) || ')'
+        WHEN position('INTERVAL'  in UPPER(c.data_type)) >= 1 AND (c.datetime_precision IS NOT NULL AND c.datetime_precision > 0)
+                                                              THEN c.data_type || '(' || CAST(c.datetime_precision AS VARCHAR(32)) || ')'
+        ELSE c.data_type
+    END                        as COLUMN_TYPE_FORMAL
+   ,CASE
+       WHEN c.is_nullable = 'YES' THEN 'Y'
+       ELSE                            'N'
+    END                        as IS_NULL
    ,c.column_default           as DEFAULT_VALUE
    ,c.character_maximum_length as CHAR_LENGTH
    ,c.numeric_precision        as DATA_PRECISION
