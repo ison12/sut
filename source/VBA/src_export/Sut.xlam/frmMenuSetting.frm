@@ -49,7 +49,7 @@ Public Event ok(ByRef appSettingShortcut As ValApplicationSettingShortcut _
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' =========================================================
 ' ▽リセットされた場合に呼び出されるイベント
@@ -60,7 +60,7 @@ Public Event cancel()
 '
 ' =========================================================
 Public Event reset(ByRef appSettingShortcut As ValApplicationSettingShortcut _
-                 , ByRef cancel As Boolean)
+                 , ByRef Cancel As Boolean)
 
 ' 親フォーム
 Private ownerForm As Object
@@ -82,6 +82,15 @@ Private selectedItemList As ValCollection
 Private menuList As CntListBox
 ' 機能リスト コントロール
 Private appMenuList As CntListBox
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -213,6 +222,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         
@@ -313,7 +324,7 @@ Private Sub cmdCancel_Click()
     On Error GoTo err
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     ' フォームを閉じる
     HideExt

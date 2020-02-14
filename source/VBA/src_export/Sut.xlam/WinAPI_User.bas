@@ -87,7 +87,7 @@ Option Explicit
 #Else
     Public Declare Function ClientToScreen Lib "user32.dll" _
             (ByVal hWnd As Long _
-           , ByRef lpPoint As point) As Boolean
+           , ByRef lpPoint As Point) As Boolean
 #End If
 
 ' =========================================================
@@ -240,8 +240,8 @@ Option Explicit
     Public Declare Function TrackPopupMenu Lib "user32.dll" _
             (ByVal hMenu As Long _
            , ByVal uFlags As Long _
-           , ByVal x As Long _
-           , ByVal y As Long _
+           , ByVal X As Long _
+           , ByVal Y As Long _
            , ByVal nReserved As Long _
            , ByVal hWnd As Long _
            , ByRef notUserd As Long) As Boolean
@@ -268,8 +268,8 @@ Option Explicit
     Public Declare Function TrackPopupMenuEx Lib "user32.dll" _
             (ByVal hMenu As Long _
            , ByVal fuFlags As Long _
-           , ByVal x As Long _
-           , ByVal y As Long _
+           , ByVal X As Long _
+           , ByVal Y As Long _
            , ByVal hWnd As Long _
            , ByRef var As Long) As Boolean
 #End If
@@ -451,7 +451,7 @@ Option Explicit
     Public Declare Function SetWindowPos Lib "user32.dll" _
         (ByVal hWnd As Long _
         , ByVal hWndInsertAfter As Long _
-        , ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long _
+        , ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long _
         , ByVal wFlags As Long) As Long
 #End If
 
@@ -535,7 +535,7 @@ Option Explicit
                                  ByVal lParam As LongPtr) As Long
 #Else
     Public Declare Function PostMessage Lib "user32.dll" Alias "PostMessageA" ( _
-                                 ByVal hwnd As Long, _
+                                 ByVal hWnd As Long, _
                                  ByVal wMsg As Long, _
                                  ByVal wParam As Long, _
                                  ByVal lParam As Long) As Long

@@ -35,6 +35,7 @@ Public Const ERR_NUMBER_PK_COLUMN_NOT_FOUND   As Long = 21 + vbObjectError + 512
 Public Const ERR_NUMBER_SNAP_DIFF__EXEC_ERROR   As Long = 22 + vbObjectError + 512
 Public Const ERR_NUMBER_NOT_SELECTED_DB_CONNECT   As Long = 23 + vbObjectError + 512
 Public Const ERR_NUMBER_NOT_SELECTED_TABLE_SHEET  As Long = 25 + vbObjectError + 512
+Public Const ERR_NUMBER_CREATE_WORKSHEET_FAILED  As Long = 26 + vbObjectError + 512
 
 
 Public Const ERR_NUMBER_REG_EXP_NOT_CREATED   As Long = 997 + vbObjectError + 512
@@ -68,6 +69,7 @@ Public Const ERR_DESC_SNAP_DIFF__EXEC_ERROR    As String = "スナップショット比較
 
 Public Const ERR_DESC_NOT_SELECTED_DB_CONNECT  As String = "接続情報を選択してください。"
 Public Const ERR_DESC_NOT_SELECTED_TABLE_SHEET As String = "シートを1つ以上選択してください。"
+Public Const ERR_DESC_CREATE_WORKSHEET_FAILED  As String = "ワークブックの作成に失敗しました。"
 
 Public Const ERR_DESC_REGISTRY_ACCESS_FAILED   As String = "レジストリのアクセスに失敗しました。"
 Public Const ERR_DESC_DLL_FUNCTION_FAILED      As String = "DLLの呼び出しに失敗しました。"

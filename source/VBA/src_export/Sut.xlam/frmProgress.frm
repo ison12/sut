@@ -33,10 +33,19 @@ Option Explicit
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' セカンダリプログレスの表示有無
 Private enableSecProgressParam As Boolean
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽タイトルプロパティ
@@ -216,6 +225,7 @@ Public Sub HideExt()
     
     Main.storeFormPosition Me.name, Me
     Me.Hide
+    
 End Sub
 
 ' =========================================================
@@ -349,6 +359,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         
@@ -403,18 +415,18 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
 
     If CloseMode = 0 Then
     
         If showCancelConfDialog = 6 Then
         
             ' キャンセルイベントを送信する
-            RaiseEvent cancel
+            RaiseEvent Cancel
             
         End If
         
-        cancel = True
+        Cancel = True
         
     End If
     

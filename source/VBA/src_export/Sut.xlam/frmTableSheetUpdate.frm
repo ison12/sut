@@ -40,7 +40,16 @@ Public Event ok(ByVal recFormat As REC_FORMAT)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -86,6 +95,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
 
@@ -246,6 +257,6 @@ End Sub
 ' =========================================================
 Private Sub cmdCancel_Click()
 
-    RaiseEvent cancel
+    RaiseEvent Cancel
     HideExt
 End Sub

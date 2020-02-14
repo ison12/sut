@@ -57,6 +57,15 @@ Private tableWithoutFilterList As ValCollection
 
 Private inFilterProcess As Boolean
 
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
+
 ' =========================================================
 ' ▽DBコネクション設定
 '
@@ -111,6 +120,7 @@ Public Sub HideExt()
     
     Main.storeFormPosition Me.name, Me
     Me.Hide
+    
 End Sub
 
 ' =========================================================
@@ -125,6 +135,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
 
@@ -700,6 +712,19 @@ Private Sub deactivate()
 End Sub
 
 ' =========================================================
+' ▽設定情報の生成
+' =========================================================
+Private Function createApplicationProperties() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+    appProp.initWorksheet targetBook, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+
+    Set createApplicationProperties = appProp
+    
+End Function
+
+' =========================================================
 ' ▽DBエクスプローラオプションを保存する
 '
 ' 概要　　　：
@@ -711,127 +736,24 @@ Private Sub storeDBExplorerOption()
 
     On Error GoTo err
     
-    Dim j As Long
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
     
-    Dim dbExplorerOption(0 To 29 _
-                       , 0 To 1) As Variant
+    ' 書き込みデータ
+    Dim values As New ValCollection
     
-    dbExplorerOption(j, 0) = cboSchema.name
-    dbExplorerOption(j, 1) = cboSchema.value: j = j + 1
-    
-    dbExplorerOption(j, 0) = cboFilter.name
-    dbExplorerOption(j, 1) = cboFilter.value: j = j + 1
+    values.setItem Array(cboSchema.name, cboSchema.value)
+    values.setItem Array(cboFilter.name, cboFilter.value)
 
-    dbExplorerOption(j, 0) = tglFilterA.name
-    dbExplorerOption(j, 1) = tglFilterA.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterB.name
-    dbExplorerOption(j, 1) = tglFilterB.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterC.name
-    dbExplorerOption(j, 1) = tglFilterC.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterD.name
-    dbExplorerOption(j, 1) = tglFilterD.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterE.name
-    dbExplorerOption(j, 1) = tglFilterE.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterF.name
-    dbExplorerOption(j, 1) = tglFilterF.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterG.name
-    dbExplorerOption(j, 1) = tglFilterG.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterH.name
-    dbExplorerOption(j, 1) = tglFilterH.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterI.name
-    dbExplorerOption(j, 1) = tglFilterI.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterJ.name
-    dbExplorerOption(j, 1) = tglFilterJ.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterK.name
-    dbExplorerOption(j, 1) = tglFilterK.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterL.name
-    dbExplorerOption(j, 1) = tglFilterL.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterM.name
-    dbExplorerOption(j, 1) = tglFilterM.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterN.name
-    dbExplorerOption(j, 1) = tglFilterN.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterO.name
-    dbExplorerOption(j, 1) = tglFilterO.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterP.name
-    dbExplorerOption(j, 1) = tglFilterP.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterQ.name
-    dbExplorerOption(j, 1) = tglFilterQ.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterR.name
-    dbExplorerOption(j, 1) = tglFilterR.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterS.name
-    dbExplorerOption(j, 1) = tglFilterS.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterT.name
-    dbExplorerOption(j, 1) = tglFilterT.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterU.name
-    dbExplorerOption(j, 1) = tglFilterU.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterV.name
-    dbExplorerOption(j, 1) = tglFilterV.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterW.name
-    dbExplorerOption(j, 1) = tglFilterW.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterX.name
-    dbExplorerOption(j, 1) = tglFilterX.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterY.name
-    dbExplorerOption(j, 1) = tglFilterY.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterZ.name
-    dbExplorerOption(j, 1) = tglFilterZ.value: j = j + 1
-    dbExplorerOption(j, 0) = tglFilterOther.name
-    dbExplorerOption(j, 1) = tglFilterOther.value: j = j + 1
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_DB_EXPLORER_OPTION) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-
-    ' レジストリに情報を設定する
-    registry.setValues dbExplorerOption
-    
-    Set registry = Nothing
-        
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = ActiveSheet
-    
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, cboSchema.name, cboSchema.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, cboFilter.name, cboFilter.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterA.name, tglFilterA.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterB.name, tglFilterB.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterC.name, tglFilterC.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterD.name, tglFilterD.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterE.name, tglFilterE.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterF.name, tglFilterF.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterG.name, tglFilterG.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterH.name, tglFilterH.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterI.name, tglFilterI.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterJ.name, tglFilterJ.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterK.name, tglFilterK.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterL.name, tglFilterL.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterM.name, tglFilterM.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterN.name, tglFilterN.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterO.name, tglFilterO.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterP.name, tglFilterP.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterQ.name, tglFilterQ.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterR.name, tglFilterR.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterS.name, tglFilterS.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterT.name, tglFilterT.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterU.name, tglFilterU.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterV.name, tglFilterV.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterW.name, tglFilterW.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterX.name, tglFilterX.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterY.name, tglFilterY.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterZ.name, tglFilterZ.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG, tglFilterOther.name, tglFilterOther.value
-
-    ' ----------------------------------------------
-
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
@@ -848,114 +770,28 @@ End Sub
 Private Sub restoreDBExplorerOption()
 
     On Error GoTo err
-        
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = ActiveSheet
-
-    Dim bookPropVal As ValCollection
-
-    If bookProp.isExistsProperties Then
-        ' 設定情報シートが存在する
-        
-        Set bookPropVal = bookProp.getValues(ConstantsBookProperties.TABLE_DB_EXPLORER_DIALOG)
-        If bookPropVal.count > 0 Then
-            ' 設定情報が存在するので、フォームに反映する
-            
-            inFilterProcess = True
-            
-            cboSchema.value = bookPropVal.getItem(cboSchema.name, vbString)
-            cboFilter.value = bookPropVal.getItem(cboFilter.name, vbString)
-            tglFilterA.value = bookPropVal.getItem(tglFilterA.name, vbString)
-            tglFilterB.value = bookPropVal.getItem(tglFilterB.name, vbString)
-            tglFilterC.value = bookPropVal.getItem(tglFilterC.name, vbString)
-            tglFilterD.value = bookPropVal.getItem(tglFilterD.name, vbString)
-            tglFilterE.value = bookPropVal.getItem(tglFilterE.name, vbString)
-            tglFilterF.value = bookPropVal.getItem(tglFilterF.name, vbString)
-            tglFilterG.value = bookPropVal.getItem(tglFilterG.name, vbString)
-            tglFilterH.value = bookPropVal.getItem(tglFilterH.name, vbString)
-            tglFilterI.value = bookPropVal.getItem(tglFilterI.name, vbString)
-            tglFilterJ.value = bookPropVal.getItem(tglFilterJ.name, vbString)
-            tglFilterK.value = bookPropVal.getItem(tglFilterK.name, vbString)
-            tglFilterL.value = bookPropVal.getItem(tglFilterL.name, vbString)
-            tglFilterM.value = bookPropVal.getItem(tglFilterM.name, vbString)
-            tglFilterN.value = bookPropVal.getItem(tglFilterN.name, vbString)
-            tglFilterO.value = bookPropVal.getItem(tglFilterO.name, vbString)
-            tglFilterP.value = bookPropVal.getItem(tglFilterP.name, vbString)
-            tglFilterQ.value = bookPropVal.getItem(tglFilterQ.name, vbString)
-            tglFilterR.value = bookPropVal.getItem(tglFilterR.name, vbString)
-            tglFilterS.value = bookPropVal.getItem(tglFilterS.name, vbString)
-            tglFilterT.value = bookPropVal.getItem(tglFilterT.name, vbString)
-            tglFilterU.value = bookPropVal.getItem(tglFilterU.name, vbString)
-            tglFilterV.value = bookPropVal.getItem(tglFilterV.name, vbString)
-            tglFilterW.value = bookPropVal.getItem(tglFilterW.name, vbString)
-            tglFilterX.value = bookPropVal.getItem(tglFilterX.name, vbString)
-            tglFilterY.value = bookPropVal.getItem(tglFilterY.name, vbString)
-            tglFilterZ.value = bookPropVal.getItem(tglFilterZ.name, vbString)
-            tglFilterOther.value = bookPropVal.getItem(tglFilterOther.name, vbString)
-
-            inFilterProcess = False
-            
-            applyFilterCondition
-            
-            Exit Sub
-        End If
-    End If
-    ' ----------------------------------------------
-
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_DB_EXPLORER_OPTION) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
     
-    Dim retStr As String
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
+
+    ' データを読み込む
+    Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
             
     inFilterProcess = True
-    
-    registry.getValue cboSchema.name, retStr: cboSchema.value = retStr
-    registry.getValue cboFilter.name, retStr: cboFilter.value = retStr
-    registry.getValue tglFilterA.name, retStr: tglFilterA.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterB.name, retStr: tglFilterB.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterC.name, retStr: tglFilterC.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterD.name, retStr: tglFilterD.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterE.name, retStr: tglFilterE.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterF.name, retStr: tglFilterF.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterG.name, retStr: tglFilterG.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterH.name, retStr: tglFilterH.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterI.name, retStr: tglFilterI.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterJ.name, retStr: tglFilterJ.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterK.name, retStr: tglFilterK.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterL.name, retStr: tglFilterL.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterM.name, retStr: tglFilterM.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterN.name, retStr: tglFilterN.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterO.name, retStr: tglFilterO.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterP.name, retStr: tglFilterP.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterQ.name, retStr: tglFilterQ.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterR.name, retStr: tglFilterR.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterS.name, retStr: tglFilterS.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterT.name, retStr: tglFilterT.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterU.name, retStr: tglFilterU.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterV.name, retStr: tglFilterV.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterW.name, retStr: tglFilterW.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterX.name, retStr: tglFilterX.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterY.name, retStr: tglFilterY.value = VBUtil.convertBoolStrToBool(retStr)
-    registry.getValue tglFilterZ.name, retStr: tglFilterZ.value = VBUtil.convertBoolStrToBool(retStr)
+        
+    val = values.getItem(cboSchema.name, vbVariant): If IsArray(val) Then cboSchema.value = val(2)
+    val = values.getItem(cboFilter.name, vbVariant): If IsArray(val) Then cboFilter.value = val(2)
 
     inFilterProcess = False
-    
-    Set registry = Nothing
     
     Exit Sub
     
 err:
 
     inFilterProcess = False
-    
-    Set registry = Nothing
     
     Main.ShowErrorMessage
 

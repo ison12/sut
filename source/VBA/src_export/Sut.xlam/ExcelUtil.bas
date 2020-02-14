@@ -427,13 +427,13 @@ Public Sub copyCell(sheetName As String, _
     sheet.activate
     
     Set srcRange = sheet.Range( _
-        Cells(srcStartRow, srcStartCol), _
-        Cells(srcEndRow, srcEndCol) _
+        sheet.Cells(srcStartRow, srcStartCol), _
+        sheet.Cells(srcEndRow, srcEndCol) _
     )
         
     Set desRange = sheet.Range( _
-        Cells(desStartRow, desStartCol), _
-        Cells(desStartRow + srcEndRow - srcStartRow, desStartCol + srcEndCol - srcStartCol) _
+        sheet.Cells(desStartRow, desStartCol), _
+        sheet.Cells(desStartRow + srcEndRow - srcStartRow, desStartCol + srcEndCol - srcStartCol) _
     )
     
     srcRange.copy
@@ -582,10 +582,12 @@ Public Sub fillBgColor(ByVal sheetName As String, _
                        ByVal colorIndex As Long)
 
     Dim r As Range
+    Dim sheet As Worksheet
+    Set sheet = Worksheets(sheetName)
 
-    Set r = Worksheets(sheetName).Range( _
-                Cells(startRow, startCol), _
-                Cells(endRow, endCol) _
+    Set r = sheet.Range( _
+                sheet.Cells(startRow, startCol), _
+                sheet.Cells(endRow, endCol) _
             )
 
     ' 既存の色を確認
@@ -618,8 +620,8 @@ Public Sub addCommentForWorkSheet(ByVal sheet As Worksheet, _
     
     ' レンジオブジェクトを取得する
     Set r = sheet.Range( _
-                Cells(row, col), _
-                Cells(row, col) _
+                sheet.Cells(row, col), _
+                sheet.Cells(row, col) _
             )
     
     ' コメントが既に存在するセルに対して、コメントを追加するとエラーが発生する。
@@ -679,10 +681,13 @@ Public Sub deleteComment(sheetName As String, _
     ' コメントオブジェクト
     Dim c As comment
     
+    Dim sheet As Worksheet
+    Set sheet = Worksheets(sheetName)
+    
     ' レンジオブジェクトを取得する
-    Set r = Worksheets(sheetName).Range( _
-                Cells(row, col), _
-                Cells(row, col) _
+    Set r = sheet.Range( _
+                sheet.Cells(row, col), _
+                sheet.Cells(row, col) _
             )
             
     ' コメントオブジェクトを取得する
@@ -732,7 +737,7 @@ Public Sub addHyperLinkInBook(ByVal sheetName As String, _
     Set sheet = book.Worksheets(sheetName)
     sheet.activate
     
-    Set r = sheet.Range(Cells(row, col), Cells(row, col))
+    Set r = sheet.Range(sheet.Cells(row, col), sheet.Cells(row, col))
     
     ' R1C1形式でセル位置を指定する
     cellRc = "R" & linkTargetCellRow & "C" & linkTargetCellCol
@@ -771,7 +776,7 @@ Public Sub changeFontSize(ByVal sheetName As String, ByVal row As Long, ByVal co
     Set sheet = book.Worksheets(sheetName)
     sheet.activate
     
-    Set r = sheet.Range(Cells(row, col), Cells(row, col))
+    Set r = sheet.Range(sheet.Cells(row, col), sheet.Cells(row, col))
 
     r.Font.size = fontSize
     
@@ -859,10 +864,10 @@ Public Sub deleteRowEndOfLastInputted(ByRef sheet As Worksheet, ByVal row As Lon
     ' 削除対象範囲を取得
     Set targetRange = sheet _
                         .Range( _
-                           Cells(recordOffset _
-                               , 1).Address & ":" & _
-                           Cells(length _
-                               , 1).Address)
+                           sheet.Cells(recordOffset _
+                                     , 1).Address & ":" & _
+                           sheet.Cells(length _
+                                     , 1).Address)
     
     ' 削除する（行単位で削除）
     targetRange.EntireRow.delete
@@ -894,7 +899,7 @@ Public Function getCellEndOfLastInputtedRow(ByRef sheet As Worksheet, ByVal col 
         getCellEndOfLastInputtedRow = max
     
     Else
-        ' Excelの最大行数から左方向に空白でないセルを探す
+        ' Excelの最大行数から上方向に空白でないセルを探す
         getCellEndOfLastInputtedRow = sheet.Cells(max, col).End(xlUp).row
         
     End If
@@ -1153,6 +1158,46 @@ Public Function checkOverMaxCol(ByRef sheet As Worksheet _
 End Function
 
 ' =========================================================
+' ▽配列からRangeを取得する
+'
+' 概要　　　：
+' 引数　　　：val       配列
+'             sheet     シート
+' 　　　　　　offsetRow 行
+' 　　　　　　offsetCol 列
+' 　　　　　　rowSize   行サイズ
+' 　　　　　　colSize   列サイズ
+'
+' =========================================================
+Public Function getArrayRange(ByRef val As Variant _
+                            , ByRef sheet As Worksheet _
+                            , ByVal rowOffset As Long _
+                            , ByVal colOffset As Long _
+                            , Optional ByVal rowSize As Long = -1 _
+                            , Optional ByVal colSize As Long = -1) As Range
+
+    If IsArray(val) = False Then
+    
+        Exit Function
+        
+    End If
+
+    If rowSize = -1 Then
+        rowSize = VBUtil.arraySize(val)
+    End If
+    
+    If colSize = -1 Then
+        colSize = VBUtil.arraySize(val, 2)
+    End If
+
+    Set getArrayRange = sheet.Range(sheet.Cells(rowOffset _
+                                              , colOffset) _
+                      , sheet.Cells(rowOffset + rowSize - 1 _
+                                              , colOffset + colSize - 1))
+    
+End Function
+
+' =========================================================
 ' ▽配列内容コピー
 '
 ' 概要　　　：セルに配列内容をコピーする
@@ -1185,10 +1230,10 @@ Public Sub copyArrayToCells(ByRef val As Variant _
         colSize = VBUtil.arraySize(val, 2)
     End If
 
-    sheet.Range(Cells(rowOffset _
-                    , colOffset) _
-              , Cells(rowOffset + rowSize - 1 _
-                    , colOffset + colSize - 1)) = val
+    sheet.Range(sheet.Cells(rowOffset _
+                          , colOffset) _
+              , sheet.Cells(rowOffset + rowSize - 1 _
+                          , colOffset + colSize - 1)) = val
 
     'sheet.Cells(rowOffset, colOffset).Resize(rowSize, colSize) = val
     
@@ -1223,10 +1268,10 @@ Public Sub copyArrayToCellsForColumns(ByRef val As Variant _
         colSize = VBUtil.arraySize(val)
     End If
 
-    sheet.Range(Cells(rowOffset _
-                    , colOffset) _
-              , Cells(rowOffset + rowSize - 1 _
-                    , colOffset + colSize - 1)) = val
+    sheet.Range(sheet.Cells(rowOffset _
+                          , colOffset) _
+              , sheet.Cells(rowOffset + rowSize - 1 _
+                          , colOffset + colSize - 1)) = val
 
     'sheet.Cells(rowOffset, colOffset).Resize(rowSize, colSize) = val
     
@@ -1579,3 +1624,31 @@ Public Function showSaveConfirmDialog(book As Workbook) As VbMsgBoxResult
     showSaveConfirmDialog = MsgBox("'" & book.name & "'への変更を保存しますか？", vbYesNoCancel Or vbExclamation, "Microsoft Excel")
 
 End Function
+
+' =========================================================
+' ▽アクティブブックを取得する。
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：アクティブブック
+'
+' =========================================================
+Public Function getActiveWorkbook() As Workbook
+
+    On Error Resume Next
+    
+    ' 最初はアクティブシートから取得を試みる
+    ' ※アドインマクロの場合に、アドイン自身のブック情報が取得される可能性があるため
+    Set getActiveWorkbook = ActiveSheet.parent
+    
+    If err.Number <> 0 Then
+    
+        ' 次にアクティブブックから取得を試みる
+        Set getActiveWorkbook = ActiveWorkbook
+    
+    End If
+    
+    On Error GoTo 0
+
+End Function
+

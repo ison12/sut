@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmQueryParameter 
    Caption         =   "クエリパラメータ設定"
-   ClientHeight    =   8595.001
+   ClientHeight    =   8595
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   8055
@@ -40,7 +40,7 @@ Public Event ok()
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' クエリパラメータの新規作成最大数
 Private Const QUERY_PARAMETER_NEW_CREATED_OVER_SIZE As String = "クエリパラメータは最大${count}まで登録可能です。"
@@ -56,6 +56,15 @@ Private queryParameterList As CntListBox
 Private queryParameterSelectedIndex As Long
 ' クエリパラメータリストでの選択項目オブジェクト
 Private queryParameterSelectedItem As ValQueryParameter
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -163,7 +172,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -181,7 +190,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstQueryParameterList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstQueryParameterList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     editQueryParameter
 End Sub
 
@@ -256,6 +265,7 @@ Private Sub editQueryParameter()
     ' 現在選択されている項目を取得
     Set queryParameterSelectedItem = queryParameterList.getSelectedItem
     
+    If VBUtil.unloadFormIfChangeActiveBook(frmQueryParameterSetting) Then Unload frmQueryParameterSetting
     Load frmQueryParameterSetting
     Set frmQueryParameterSettingVar = frmQueryParameterSetting
     frmQueryParameterSetting.ShowExt vbModal, queryParameterSelectedItem
@@ -544,6 +554,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         
@@ -615,6 +627,18 @@ Private Sub unInitial()
 End Sub
 
 ' =========================================================
+' ▽設定情報の生成
+' =========================================================
+Private Function createApplicationProperties() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initWorksheet targetBook, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+
+    Set createApplicationProperties = appProp
+    
+End Function
+
+' =========================================================
 ' ▽クエリパラメータ情報を保存する
 '
 ' 概要　　　：
@@ -624,26 +648,18 @@ End Sub
 ' =========================================================
 Private Sub storeQueryParameter()
 
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = ActiveSheet
+    On Error GoTo err
     
-    Dim var As Variant
-    Dim i As Long
+    Dim queryParameterList_ As New ValQueryParameterList
+    queryParameterList_.init targetBook
+    queryParameterList_.list = queryParameterList.collection
+    queryParameterList_.writeForData
     
-    bookProp.removeAllValue ConstantsBookProperties.TABLE_QUERY_PARAMETER_DIALOG
+    Exit Sub
     
-    i = 0
-    For Each var In queryParameterList.collection.col
-    
-        bookProp.setValue ConstantsBookProperties.TABLE_QUERY_PARAMETER_DIALOG, "name_" & i, var.name
-        bookProp.setValue ConstantsBookProperties.TABLE_QUERY_PARAMETER_DIALOG, "value_" & i, var.value
-    
-        i = i + 1
-    Next
-    ' ----------------------------------------------
+err:
 
+    Main.ShowErrorMessage
 
 End Sub
 
@@ -657,31 +673,25 @@ End Sub
 ' =========================================================
 Private Sub restoreQueryParameter()
 
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = ActiveSheet
-
-    Dim bookPropVal As ValCollection
-
-    If bookProp.isExistsProperties Then
-        ' 設定情報シートが存在する
-        Set bookPropVal = bookProp.getValuesOfElementArray(ConstantsBookProperties.TABLE_QUERY_PARAMETER_DIALOG)
-    Else
-        Set bookPropVal = New ValCollection
-    End If
-    ' ----------------------------------------------
-
-    Dim ValQueryParameterList As New ValQueryParameterList
-    ValQueryParameterList.setListFromFlatRecords bookPropVal
+    On Error GoTo err
+    
+    Dim queryParameterList_ As New ValQueryParameterList
+    queryParameterList_.init targetBook
+    queryParameterList_.readForData
 
     Set queryParameterList = New CntListBox: queryParameterList.init lstQueryParameterList
     
-    addQueryParameterList ValQueryParameterList.list
+    addQueryParameterList queryParameterList_.list
     
     ' 先頭を選択する
     queryParameterList.setSelectedIndex 0
     
+    Exit Sub
+    
+err:
+    
+    Main.ShowErrorMessage
+
 End Sub
 
 ' =========================================================

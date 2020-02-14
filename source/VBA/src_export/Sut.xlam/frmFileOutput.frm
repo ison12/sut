@@ -42,7 +42,7 @@ Public Event ok(ByVal filePath As String _
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 Private Const REG_SUB_KEY_FILE_OUTPUT_OPTION As String = "file_output_option"
 
@@ -51,6 +51,15 @@ Private charcterList As CntListBox
 
 ' デフォルトファイル名
 Private defaultFileName As String
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -104,6 +113,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
 
@@ -297,7 +308,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -384,6 +395,19 @@ Private Sub deactivate()
 End Sub
 
 ' =========================================================
+' ▽設定情報の生成
+' =========================================================
+Private Function createApplicationProperties() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+    appProp.initWorksheet targetBook, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+
+    Set createApplicationProperties = appProp
+    
+End Function
+
+' =========================================================
 ' ▽ファイルオプションを保存する
 '
 ' 概要　　　：
@@ -395,49 +419,25 @@ Private Sub storeFileOutputOption()
 
     On Error GoTo err
     
-    Dim j As Long
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
     
-    Dim fileOutputOption(0 To 2 _
-                       , 0 To 1) As Variant
+    ' 書き込みデータ
+    Dim values As New ValCollection
     
-    
-    fileOutputOption(j, 0) = txtFilePath.name
-    fileOutputOption(j, 1) = VBUtil.extractDirPathFromFilePath(txtFilePath.value): j = j + 1
-    
-    fileOutputOption(j, 0) = cboChoiceCharacterCode.name
-    fileOutputOption(j, 1) = cboChoiceCharacterCode.value: j = j + 1
+    values.setItem Array(txtFilePath.name, VBUtil.extractDirPathFromFilePath(txtFilePath.value))
+    values.setItem Array(cboChoiceCharacterCode.name, cboChoiceCharacterCode.value)
+    values.setItem Array(cboChoiceNewLine.name, cboChoiceNewLine.value)
 
-    fileOutputOption(j, 0) = cboChoiceNewLine.name
-    fileOutputOption(j, 1) = cboChoiceNewLine.value: j = j + 1
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_FILE_OUTPUT_OPTION) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-
-    ' レジストリに情報を設定する
-    registry.setValues fileOutputOption
-    
-    Set registry = Nothing
-        
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = ActiveSheet
-    
-    bookProp.setValue ConstantsBookProperties.TABLE_FILE_OUTPUT_DIALOG, txtFilePath.name, VBUtil.extractDirPathFromFilePath(txtFilePath.value)
-    bookProp.setValue ConstantsBookProperties.TABLE_FILE_OUTPUT_DIALOG, cboChoiceCharacterCode.name, cboChoiceCharacterCode.value
-    bookProp.setValue ConstantsBookProperties.TABLE_FILE_OUTPUT_DIALOG, cboChoiceNewLine.name, cboChoiceNewLine.value
-    ' ----------------------------------------------
-
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
@@ -455,61 +455,22 @@ Private Sub restoreFileOutputOption()
 
     On Error GoTo err
     
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = ActiveSheet
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
 
-    Dim bookPropVal As ValCollection
-
-    If bookProp.isExistsProperties Then
-        ' 設定情報シートが存在する
-        
-        Set bookPropVal = bookProp.getValues(ConstantsBookProperties.TABLE_FILE_OUTPUT_DIALOG)
-        If bookPropVal.count > 0 Then
-            ' 設定情報が存在するので、フォームに反映する
+    ' データを読み込む
+    Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
             
-            txtFilePath.value = bookPropVal.getItem(txtFilePath.name, vbString)
-            cboChoiceCharacterCode.value = bookPropVal.getItem(cboChoiceCharacterCode.name, vbString)
-            cboChoiceNewLine.value = bookPropVal.getItem(cboChoiceNewLine.name, vbString)
-
-            Exit Sub
-        End If
-    End If
-    ' ----------------------------------------------
-
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_FILE_OUTPUT_OPTION) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-    
-    Dim retFilepath As String
-    Dim retChar     As String
-    Dim retNewLine  As String
-    
-    registry.getValue txtFilePath.name, retFilepath
-    registry.getValue cboChoiceCharacterCode.name, retChar
-    registry.getValue cboChoiceNewLine.name, retNewLine
-    
-    txtFilePath.value = retFilepath
-    If txtFilePath.value = "" Then txtFilePath.value = ThisWorkbook.path
-    
-    cboChoiceCharacterCode.value = retChar
-    If cboChoiceCharacterCode.ListIndex = -1 Then cboChoiceCharacterCode.ListIndex = 0
-    
-    cboChoiceNewLine.value = retNewLine
-    If cboChoiceNewLine.ListIndex = -1 Then cboChoiceNewLine.ListIndex = 0
-    
-    Set registry = Nothing
+    val = values.getItem(txtFilePath.name, vbVariant): If IsArray(val) Then txtFilePath.value = val(2)
+    val = values.getItem(cboChoiceCharacterCode.name, vbVariant): If IsArray(val) Then cboChoiceCharacterCode.value = val(2)
+    val = values.getItem(cboChoiceNewLine.name, vbVariant): If IsArray(val) Then cboChoiceNewLine.value = val(2)
     
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
     
     Main.ShowErrorMessage
 

@@ -27,48 +27,6 @@ Public dbList As ValCollection
 ' ▽定数プロパティ
 ' 　Classモジュールでは、Public Constが定義できないのでプロパティで代用する
 ' =========================================================
-' キー値 レコード処理単位
-Public Property Get REG_SUB_KEY_APPLICATION() As String
-
-    REG_SUB_KEY_APPLICATION = "application_setting_dbColumnFormat"
-End Property
-
-' キー値
-Public Property Get REG_SUB_KEY_DB_ORACLE() As String
-
-    REG_SUB_KEY_DB_ORACLE = "oracle"
-End Property
-
-' キー値
-Public Property Get REG_SUB_KEY_DB_MYSQL() As String
-
-    REG_SUB_KEY_DB_MYSQL = "mysql"
-End Property
-
-' キー値
-Public Property Get REG_SUB_KEY_DB_POSTGRESQL() As String
-
-    REG_SUB_KEY_DB_POSTGRESQL = "postgresql"
-End Property
-
-' キー値
-Public Property Get REG_SUB_KEY_DB_SQLSERVER() As String
-
-    REG_SUB_KEY_DB_SQLSERVER = "sqlserver"
-End Property
-
-' キー値
-Public Property Get REG_SUB_KEY_DB_SYMFOWARE() As String
-
-    REG_SUB_KEY_DB_SYMFOWARE = "symfoware"
-End Property
-
-' キー値
-Public Property Get REG_SUB_KEY_DB_ACCESS() As String
-
-    REG_SUB_KEY_DB_ACCESS = "access"
-End Property
-
 ' キー値
 Public Property Get KEY_COLUMN() As String
 
@@ -103,66 +61,7 @@ End Sub
 
 Public Sub init()
 
-    Set dbList = New ValCollection
-    
-    Dim dbColumnFmtInfo As ValDbColumnFormatInfo
-    
-    Dim dbt As DbmsType
-    
-    ' 各DBのカラム書式情報を取得する
-    ' ----------------------------------------------
-    ' Oracle
-    ' ----------------------------------------------
-    dbt = DbmsType.Oracle
-    Set dbColumnFmtInfo = readForRegistryDbInfo(CStr(dbt))
-    
-    dbList.setItem dbColumnFmtInfo, CStr(dbt)
-    ' ----------------------------------------------
-    
-    ' ----------------------------------------------
-    ' MySQL
-    ' ----------------------------------------------
-    dbt = DbmsType.MySQL
-    Set dbColumnFmtInfo = readForRegistryDbInfo(CStr(dbt))
-    
-    dbList.setItem dbColumnFmtInfo, CStr(dbt)
-    ' ----------------------------------------------
-    
-    ' ----------------------------------------------
-    ' PostgreSQL
-    ' ----------------------------------------------
-    dbt = DbmsType.PostgreSQL
-    Set dbColumnFmtInfo = readForRegistryDbInfo(CStr(dbt))
-    
-    dbList.setItem dbColumnFmtInfo, CStr(dbt)
-    ' ----------------------------------------------
-    
-    ' ----------------------------------------------
-    ' SQL Server
-    ' ----------------------------------------------
-    dbt = DbmsType.MicrosoftSqlServer
-    Set dbColumnFmtInfo = readForRegistryDbInfo(CStr(dbt))
-    
-    dbList.setItem dbColumnFmtInfo, CStr(dbt)
-    ' ----------------------------------------------
-    
-    ' ----------------------------------------------
-    ' Access
-    ' ----------------------------------------------
-    dbt = DbmsType.MicrosoftAccess
-    Set dbColumnFmtInfo = readForRegistryDbInfo(CStr(dbt))
-    
-    dbList.setItem dbColumnFmtInfo, CStr(dbt)
-    ' ----------------------------------------------
-
-    ' ----------------------------------------------
-    ' Symfoware
-    ' ----------------------------------------------
-    dbt = DbmsType.Symfoware
-    Set dbColumnFmtInfo = readForRegistryDbInfo(CStr(dbt))
-    
-    dbList.setItem dbColumnFmtInfo, CStr(dbt)
-    ' ----------------------------------------------
+    readForData
     
 End Sub
 
@@ -235,49 +134,139 @@ Public Function getDbColFormatList(ByRef dbmsT As DbmsType) As ValCollection
 End Function
 
 ' =========================================================
-' ▽レジストリから情報を読み込む
+' ▽設定情報の生成
 ' =========================================================
-Private Function readForRegistryDbInfo(ByVal keyNameDb As String) As ValDbColumnFormatInfo
+Private Function createApplicationProperties(ByVal keyNameDb As String) As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_OPTION & "\" & "appSettingColFormat_" & keyNameDb & ".ini"
+
+    Set createApplicationProperties = appProp
+    
+End Function
+
+' =========================================================
+' ▽情報を読み込む
+' =========================================================
+Public Sub readForData()
 
     On Error GoTo err
     
-    Dim retCode As Boolean
+    Set dbList = New ValCollection
     
-    Dim ret As New ValCollection
+    Dim dbColumnFmtInfo As ValDbColumnFormatInfo
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    retCode = registry.init(RegKeyConstants.HKEY_CURRENT_USER _
-                          , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_APPLICATION & "\" & keyNameDb) _
-                          , RegAccessConstants.KEY_ALL_ACCESS _
-                          , False)
+    Dim dbt As DbmsType
+    
+    ' 各DBのカラム書式情報を取得する
+    ' ----------------------------------------------
+    ' Oracle
+    ' ----------------------------------------------
+    dbt = DbmsType.Oracle
+    Set dbColumnFmtInfo = readForDataDbInfo(CStr(dbt))
+    
+    dbList.setItem dbColumnFmtInfo, CStr(dbt)
+    ' ----------------------------------------------
+    
+    ' ----------------------------------------------
+    ' MySQL
+    ' ----------------------------------------------
+    dbt = DbmsType.MySQL
+    Set dbColumnFmtInfo = readForDataDbInfo(CStr(dbt))
+    
+    dbList.setItem dbColumnFmtInfo, CStr(dbt)
+    ' ----------------------------------------------
+    
+    ' ----------------------------------------------
+    ' PostgreSQL
+    ' ----------------------------------------------
+    dbt = DbmsType.PostgreSQL
+    Set dbColumnFmtInfo = readForDataDbInfo(CStr(dbt))
+    
+    dbList.setItem dbColumnFmtInfo, CStr(dbt)
+    ' ----------------------------------------------
+    
+    ' ----------------------------------------------
+    ' SQL Server
+    ' ----------------------------------------------
+    dbt = DbmsType.MicrosoftSqlServer
+    Set dbColumnFmtInfo = readForDataDbInfo(CStr(dbt))
+    
+    dbList.setItem dbColumnFmtInfo, CStr(dbt)
+    ' ----------------------------------------------
+    
+    ' ----------------------------------------------
+    ' Access
+    ' ----------------------------------------------
+    dbt = DbmsType.MicrosoftAccess
+    Set dbColumnFmtInfo = readForDataDbInfo(CStr(dbt))
+    
+    dbList.setItem dbColumnFmtInfo, CStr(dbt)
+    ' ----------------------------------------------
+
+    ' ----------------------------------------------
+    ' Symfoware
+    ' ----------------------------------------------
+    dbt = DbmsType.Symfoware
+    Set dbColumnFmtInfo = readForDataDbInfo(CStr(dbt))
+    
+    dbList.setItem dbColumnFmtInfo, CStr(dbt)
+    ' ----------------------------------------------
+    
+    Exit Sub
+    
+err:
+    
+    Main.ShowErrorMessage
+
+End Sub
+
+' =========================================================
+' ▽情報を読み込む DB別
+' =========================================================
+Private Function readForDataDbInfo(ByVal keyNameDb As String) As ValDbColumnFormatInfo
+
+    On Error GoTo err
+    
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties(keyNameDb)
                 
+    ' データを読み込む
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
+    
+    Dim val As Variant
+    
     Dim dbColumnFmtInfo As New ValDbColumnFormatInfo
     
-    If retCode = True Then
+    If values.count > 0 Then
     
-        ' カラムキー
-        Dim key     As Variant
-        ' カラムキーリスト
-        Dim keyList As ValCollection
-        
-        ' カラムキーリストを取得する
-        Set keyList = registry.getKeyList
-        
         ' DB名称を設定する
         dbColumnFmtInfo.dbName = keyNameDb
+    
+        ' -------------------------------------------------------
+        ' 全ての情報を取得する
+        ' -------------------------------------------------------
+        Dim i As Long: i = 1
+        Do While True
         
-        ' DBカラムフォーマット情報
-        Dim column As ValDbColumnTypeColInfo
-        
-        For Each key In keyList.col
-        
-            ' カラムを設定する
-            Set column = readForRegistryColumnInfo(keyNameDb, key)
+            val = values.getItem(i & "_" & KEY_COLUMN, vbVariant)
+            If Not IsArray(val) Then
+                Exit Do
+            End If
+                        
+            Dim column As ValDbColumnTypeColInfo
+            Set column = New ValDbColumnTypeColInfo
+                        
+            val = values.getItem(i & "_" & KEY_COLUMN, vbVariant): If IsArray(val) Then column.columnName = UCase$(val(2)) ' カラム書式検索時に大文字のみで情報を一致させるために、ここでは大文字に変換して設定する
+            val = values.getItem(i & "_" & KEY_UPDATE, vbVariant): If IsArray(val) Then column.formatUpdate = val(2)
+            val = values.getItem(i & "_" & KEY_SELECT, vbVariant): If IsArray(val) Then column.formatSelect = val(2)
             
             dbColumnFmtInfo.columnList.setItem column, UCase$(column.columnName)
-        Next
+        
+            i = i + 1
+        Loop
         
     Else
     
@@ -285,71 +274,30 @@ Private Function readForRegistryDbInfo(ByVal keyNameDb As String) As ValDbColumn
         Dim dbObjFactory As New DbObjectFactory
         ' DBカラム情報取得オブジェクト
         Dim dbColumnType As IDbColumnType
-        
         Set dbColumnType = dbObjFactory.createColumnType(keyNameDb)
         
+        ' DB名称を設定する
         dbColumnFmtInfo.dbName = keyNameDb
+        
         Set dbColumnFmtInfo.columnList = dbColumnType.getDefaultColumnFormat
         
     End If
-                
-    Set registry = Nothing
     
     ' 戻り値を設定する
-    Set readForRegistryDbInfo = dbColumnFmtInfo
+    Set readForDataDbInfo = dbColumnFmtInfo
         
     Exit Function
     
 err:
-    
-    Set registry = Nothing
-
-    Main.ShowErrorMessage
-
-End Function
-
-Private Function readForRegistryColumnInfo(ByVal keyNameDb As String _
-                                         , ByVal keyNameColumn As String) As ValDbColumnTypeColInfo
-
-    On Error GoTo err
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_APPLICATION & "\" & keyNameDb & "\" & keyNameColumn) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    Dim columnName   As String
-    Dim formatUpdate As String
-    Dim formatSelect As String
-    
-    registry.getValue KEY_COLUMN, columnName
-    registry.getValue KEY_UPDATE, formatUpdate
-    registry.getValue KEY_SELECT, formatSelect
-
-    Set readForRegistryColumnInfo = New ValDbColumnTypeColInfo
-    readForRegistryColumnInfo.columnName = UCase$(columnName) ' カラム書式検索時に大文字のみで情報を一致させるために、ここでは大文字に変換して設定する
-    readForRegistryColumnInfo.formatUpdate = formatUpdate
-    readForRegistryColumnInfo.formatSelect = formatSelect
-
-    Set registry = Nothing
-    
-    Exit Function
-    
-err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
 End Function
 
 ' =========================================================
-' ▽レジストリに情報を書き込む
+' ▽情報を書き込む
 ' =========================================================
-Public Sub writeForRegistry()
+Public Sub writeForData()
 
     On Error GoTo err
     
@@ -358,7 +306,7 @@ Public Sub writeForRegistry()
     
     For Each dbInfo In dbList.col
     
-        writeForRegistryDbInfo dbInfo
+        writeForDataDbInfo dbInfo
     
     Next
     
@@ -370,109 +318,40 @@ err:
 
 End Sub
 
-Public Sub writeForRegistryDbInfo(ByVal dbInfo As ValDbColumnFormatInfo)
+' =========================================================
+' ▽情報を書き込む DB別
+' =========================================================
+Public Sub writeForDataDbInfo(ByVal dbInfo As ValDbColumnFormatInfo)
 
     On Error GoTo err
     
-    Dim ret As New ValCollection
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_APPLICATION & "\" & dbInfo.dbName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties(dbInfo.dbName)
                 
-    ' 一旦全て削除する
+    ' 書き込みデータ
+    Dim val As Variant
+    Dim values As New ValCollection
     
-    ' DBキー情報
-    Dim key As Variant
-    ' DBキーリスト
-    Dim keyList As ValCollection
+    Dim i As Long: i = 1
+    For Each val In dbInfo.columnList.col
     
-    ' DBキーリストを取得する
-    Set keyList = registry.getKeyList
-    
-    For Each key In keyList.col
-    
-        registry.delete key
-    Next
-    
-    Set registry = Nothing
-    
-    ' インデックス
-    Dim i As Long
-    
-    ' カラム
-    Dim column As Variant
-    ' カラムリスト
-    Dim columnList As Variant
-    ' カラムリストを取得する
-    Set columnList = dbInfo.columnList
-    
-    
-    ' カラムリストに含まれる全ての情報をレジストリに書き込む
-    For Each column In columnList.col
-    
-        ' 最新の情報で書き込む
-        writeForRegistryColumnInfo dbInfo.dbName _
-                                 , VBUtil.padLeft(i, 4) _
-                                 , column
+        values.setItem Array(i & "_" & KEY_COLUMN, val.columnName)
+        values.setItem Array(i & "_" & KEY_UPDATE, val.formatUpdate)
+        values.setItem Array(i & "_" & KEY_SELECT, val.formatSelect)
     
         i = i + 1
     Next
     
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
+
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
 End Sub
-
-Private Function writeForRegistryColumnInfo(ByVal keyNameDb As String _
-                                          , ByVal keyNameCol As String _
-                                          , ByVal columnInfo As ValDbColumnTypeColInfo) As String
-
-    On Error GoTo err
-    
-    ' DB接続情報を格納する配列
-    Dim optionInfoArray(0 To 2 _
-                      , 0 To 1) As Variant
-    
-    Dim i As Long
-    
-    i = 0
-    
-    optionInfoArray(i, 0) = KEY_COLUMN
-    optionInfoArray(i, 1) = columnInfo.columnName: i = i + 1
-    optionInfoArray(i, 0) = KEY_UPDATE
-    optionInfoArray(i, 1) = columnInfo.formatUpdate: i = i + 1
-    optionInfoArray(i, 0) = KEY_SELECT
-    optionInfoArray(i, 1) = columnInfo.formatSelect: i = i + 1
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_APPLICATION & "\" & keyNameDb & "\" & keyNameCol) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    registry.setValues optionInfoArray
-    
-    
-    Set registry = Nothing
-    
-    Exit Function
-    
-err:
-    
-    Set registry = Nothing
-
-    Main.ShowErrorMessage
-
-End Function

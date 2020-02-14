@@ -572,11 +572,13 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
               , ByRef conn As Object)
 
     ' フォームを設定する
+    If VBUtil.unloadFormIfChangeActiveBook(frmProgress) Then Unload frmProgress
     Load frmProgress
     ' フォームを設定する
     Set frmProgressVar = frmProgress
     
     ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmFileOutput) Then Unload frmFileOutput
     Load frmFileOutput
     ' フォームを設定する
     Set frmFileOutputVar = frmFileOutput
@@ -909,6 +911,7 @@ Public Sub batchFile()
     Set book = ActiveWorkbook
     
     ' フォームを設定する
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBQueryBatch) Then Unload frmDBQueryBatch
     Load frmDBQueryBatch
     Set frmDbQueryBatchVar = frmDBQueryBatch
     

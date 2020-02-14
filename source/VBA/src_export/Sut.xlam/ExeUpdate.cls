@@ -134,6 +134,8 @@ Public queryType     As Long
 Private queryCreator As IDbQueryCreator
 ' クエリ変換
 Private DbQueryConverter As New DbQueryConverter
+' クエリパラメータリスト
+Private queryParameterList_ As ValQueryParameterList
 
 ' SQL実行中フラグ
 Private executingSql      As Boolean
@@ -197,6 +199,30 @@ End Property
 Public Property Get QUERY_TYPE_DELETE_ALL() As Variant
 
     QUERY_TYPE_DELETE_ALL = 3
+End Property
+
+' =========================================================
+' ▽クエリパラメータリスト取得プロパティ
+' =========================================================
+Public Property Get queryParameterList() As ValQueryParameterList
+
+    If Not queryParameterList_ Is Nothing Then
+        Set queryParameterList = queryParameterList_
+        Exit Property
+    End If
+
+    Set queryParameterList_ = Nothing
+        
+    If sheet Is Nothing Then
+        Exit Property
+    End If
+    
+    Set queryParameterList_ = New ValQueryParameterList
+    queryParameterList_.init sheet.parent
+    queryParameterList_.readForData
+    
+    Set queryParameterList = queryParameterList_
+    
 End Property
 
 ' =========================================================
@@ -350,7 +376,7 @@ err:
     ' ファイルの出力をキャンセルする
     If Not writer Is Nothing Then
     
-        writer.cancel
+        writer.Cancel
         Set writer = Nothing
     End If
     
@@ -443,7 +469,7 @@ err:
     ' ファイルの出力をキャンセルする
     If Not writer Is Nothing Then
         
-        writer.cancel
+        writer.Cancel
         Set writer = Nothing
     End If
     
@@ -536,9 +562,6 @@ Private Function executeQuery(ByRef tableSheet As ValTableWorksheet _
 
             ' SQLを生成
             sql = createSql(table, record)
-
-            DbQueryConverter.init Me.conn, Me.sheet
-            sql = DbQueryConverter.convertSql(sql)
     
             ' SQLを実行
             If sql <> "" Then
@@ -974,7 +997,7 @@ Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Varia
             Dim selectSql As String
             selectSql = queryCreator.createSelect(table, condition)
             
-            DbQueryConverter.init Me.conn, Me.sheet
+            DbQueryConverter.init Me.conn, queryParameterList
             selectSql = DbQueryConverter.convertSql(selectSql)
             
             Set recordSet = ADOUtil.querySelect(conn, selectSql)
@@ -1020,6 +1043,9 @@ errExecuteSelect:
             createSql = queryCreator.createDeleteOfAllTable(table)
     
     End Select
+    
+    DbQueryConverter.init Me.conn, queryParameterList
+    createSql = DbQueryConverter.convertSql(createSql)
 
 End Function
 

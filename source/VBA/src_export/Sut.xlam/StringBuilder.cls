@@ -200,7 +200,7 @@ Private Sub expandCapacity()
             tmpCap = tmpCap * 2
         Loop
         
-        m_capacity = tmpCap
+        capacity = tmpCap
         
     End If
     

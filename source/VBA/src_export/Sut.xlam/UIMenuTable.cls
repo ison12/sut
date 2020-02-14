@@ -158,7 +158,7 @@ Private Sub frmTableSheetCreatorVar_complete(createTargetTable As ValCollection)
         Set book = Application.Workbooks.Add
         book.activate
     End If
-
+    
     frmProgressVar.ShowExt vbModeless, False
     frmProgressVar.title = "テーブルシート作成"
     
@@ -328,26 +328,31 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
               , ByRef conn As Object)
 
     ' フォームを設定する
+    If VBUtil.unloadFormIfChangeActiveBook(frmProgress) Then Unload frmProgress
     Load frmProgress
     ' フォームを設定する
     Set frmProgressVar = frmProgress
 
     ' DBエクスプローラフォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBExplorer) Then Unload frmDBExplorer
     Load frmDBExplorer
     ' イベント受信用の変数にDBエクスプローラフォームを設定する
     Set frmDBExplorerVar = frmDBExplorer
 
     ' テーブルシート作成フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmTableSheetCreator) Then Unload frmTableSheetCreator
     Load frmTableSheetCreator
     ' イベント受信用の変数にテーブルシート作成フォームを設定する
     Set frmTableSheetCreatorVar = frmTableSheetCreator
     
     ' テーブルシート一覧フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmTableSheetList) Then Unload frmTableSheetList
     Load frmTableSheetList
     ' イベント受信用の変数にテーブルシート一覧フォームを設定する
     Set frmTableSheetListVar = frmTableSheetList
     
     ' テーブルシート更新フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmTableSheetUpdate) Then Unload frmTableSheetUpdate
     Load frmTableSheetUpdate
     ' イベント受信用の変数にテーブルシート更新フォームを設定する
     Set frmTableSheetUpdateVar = frmTableSheetUpdate
@@ -377,6 +382,7 @@ Public Sub updateDbConn(ByRef dbConn As Object)
     ' DBエクスプローラのコネクションを再設定する
     If Not frmDBExplorer Is Nothing Then
     
+        If VBUtil.unloadFormIfChangeActiveBook(frmDBExplorer) Then Unload frmDBExplorer
         Load frmDBExplorer
         Set frmDBExplorerVar = frmDBExplorer
         

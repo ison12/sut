@@ -40,7 +40,7 @@ Public Event ok(ByVal recCount As Long)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' 処理対象ワークシート
 Public sheet As Worksheet
@@ -51,6 +51,15 @@ Private applicationSetting As ValApplicationSetting
 Public tableSheet As ValTableWorksheet
 ' 既存の行数
 Private recCountOrign As Long
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -99,6 +108,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
 
@@ -230,7 +241,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -330,7 +341,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecCount_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtRecCount_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -338,7 +349,7 @@ Private Sub txtRecCount_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If txtRecCount.text = "" Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_REQUIRED
@@ -349,7 +360,7 @@ Private Sub txtRecCount_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf validInteger(txtRecCount.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
@@ -360,7 +371,7 @@ Private Sub txtRecCount_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtRecCount.text) < 1 Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         

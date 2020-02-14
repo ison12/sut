@@ -19,8 +19,6 @@ Option Explicit
 ' 特記事項：
 '
 ' *********************************************************
-' ブックプロパティ設定
-Private bookProp As BookProperties
 ' DBコネクション
 Public conn          As Object
 
@@ -29,8 +27,12 @@ Public encloseStart As String
 ' 囲み文字 終了
 Public encloseEnd   As String
 
+' クエリパラメータリスト
+Private queryParamList As ValQueryParameterList
 ' 変換対象パラメータリスト
 Private convertedParamList As ValCollection
+' ワークシート
+Private sheet As Worksheet
 
 ' =========================================================
 ' ▽クラス初期化メソッド
@@ -52,13 +54,12 @@ End Sub
 ' =========================================================
 ' ▽初期化処理メソッド
 ' =========================================================
-Public Function init(ByRef conn As Object, ByRef sheet As Worksheet)
+Public Function init(ByRef conn As Object, ByVal queryParamList_ As ValQueryParameterList)
 
     ' DBコネクション
     Set Me.conn = conn
-    ' ブック設定情報
-    Set bookProp = New BookProperties
-    bookProp.sheet = sheet
+    ' クエリパラメータリスト
+    Set queryParamList = queryParamList_
     
 End Function
 
@@ -81,8 +82,7 @@ Public Function convertSql(ByRef sql As String) As String
     
     ' クエリパラメータの定義情報
     Dim bookPropVal As ValCollection
-    ' クエリパラメータ関連
-    Dim queryParameterList As New ValQueryParameterList
+    
     Dim queryParameter  As ValQueryParameter
     Dim queryParamName  As String
     Dim queryParamValue As String
@@ -90,14 +90,8 @@ Public Function convertSql(ByRef sql As String) As String
     If convertedParamList Is Nothing Then
     
         Set convertedParamList = New ValCollection
-    
-        If bookPropVal Is Nothing Then
-            Set bookPropVal = bookProp.getValuesOfElementArray(ConstantsBookProperties.TABLE_QUERY_PARAMETER_DIALOG)
-        End If
         
-        queryParameterList.setListFromFlatRecords bookPropVal
-    
-        For Each queryParameter In queryParameterList.list.col
+        For Each queryParameter In queryParamList.list.col
         
             If isShouldExecuteSql(queryParameter.value) Then
                 queryParameter.value = executeSql(queryParameter.value)

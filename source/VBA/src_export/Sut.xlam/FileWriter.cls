@@ -176,7 +176,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Public Sub cancel()
+Public Sub Cancel()
 
     ' ストリームが閉じていない場合
     If stream.state <> 0 Then

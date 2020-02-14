@@ -46,35 +46,6 @@ Public popupMenuList As ValCollection
 ' ▽定数プロパティ
 ' 　Classモジュールでは、Public Constが定義できないのでプロパティで代用する
 ' =========================================================
-' キー値 右クリックメニューショートカット
-Public Property Get REG_SUB_KEY_RCLICK_SHORTCUT() As String
-
-    REG_SUB_KEY_RCLICK_SHORTCUT = "application_setting_rclick_shortcut"
-End Property
-
-' キー値 ショートカット
-Public Property Get REG_SUB_KEY_SHORTCUT() As String
-
-    REG_SUB_KEY_SHORTCUT = "application_setting_shortcut"
-End Property
-
-' キー値 ポップアップメニュー
-Public Property Get REG_SUB_KEY_POPUPMENU() As String
-
-    REG_SUB_KEY_POPUPMENU = "application_setting_popupmenu"
-End Property
-
-' キー値 ポップアップメニュー（ショートカットキー）
-Public Property Get REG_SUB_KEY_POPUPMENU_SHORTCUTKEY() As String
-
-    REG_SUB_KEY_POPUPMENU_SHORTCUTKEY = "shortcutkey"
-End Property
-
-' キー値 ポップアップメニュー（項目）
-Public Property Get REG_SUB_KEY_POPUPMENU_ITEM() As String
-
-    REG_SUB_KEY_POPUPMENU_ITEM = "item"
-End Property
 
 ' =========================================================
 ' ▽クラス初期化メソッド
@@ -175,10 +146,10 @@ Public Sub init()
         
     Next
     
-    ' レジストリから情報を読み込む
-    readForRegistryForRClick
-    readForRegistryForShortcut
-    readForRegistryForPopupMenu
+    ' 情報を読み込む
+    readForDataRClick
+    readForDataShortcut
+    readForDataPopupMenu
     
     ' 右クリックメニューに項目を追加する
     updateRClickMenu
@@ -190,455 +161,350 @@ Public Sub init()
 End Sub
 
 ' =========================================================
-' ▽レジストリから情報を読み込む（右クリックメニュー）
+' ▽設定情報の生成（右クリックメニュー）
 ' =========================================================
-Public Sub readForRegistryForRClick()
+Private Function createApplicationPropertiesForRClick() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_OPTION & "\" & "appSettingRClick.ini"
+
+    Set createApplicationPropertiesForRClick = appProp
+    
+End Function
+
+' =========================================================
+' ▽設定情報の生成（ショートカット）
+' =========================================================
+Private Function createApplicationPropertiesForShortcut() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_OPTION & "\" & "appSettingShortcut.ini"
+
+    Set createApplicationPropertiesForShortcut = appProp
+    
+End Function
+
+' =========================================================
+' ▽設定情報の生成（ポップアップメニュー）
+' =========================================================
+Private Function createApplicationPropertiesForPopupMenu() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_OPTION & "\" & "appSettingPopupmenu.ini"
+
+    Set createApplicationPropertiesForPopupMenu = appProp
+    
+End Function
+
+' =========================================================
+' ▽設定情報の生成（ポップアップサブメニュー）
+' =========================================================
+Public Function createApplicationPropertiesForPopupMenuSub(ByVal popupMenuName As String) As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_OPTION & "\" & "appSettingPopupmenu_" & popupMenuName & ".ini"
+
+    Set createApplicationPropertiesForPopupMenuSub = appProp
+    
+End Function
+
+' =========================================================
+' ▽情報を読み込む（右クリックメニュー）
+' =========================================================
+Public Sub readForDataRClick()
 
     On Error GoTo err
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_RCLICK_SHORTCUT) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    ' ----------------------------------------------
-    ' 右クリックメニューのショートカットキーの情報を取得する（特定のキーの配下にある値を全て取得する）
-    Dim valNameList As ValCollection
-    Dim valList     As ValCollection
-    
-    registry.getValueList valNameList, valList
-    
-    ' 右クリックメニューにレジストリから取得したリストを設定する
-    Set rclickMenuItemList = valNameList
-    
-    ' 不要なリストを削除する（念のため）
-    Set valNameList = Nothing
-    Set valList = Nothing
-                
-    Set registry = Nothing
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForRClick
 
-    Exit Sub
-    
-err:
-    
-    Set registry = Nothing
-
-    Main.ShowErrorMessage
-
-End Sub
-
-' =========================================================
-' ▽レジストリに情報を書き込む（右クリックメニュー）
-' =========================================================
-Public Sub writeForRegistryForRClick()
-
-    On Error GoTo err
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_RCLICK_SHORTCUT) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-
-    ' ----------------------------------------------
-    ' 右クリックメニューのショートカットキーの情報をレジストリから一旦全て削除する
-    Dim valNameList As ValCollection
-    Dim valList     As ValCollection
-    
-    Dim valName As Variant
-    
-    registry.getValueList valNameList, valList
-    
-    For Each valName In valNameList.col
-    
-        ' レジストリから情報を削除する
-        registry.deleteValue valName
-        
-    Next
-                
-    ' ----------------------------------------------
-    ' 右クリックメニューのショートカットキー情報をレジストリに追加する
-    For Each valName In rclickMenuItemList.col
-    
-        ' レジストリに情報を書き込む
-        registry.setValue valName, "True"
-        
-    Next
-    
-    ' 不要なリストを削除する（念のため）
-    Set valNameList = Nothing
-    Set valList = Nothing
-    
-    Set registry = Nothing
-    
-    Exit Sub
-    
-err:
-    
-    Set registry = Nothing
-
-    Main.ShowErrorMessage
-
-End Sub
-
-' =========================================================
-' ▽レジストリから情報を読み込む（ショートカットキー）
-' =========================================================
-Public Sub readForRegistryForShortcut()
-
-    On Error GoTo err
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_SHORTCUT) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    ' ----------------------------------------------
-    ' 右クリックメニューのショートカットキーの情報を取得する（特定のキーの配下にある値を全て取得する）
-    Dim valNameList As ValCollection
-    Dim valList     As ValCollection
-    
-    registry.getValueList valNameList, valList
-    
-    Dim key As Variant
+    ' データを読み込む
     Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
     
-    Dim shortcutInfo As ValShortcutKey
+    Dim itemList As New ValCollection
     
-    For Each key In valNameList.col
+    For Each val In values.col
     
-        val = valList.getItem(key, vbString)
-        
-        Set shortcutInfo = shortcutAppList.getItem(key)
-        
-        If Not shortcutInfo Is Nothing Then
-        
-            shortcutInfo.shortcutKeyCode = val
-            shortcutInfo.shortcutKeyLabel = VBUtil.getAppOnKeyNameByMultipleCode(val)
+        If val(2) = CStr(True) Then
+            itemList.setItem val(1), val(1)
         End If
     
     Next
     
-    ' 不要なリストを削除する（念のため）
-    Set valNameList = Nothing
-    Set valList = Nothing
-                
-    Set registry = Nothing
-    
+    Set rclickMenuItemList = itemList
+
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
 End Sub
 
 ' =========================================================
-' ▽レジストリに情報を書き込む（ショートカットキー）
+' ▽情報を書き込む（右クリックメニュー）
 ' =========================================================
-Public Sub writeForRegistryForShortcut()
+Public Sub writeForDataRClick()
 
     On Error GoTo err
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_SHORTCUT) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForRClick
 
-    ' ----------------------------------------------
-    ' ショートカットキーの情報をレジストリから一旦全て削除する
-    Dim valNameList As ValCollection
-    Dim valList     As ValCollection
+    ' 書き込みデータ
+    Dim values As New ValCollection
+    Dim val As Variant
     
-    Dim valName As Variant
+    For Each val In rclickMenuItemList.col
     
-    registry.getValueList valNameList, valList
-    
-    For Each valName In valNameList.col
-    
-        ' レジストリから情報を削除する
-        registry.deleteValue valName
+        values.setItem Array(val, CStr(True))
         
     Next
-                
-    ' ----------------------------------------------
-    ' ショートカットキー情報をレジストリに追加する
-    Dim shortcutInfo As ValShortcutKey
     
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
+    
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽情報を読み込む（ショートカットキー）
+' =========================================================
+Public Sub readForDataShortcut()
+
+    On Error GoTo err
+    
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForShortcut
+
+    ' データを読み込む
+    Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
+    
+    For Each val In values.col
+        
+        Dim shortcutInfo As ValShortcutKey
+        Set shortcutInfo = shortcutAppList.getItem(val(1))
+        
+        If Not shortcutInfo Is Nothing Then
+        
+            shortcutInfo.shortcutKeyCode = val(2)
+            shortcutInfo.shortcutKeyLabel = VBUtil.getAppOnKeyNameByMultipleCode(val(2))
+        End If
+    
+    Next
+    
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+
+End Sub
+
+' =========================================================
+' ▽情報を書き込む（ショートカットキー）
+' =========================================================
+Public Sub writeForDataShortcut()
+
+    On Error GoTo err
+    
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForShortcut
+    
+    ' 書き込みデータ
+    Dim values As New ValCollection
+    
+    Dim shortcutInfo As ValShortcutKey
     For Each shortcutInfo In shortcutAppList.col
     
-        ' レジストリに情報を書き込む
-        registry.setValue shortcutInfo.commandBarControl.Tag _
-                        , shortcutInfo.shortcutKeyCode
-        
+        values.setItem Array(shortcutInfo.commandBarControl.Tag, shortcutInfo.shortcutKeyCode)
     Next
     
-    ' 不要なリストを削除する（念のため）
-    Set valNameList = Nothing
-    Set valList = Nothing
-    
-    Set registry = Nothing
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
     
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
 End Sub
 
 ' =========================================================
-' ▽レジストリから情報を読み込む（ポップアップメニュー）
-' 　REG_SUB_KEY_POPUPMENU
-' 　 |
-' 　 + ポップアップメニューその1
-' 　   |
-' 　   + ショートカットキー REG_SUB_KEY_POPUPMENU_SHORTCUTKEY
-' 　   + 項目               REG_SUB_KEY_POPUPMENU_ITEM
-' 　     |
-' 　     + 項目1
-' 　     + 項目1
-' 　     + ・・・・
-' 　 + ポップアップメニューその2
-' 　 + ポップアップメニューその3
+' ▽情報を読み込む（ポップアップメニュー）
 ' =========================================================
-Public Sub readForRegistryForPopupMenu()
+Public Sub readForDataPopupMenu()
 
     On Error GoTo err
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_POPUPMENU) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    Dim key     As Variant
-    Dim keyList As ValCollection
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForPopupMenu
     
-    Set keyList = registry.getKeyList
+    ' データを読み込む
+    Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
+        
+    Dim i As Long: i = 1
+    Do While True
     
-    For Each key In keyList.col
+        val = values.getItem(i & "_" & "name", vbVariant)
+        If Not IsArray(val) Then
+            Exit Do
+        End If
     
         Dim popupMenu As ValPopupmenu
         Set popupMenu = New ValPopupmenu: popupMenu.init ConstantsCommon.COMMANDBAR_MENU_NAME
         
-        popupMenu.popupMenuName = key
+        val = values.getItem(i & "_" & "popupMenuName", vbVariant): If IsArray(val) Then popupMenu.popupMenuName = val(2)
+        val = values.getItem(i & "_" & "shortcutKeyCode", vbVariant): If IsArray(val) Then popupMenu.shortcutKeyCode = val(2)
+        val = values.getItem(i & "_" & "shortcutKeyLabel", vbVariant): If IsArray(val) Then popupMenu.shortcutKeyLabel = val(2)
         
-        readForRegistryForPopupMenuSub popupMenu
+        readForDataPopupMenuSub popupMenu
         
         popupMenuList.setItem popupMenu, popupMenu.popupMenuName
-    Next
     
-    Set registry = Nothing
+        i = i + 1
+    Loop
     
     Exit Sub
     
 err:
     
-    Set registry = Nothing
-
     Main.ShowErrorMessage
 
 End Sub
 
-Public Sub readForRegistryForPopupMenuSub(ByRef popupMenu As ValPopupmenu)
+' =========================================================
+' ▽情報を読み込む（ポップアップメニューに含まれる機能リスト）
+' =========================================================
+Public Sub readForDataPopupMenuSub(ByRef popupMenu As ValPopupmenu)
 
     On Error GoTo err
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_POPUPMENU & "\" & popupMenu.popupMenuName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    ' ショートカットキーを取得する
-    Dim shortcutKey As String
-                
-    registry.getValue REG_SUB_KEY_POPUPMENU_SHORTCUTKEY, shortcutKey
-                    
-    popupMenu.shortcutKeyCode = shortcutKey
-    popupMenu.shortcutKeyLabel = VBUtil.getAppOnKeyNameByMultipleCode(shortcutKey)
-                
-                
-    ' ----------------------------------------------
-    ' ポップアップメニューに含まれる機能IDを取得する
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForPopupMenuSub(popupMenu.popupMenuName)
     
-    ' レジストリ操作クラス
-    Dim registrySub As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registrySub.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_POPUPMENU & "\" & popupMenu.popupMenuName & "\" & REG_SUB_KEY_POPUPMENU_ITEM) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    Dim valNameList As ValCollection
-    Dim valList     As ValCollection
-    
-    registrySub.getValueList valNameList, valList
-    
-    Dim key As Variant
+    ' データを読み込む
     Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
     
     Dim itemList As ValCollection
     Set itemList = popupMenu.itemList
     
-    For Each key In valNameList.col
-    
-        itemList.setItem key, key
-    Next
-    
-    ' 不要なリストを削除する（念のため）
-    Set valNameList = Nothing
-    Set valList = Nothing
-                
-    Set registry = Nothing
-    Set registrySub = Nothing
-                
-    Exit Sub
-    
-err:
-    
-    Set valNameList = Nothing
-    Set valList = Nothing
-    
-    Set registry = Nothing
-    Set registrySub = Nothing
 
-    Main.ShowErrorMessage
-
-End Sub
-
-' =========================================================
-' ▽レジストリに情報を書き込む（ポップアップメニュー）
-' 　REG_SUB_KEY_POPUPMENU
-' 　 |
-' 　 + ポップアップメニューその1
-' 　   |
-' 　   + ショートカットキー REG_SUB_KEY_POPUPMENU_SHORTCUTKEY
-' 　   + 項目               REG_SUB_KEY_POPUPMENU_ITEM
-' 　     |
-' 　     + 項目1
-' 　     + 項目1
-' 　     + ・・・・
-' 　 + ポップアップメニューその2
-' 　 + ポップアップメニューその3
-' =========================================================
-Public Sub writeForRegistryForPopupMenu()
-
-    On Error GoTo err
+    Dim i As Long
+    i = 1
+    Do While True
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_POPUPMENU) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-
-    ' -------------------------------------------------------
-    ' 全てのポップアップメニューの情報をレジストリから削除する
-    ' -------------------------------------------------------
-    Dim key     As Variant
-    Dim keyList As ValCollection
-    
-    Set keyList = registry.getKeyList
-    
-    For Each key In keyList.col
-    
-        registry.delete key & "\" & REG_SUB_KEY_POPUPMENU_ITEM
-        registry.delete key
+        val = values.getItem(i & "_" & "item", vbVariant)
+        If Not IsArray(val) Then
+            Exit Do
+        End If
         
-    Next
+        val = values.getItem(i & "_" & "item", vbVariant): If IsArray(val) Then itemList.setItem val, val
     
-    ' -------------------------------------------------------
-    ' 設定されているポップアップメニューの情報でレジストリを更新する
-    ' -------------------------------------------------------
-    Dim popupMenu As ValPopupmenu
-    
-    For Each popupMenu In popupMenuList.col
-    
-        writeForRegistryForPopupMenuSub popupMenu
-    Next
-    
-    Set registry = Nothing
-    
+        i = i + 1
+    Loop
+                
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
 End Sub
 
-Public Sub writeForRegistryForPopupMenuSub(ByRef popupMenu As ValPopupmenu)
+' =========================================================
+' ▽情報を書き込む（ポップアップメニュー）
+' =========================================================
+Public Sub writeForDataPopupMenu()
 
     On Error GoTo err
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_POPUPMENU & "\" & popupMenu.popupMenuName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    ' ショートカットキーの設定
-    Dim shortcutKey As String
-                
-    registry.setValue REG_SUB_KEY_POPUPMENU_SHORTCUTKEY, popupMenu.shortcutKeyCode
-
-    ' ----------------------------------------------
-    ' ポップアップメニューに含まれる機能IDを取得する
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForPopupMenu
     
-    ' レジストリ操作クラス
-    Dim registrySub As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registrySub.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_POPUPMENU & "\" & popupMenu.popupMenuName & "\" & REG_SUB_KEY_POPUPMENU_ITEM) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-    Dim popupMenuItemList As ValCollection
-    Dim popupMenuId       As Variant
+    ' 書き込みデータ
+    Dim values As New ValCollection
+    Dim val As ValPopupmenu
     
-    Set popupMenuItemList = popupMenu.itemList
+    Dim i As Long
+    i = 1
+    For Each val In popupMenuList.col
     
-    For Each popupMenuId In popupMenuItemList.col
-    
-        registrySub.setValue popupMenuId, "True"
-    
+        values.setItem Array(i & "_" & "popupMenuName", val.popupMenuName)
+        values.setItem Array(i & "_" & "shortcutKeyCode", val.shortcutKeyCode)
+        values.setItem Array(i & "_" & "shortcutKeyLabel", val.shortcutKeyLabel)
+        
+        writeForDataPopupMenuSub val
+        
+        i = i + 1
     Next
+        
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
     
-    Set registry = Nothing
-    Set registrySub = Nothing
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+
+End Sub
+
+' =========================================================
+' ▽情報を書き込む（ポップアップメニューに含まれる機能リスト）
+' =========================================================
+Public Sub writeForDataPopupMenuSub(ByRef popupMenu As ValPopupmenu)
+
+    On Error GoTo err
+    
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForPopupMenuSub(popupMenu.popupMenuName)
+
+    ' 書き込みデータ
+    Dim val As Variant
+    Dim values As New ValCollection
+    
+    For Each val In popupMenu.itemList.col
+    
+        values.setItem Array(val, CStr(True))
+    Next
+
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
                 
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
-    Set registrySub = Nothing
 
     Main.ShowErrorMessage
 

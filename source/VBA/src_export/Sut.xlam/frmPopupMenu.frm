@@ -42,7 +42,7 @@ Public Event ok(ByRef applicationSetting As ValApplicationSettingShortcut)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' ポップアップメニューの新規作成時のデフォルト文字列
 Private Const POPUP_MENU_NEW_CREATED_STR As String = "Popup Menu"
@@ -68,6 +68,15 @@ Private popupMenuList As CntListBox
 Private popupMenuListSelectedIndex As Long
 ' ポップアップメニューリストでの選択項目オブジェクト
 Private popupMenuListSelectedItem As ValPopupmenu
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -116,7 +125,9 @@ Private Sub activate()
 
     restoreShortcut
     
+    If VBUtil.unloadFormIfChangeActiveBook(frmMenuSetting) Then Unload frmMenuSetting
     Load frmMenuSetting
+    If VBUtil.unloadFormIfChangeActiveBook(frmShortcutKeySetting) Then Unload frmShortcutKeySetting
     Load frmShortcutKeySetting
     
 End Sub
@@ -153,6 +164,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         
@@ -207,7 +220,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstPopupMenu_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstPopupMenu_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
 
     editPopup
 End Sub
@@ -258,7 +271,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -390,7 +403,7 @@ End Sub
 '
 ' =========================================================
 Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingShortcut _
-                                  , ByRef cancel As Boolean)
+                                  , ByRef Cancel As Boolean)
 
 End Sub
 
@@ -516,7 +529,7 @@ Private Sub storeShortcut()
     applicationSetting.clearPopupMenu
     
     Set applicationSetting.popupMenuList = popupMenuList.collection
-    applicationSetting.writeForRegistryForPopupMenu
+    applicationSetting.writeForDataPopupMenu
 
     applicationSetting.updatePopupMenu
 

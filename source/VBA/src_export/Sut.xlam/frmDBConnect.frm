@@ -40,7 +40,7 @@ Public Event ok(ByVal connStr As String, ByVal connSimpleStr As String, ByVal co
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' 接続文字列 配列インデックス最小値
 Private Const CONNECT_STR_MIN As Long = 1
@@ -71,11 +71,6 @@ Private defaultPort(1 To 5) As String
 ' コントロール有効フラグ
 Private controlEnable(1 To 5, 1 To 7) As Boolean
 
-' ---------------------------------------------------------
-' レジストリファイルキー
-' ---------------------------------------------------------
-Private Const REG_SUB_KEY_DB_CONNECT As String = "db_connect"
-
 Private WithEvents frmDBConnectSelectorVar  As frmDBConnectSelector
 Attribute frmDBConnectSelectorVar.VB_VarHelpID = -1
 Private WithEvents frmDBConnectFavoriteVar  As frmDBConnectFavorite
@@ -83,19 +78,28 @@ Attribute frmDBConnectFavoriteVar.VB_VarHelpID = -1
 
 Private dbConnectListener As IDbConnectListener
 
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
+
 ' =========================================================
 ' ▽フォーム表示
 '
 ' 概要　　　：
-' 引数　　　：modal                    モーダルまたはモードレス表示指定
+' 引数  　　：modal                    モーダルまたはモードレス表示指定
 '     　　　：dbConnectInfo            DB接続情報
 '     　　　：dbConnectListener        DB接続リスナー
 ' 戻り値　　：
 '
 ' =========================================================
 Public Sub ShowExt(ByVal modal As FormShowConstants, _
-                    Optional ByVal dbConnectInfo As ValDBConnectInfo = Nothing, _
-                    Optional ByVal dbConnectListener_ As IDbConnectListener = Nothing)
+                   Optional ByVal dbConnectInfo As ValDBConnectInfo = Nothing, _
+                   Optional ByVal dbConnectListener_ As IDbConnectListener = Nothing)
     
     Set dbConnectListener = dbConnectListener_
 
@@ -130,6 +134,7 @@ Public Sub HideExt()
 
     Main.storeFormPosition Me.name, Me
     Me.Hide
+    
 End Sub
 
 Private Function getDbConnectInfo() As ValDBConnectInfo
@@ -190,6 +195,7 @@ Private Sub cmdFavoriteChoice_Click()
 
     ' --------------------------------------
     ' 設定情報ウィンドウを表示する
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBConnectSelector) Then Unload frmDBConnectSelector
     Load frmDBConnectSelector
     Set frmDBConnectSelectorVar = frmDBConnectSelector
 
@@ -212,6 +218,7 @@ Private Sub cmdHistoryChoice_Click()
 
     ' --------------------------------------
     ' 履歴情報ウィンドウを表示する
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBConnectSelector) Then Unload frmDBConnectSelector
     Load frmDBConnectSelector
     Set frmDBConnectSelectorVar = frmDBConnectSelector
 
@@ -240,6 +247,7 @@ Private Sub cmdFavoriteEdit_Click()
 
     ' --------------------------------------
     ' お気に入り情報ウィンドウを表示する
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBConnectFavorite) Then Unload frmDBConnectFavorite
     Load frmDBConnectFavorite
     Set frmDBConnectFavoriteVar = frmDBConnectFavorite
     
@@ -309,6 +317,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
     
@@ -581,9 +591,6 @@ Private Sub cmdOk_Click()
     
     ' DBに接続する
     connStr = connectDBTest
-    
-    ' 長時間の処理が実行されるのでマウスカーソルを砂時計にする
-    cursorWait.destroy
 
     If err.Number <> 0 Then
         
@@ -652,6 +659,7 @@ Private Sub cmdOk_Click()
     ' 通常時の処理（リスナー未設定時=通常の接続、リスナー設定時＝DB接続お気に入りフォームなどからの呼び出し）
     If dbConnectListener Is Nothing Then
         ' --------------------------------------
+        If VBUtil.unloadFormIfChangeActiveBook(frmDBConnectSelector) Then Unload frmDBConnectSelector
         Load frmDBConnectSelector
         Set frmDBConnectSelectorVar = frmDBConnectSelector
 
@@ -686,10 +694,10 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' DB接続キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
     ' リスナーにもイベントを通知する
     If Not dbConnectListener Is Nothing Then
-        dbConnectListener.cancel
+        dbConnectListener.Cancel
     End If
 
     Exit Sub
@@ -1002,6 +1010,9 @@ Private Function connectDBTest() As String
 
 err:
 
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
+    
     ' DBに接続している場合、DBの接続を切断する
     If Not conn Is Nothing Then
     
@@ -1009,6 +1020,9 @@ err:
         Set conn = Nothing
         
     End If
+    
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
     
     err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
     
@@ -1125,6 +1139,19 @@ Private Function createConnectSimpleString(ByVal dbType As String _
 End Function
 
 ' =========================================================
+' ▽設定情報の生成
+' =========================================================
+Private Function createApplicationProperties() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+    appProp.initWorksheet targetBook, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+
+    Set createApplicationProperties = appProp
+    
+End Function
+
+' =========================================================
 ' ▽DBの接続情報を保存する
 '
 ' 概要　　　：
@@ -1136,58 +1163,26 @@ Private Sub storeDBConnectInfo()
 
     On Error GoTo err
     
-    ' DB接続情報を格納する配列
-    Dim dbConnectInfoArray(0 To 7 _
-                         , 0 To 1) As Variant
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
     
+    ' 書き込みデータ
+    Dim values As New ValCollection
     
-    Dim i As Long
-    
-    i = 0
-    
-    dbConnectInfoArray(i, 0) = cboDBType.name
-    dbConnectInfoArray(i, 1) = cboDBType.value: i = i + 1
-    dbConnectInfoArray(i, 0) = cboDataSourceName.name
-    dbConnectInfoArray(i, 1) = cboDataSourceName.value: i = i + 1
-    dbConnectInfoArray(i, 0) = txtHost.name
-    dbConnectInfoArray(i, 1) = txtHost.value: i = i + 1
-    dbConnectInfoArray(i, 0) = txtPort.name
-    dbConnectInfoArray(i, 1) = txtPort.value: i = i + 1
-    dbConnectInfoArray(i, 0) = txtDB.name
-    dbConnectInfoArray(i, 1) = txtDB.value: i = i + 1
-    dbConnectInfoArray(i, 0) = txtUser.name
-    dbConnectInfoArray(i, 1) = txtUser.value: i = i + 1
-    dbConnectInfoArray(i, 0) = txtPassword.name
-    dbConnectInfoArray(i, 1) = txtPassword.value: i = i + 1
-    dbConnectInfoArray(i, 0) = txtOption.name
-    dbConnectInfoArray(i, 1) = txtOption.value: i = i + 1
-    
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_DB_CONNECT) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
+    values.setItem Array(cboDBType.name, cboDBType.value)
+    values.setItem Array(cboDataSourceName.name, cboDataSourceName.value)
+    values.setItem Array(txtHost.name, txtHost.value)
+    values.setItem Array(txtPort.name, txtPort.value)
+    values.setItem Array(txtDB.name, txtDB.value)
+    values.setItem Array(txtUser.name, txtUser.value)
+    values.setItem Array(txtPassword.name, txtPassword.value)
+    values.setItem Array(txtOption.name, txtOption.value)
 
-    ' レジストリに情報を設定する
-    registry.setValues dbConnectInfoArray
-    
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = ActiveSheet
-    
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG, cboDBType.name, cboDBType.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG, cboDataSourceName.name, cboDataSourceName.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG, txtHost.name, txtHost.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG, txtPort.name, txtPort.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG, txtDB.name, txtDB.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG, txtUser.name, txtUser.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG, txtPassword.name, txtPassword.value
-    bookProp.setValue ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG, txtOption.name, txtOption.value
-    ' ----------------------------------------------
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
     
     Exit Sub
     
@@ -1209,68 +1204,23 @@ Private Sub restoreDbConnectInfo()
 
     On Error GoTo err
     
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = ActiveSheet
-
-    Dim bookPropVal As ValCollection
-
-    If bookProp.isExistsProperties Then
-        ' 設定情報シートが存在する
-        
-        Set bookPropVal = bookProp.getValues(ConstantsBookProperties.TABLE_DB_CONNECT_DIALOG)
-        If bookPropVal.count > 0 Then
-            ' 設定情報が存在するので、フォームに反映する
-            cboDBType.value = bookPropVal.getItem(cboDBType.name, vbString)
-            cboDataSourceName.value = bookPropVal.getItem(cboDataSourceName.name, vbString)
-            txtHost.value = bookPropVal.getItem(txtHost.name, vbString)
-            txtPort.value = bookPropVal.getItem(txtPort.name, vbString)
-            txtDB.value = bookPropVal.getItem(txtDB.name, vbString)
-            txtUser.value = bookPropVal.getItem(txtUser.name, vbString)
-            txtPassword.value = bookPropVal.getItem(txtPassword.name, vbString)
-            txtOption.value = bookPropVal.getItem(txtOption.name, vbString)
-        
-            Exit Sub
-        End If
-    End If
-    ' ----------------------------------------------
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_DB_CONNECT) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
+    ' データを読み込む
+    Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
     
-    Dim retDbType         As String
-    Dim retDataSourceName As String
-    Dim retHost           As String
-    Dim retPort           As String
-    Dim retDB             As String
-    Dim retUser           As String
-    Dim retPassword       As String
-    Dim retOption         As String
-    
-    ' レジストリから情報を取得する
-    registry.getValue cboDBType.name, retDbType
-    registry.getValue cboDataSourceName.name, retDataSourceName
-    registry.getValue txtHost.name, retHost
-    registry.getValue txtPort.name, retPort
-    registry.getValue txtDB.name, retDB
-    registry.getValue txtUser.name, retUser
-    registry.getValue txtPassword.name, retPassword
-    registry.getValue txtOption.name, retOption
-
-    cboDBType.value = retDbType
-    cboDataSourceName.value = retDataSourceName
-    txtHost.value = retHost
-    txtPort.value = retPort
-    txtDB.value = retDB
-    txtUser.value = retUser
-    txtPassword.value = retPassword
-    txtOption.value = retOption
+    val = values.getItem(cboDBType.name, vbVariant): If IsArray(val) Then cboDBType.value = val(2)
+    val = values.getItem(cboDataSourceName.name, vbVariant): If IsArray(val) Then cboDataSourceName.value = val(2)
+    val = values.getItem(txtHost.name, vbVariant): If IsArray(val) Then txtHost.value = val(2)
+    val = values.getItem(txtPort.name, vbVariant): If IsArray(val) Then txtPort.value = val(2)
+    val = values.getItem(txtDB.name, vbVariant): If IsArray(val) Then txtDB.value = val(2)
+    val = values.getItem(txtUser.name, vbVariant): If IsArray(val) Then txtUser.value = val(2)
+    val = values.getItem(txtPassword.name, vbVariant): If IsArray(val) Then txtPassword.value = val(2)
+    val = values.getItem(txtOption.name, vbVariant): If IsArray(val) Then txtOption.value = val(2)
     
     Exit Sub
 
@@ -1280,5 +1230,3 @@ err:
 
 
 End Sub
-
-

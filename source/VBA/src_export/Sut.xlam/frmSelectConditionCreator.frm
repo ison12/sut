@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSelectConditionCreator 
    Caption         =   "SELECT"
-   ClientHeight    =   9405.001
+   ClientHeight    =   9405
    ClientLeft      =   45
    ClientTop       =   360
    ClientWidth     =   7935
@@ -40,7 +40,7 @@ Public Event ok(ByVal sql As String, ByVal append As Boolean)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' ---------------------------------------------------------
 ' INIファイル関連定数
@@ -86,6 +86,15 @@ Private orderCondList()    As control
 
 ' SQL編集フラグ
 Private editedSql As Boolean
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示（拡張処理）
@@ -184,6 +193,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
 
@@ -638,7 +649,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecRangeStart_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtRecRangeStart_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -653,7 +664,7 @@ Private Sub txtRecRangeStart_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf validInteger(txtRecRangeStart.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
@@ -664,7 +675,7 @@ Private Sub txtRecRangeStart_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtRecRangeStart.text) < 1 Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         
@@ -695,7 +706,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecRangeEnd_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtRecRangeEnd_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -710,7 +721,7 @@ Private Sub txtRecRangeEnd_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf validInteger(txtRecRangeEnd.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
@@ -721,7 +732,7 @@ Private Sub txtRecRangeEnd_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtRecRangeEnd.text) < 1 Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         
@@ -1023,7 +1034,7 @@ Private Sub cmdCancel_Click()
     On Error GoTo err:
     
     Me.HideExt
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
 
@@ -1146,6 +1157,19 @@ Private Function createCondition() As ValSelectCondition
 End Function
 
 ' =========================================================
+' ▽設定情報の生成
+' =========================================================
+Private Function createApplicationProperties() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+    appProp.initWorksheet targetBook, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & "\" & tableSheet.sheetName & ".ini"
+
+    Set createApplicationProperties = appProp
+    
+End Function
+
+' =========================================================
 ' ▽SELECT条件を保存する
 '
 ' 概要　　　：
@@ -1157,79 +1181,37 @@ Private Sub storeSelectCondition()
 
     On Error GoTo err
     
-    Dim table As ValDbDefineTable
-    Set table = tableSheet.table
-    ' SELECT条件を格納するための配列変数
-    ' 条件指定数×(カラム・値・並び順)＋レコード範囲指定（開始・終了）＋SQLエディタ ＝ 10×3＋2＋1
-    Dim selectCondition(COLUMN_COND_MIN _
-                    To (COLUMN_COND_MAX * 3 + 2 + 1), 0 To 1) As Variant
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
     
+    ' 書き込みデータ
+    Dim values As New ValCollection
     
     Dim i As Long
-    Dim j As Long
-    
-    j = COLUMN_COND_MIN
     
     ' コントロール配列を1件ずつ処理する
     For i = COLUMN_COND_MIN To COLUMN_COND_MAX
     
-        selectCondition(j, 0) = columnCondList(i).control.name
-        selectCondition(j, 1) = columnCondList(i).control.value: j = j + 1
-        selectCondition(j, 0) = valueCondList(i).name
-        selectCondition(j, 1) = valueCondList(i).value: j = j + 1
-        selectCondition(j, 0) = orderCondList(i).name
+        values.setItem Array(columnCondList(i).control.name, columnCondList(i).control.value)
+        values.setItem Array(valueCondList(i).name, valueCondList(i).value)
         ' 順序コントロール（トグルボタン）は未選択の場合にNULLを返すので空文字列に変換する
-        selectCondition(j, 1) = VBUtil.convertNullToEmptyStr(orderCondList(i).value): j = j + 1
-    
-    Next
-
-    selectCondition(j, 0) = txtRecRangeStart.name
-    selectCondition(j, 1) = txtRecRangeStart.value: j = j + 1
-
-    selectCondition(j, 0) = txtRecRangeEnd.name
-    selectCondition(j, 1) = txtRecRangeEnd.value: j = j + 1
-    
-    selectCondition(j, 0) = txtSqlEditor.name
-    selectCondition(j, 1) = txtSqlEditor.value: j = j + 1
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_SELECT_CONDITION & "\" & table.schemaTableName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-
-    ' レジストリに情報を設定する
-    registry.setValues selectCondition
-    
-    Set registry = Nothing
-    
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = tableSheet.sheet
-    bookProp.removeValueByPrefixName ConstantsBookProperties.TABLE_SELECT_CONDITION_CREATOR_DIALOG, tableSheet.sheetName & "_"
-    
-    ' コントロール配列を1件ずつ処理する
-    For i = COLUMN_COND_MIN To COLUMN_COND_MAX
-    
-        bookProp.setValue ConstantsBookProperties.TABLE_SELECT_CONDITION_CREATOR_DIALOG, tableSheet.sheetName & "_" & columnCondList(i).control.name, columnCondList(i).control.value
-        bookProp.setValue ConstantsBookProperties.TABLE_SELECT_CONDITION_CREATOR_DIALOG, tableSheet.sheetName & "_" & valueCondList(i).name, valueCondList(i).value
-        bookProp.setValue ConstantsBookProperties.TABLE_SELECT_CONDITION_CREATOR_DIALOG, tableSheet.sheetName & "_" & orderCondList(i).name, VBUtil.convertNullToEmptyStr(orderCondList(i).value)
+        values.setItem Array(orderCondList(i).name, VBUtil.convertNullToEmptyStr(orderCondList(i).value))
     
     Next
     
-    bookProp.setValue ConstantsBookProperties.TABLE_SELECT_CONDITION_CREATOR_DIALOG, tableSheet.sheetName & "_" & txtRecRangeStart.name, txtRecRangeStart.value
-    bookProp.setValue ConstantsBookProperties.TABLE_SELECT_CONDITION_CREATOR_DIALOG, tableSheet.sheetName & "_" & txtRecRangeEnd.name, txtRecRangeEnd.value
-    bookProp.setValue ConstantsBookProperties.TABLE_SELECT_CONDITION_CREATOR_DIALOG, tableSheet.sheetName & "_" & txtSqlEditor.name, txtSqlEditor.value
-    ' ----------------------------------------------
-    
+    values.setItem Array(txtRecRangeStart.name, txtRecRangeStart.value)
+    values.setItem Array(txtRecRangeEnd.name, txtRecRangeEnd.value)
+    values.setItem Array(txtSqlEditor.name, txtSqlEditor.value)
+
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
+
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
     
     Main.ShowErrorMessage
 
@@ -1247,94 +1229,33 @@ Private Sub restoreSelectCondition()
 
     On Error GoTo err
     
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
+
+    ' データを読み込む
+    Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
+    
     Dim i As Long
-
-    ' ----------------------------------------------
-    ' ブック設定情報
-    Dim bookProp As New BookProperties
-    bookProp.sheet = tableSheet.sheet
-
-    Dim bookPropVal As ValCollection
-
-    If bookProp.isExistsProperties Then
-        ' 設定情報シートが存在する
-        
-        Set bookPropVal = bookProp.getValuesByPrefixName(ConstantsBookProperties.TABLE_SELECT_CONDITION_CREATOR_DIALOG, tableSheet.sheetName)
-        If bookPropVal.count > 0 Then
-        
-            ' 設定情報が存在するので、フォームに反映する
-            ' コントロール配列を1件ずつ処理する
-            For i = COLUMN_COND_MIN To COLUMN_COND_MAX
             
-                columnCondList(i).control.value = bookPropVal.getItem(tableSheet.sheetName & "_" & columnCondList(i).control.name, vbString)
-                valueCondList(i).value = bookPropVal.getItem(tableSheet.sheetName & "_" & valueCondList(i).name, vbString)
-                orderCondList(i).value = bookPropVal.getItem(tableSheet.sheetName & "_" & orderCondList(i).name, vbString)
-                
-            Next
-        
-            txtRecRangeStart.value = bookPropVal.getItem(tableSheet.sheetName & "_" & txtRecRangeStart.name, vbString)
-            txtRecRangeEnd.value = bookPropVal.getItem(tableSheet.sheetName & "_" & txtRecRangeEnd.name, vbString)
-            
-            txtSqlEditor.value = bookPropVal.getItem(tableSheet.sheetName & "_" & txtSqlEditor.name, vbString)
-
-            Exit Sub
-        End If
-    End If
-    ' ----------------------------------------------
-    
-    Dim table As ValDbDefineTable
-    Set table = tableSheet.table
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_SELECT_CONDITION & "\" & table.schemaTableName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-        
-    Dim retColumn As String
-    Dim retValue  As String
-    Dim retOrder  As String
-    
-    Dim retRecRangeStart As String
-    Dim retRecRangeEnd   As String
-    
-    Dim retSqlEdit As String
-    
     ' コントロール配列を1件ずつ処理する
     For i = COLUMN_COND_MIN To COLUMN_COND_MAX
     
-        retColumn = ""
-        retValue = ""
-        retOrder = ""
-        
-        registry.getValue columnCondList(i).control.name, retColumn
-        registry.getValue valueCondList(i).name, retValue
-        registry.getValue orderCondList(i).name, retOrder
-    
-        columnCondList(i).control.value = retColumn
-        valueCondList(i).value = retValue
-        orderCondList(i).value = retOrder
+        val = values.getItem(columnCondList(i).control.name, vbVariant): If IsArray(val) Then columnCondList(i).control.value = val(2)
+        val = values.getItem(valueCondList(i).name, vbVariant): If IsArray(val) Then valueCondList(i).value = val(2)
+        val = values.getItem(orderCondList(i).name, vbVariant): If IsArray(val) Then orderCondList(i).value = val(2)
         
     Next
 
-    registry.getValue txtRecRangeStart.name, retRecRangeStart
-    registry.getValue txtRecRangeEnd.name, retRecRangeEnd
-    
-    txtRecRangeStart.value = retRecRangeStart
-    txtRecRangeEnd.value = retRecRangeEnd
-    
-    registry.getValue txtSqlEditor.name, retSqlEdit
-    
-    txtSqlEditor.value = retSqlEdit
-    
-    Set registry = Nothing
+    val = values.getItem(txtRecRangeStart.name, vbVariant): If IsArray(val) Then txtRecRangeStart.value = val(2)
+    val = values.getItem(txtRecRangeEnd.name, vbVariant): If IsArray(val) Then txtRecRangeEnd.value = val(2)
+    val = values.getItem(txtSqlEditor.name, vbVariant): If IsArray(val) Then txtSqlEditor.value = val(2)
     
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
     
     Main.ShowErrorMessage
 

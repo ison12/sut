@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBConnectSelector 
    Caption         =   "接続情報の選択"
-   ClientHeight    =   8670.001
+   ClientHeight    =   8670
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   12630
@@ -41,12 +41,7 @@ Public Event ok(ByVal connectInfo As ValDBConnectInfo)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
-
-' レジストリキー
-Private Const REG_SUB_KEY_DB_CONNECT_FAVORITE As String = "db_favorite"
-' レジストリキー
-Private Const REG_SUB_KEY_DB_CONNECT_HISTORY  As String = "db_history"
+Public Event Cancel()
 
 ' フォームモード
 Private formMode As DB_CONNECT_INFO_TYPE
@@ -63,6 +58,14 @@ Private dbConnectSelectedItem As ValDBConnectInfo
 
 Private inFilterProcess As Boolean
 
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -231,7 +234,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -249,7 +252,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstDbConnectList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstDbConnectList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     cmdOk_Click
 End Sub
 
@@ -281,6 +284,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         
@@ -352,6 +357,27 @@ Private Sub unInitial()
 End Sub
 
 ' =========================================================
+' ▽設定情報の生成
+' =========================================================
+Private Function createApplicationProperties() As ApplicationProperties
+    
+    ' フォーム名を取得する
+    Dim subName As String
+    
+    If formMode = DB_CONNECT_INFO_TYPE.favorite Then
+        subName = "frmDBConnectFavorite"
+    Else
+        subName = Me.name & "History"
+    End If
+    
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & subName & ".ini"
+
+    Set createApplicationProperties = appProp
+    
+End Function
+
+' =========================================================
 ' ▽DB接続情報を保存する
 '
 ' 概要　　　：
@@ -363,92 +389,40 @@ Private Sub storeDBConnectInfo(ByVal formMode As DB_CONNECT_INFO_TYPE)
 
     On Error GoTo err
     
-    ' レジストリのサブキーを決定する
-    Dim regSubKey As String
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
     
-    If formMode = DB_CONNECT_INFO_TYPE.favorite Then
-        regSubKey = REG_SUB_KEY_DB_CONNECT_FAVORITE
-    Else
-        regSubKey = REG_SUB_KEY_DB_CONNECT_HISTORY
-    End If
     
-    Dim i, j As Long
-    ' レジストリ操作クラス
-    Dim registry As RegistryManipulator
+    ' 書き込みデータ
+    Dim val As New ValDBConnectInfo
+    Dim values As New ValCollection
     
-    ' -------------------------------------------------------
-    ' 全ての情報をレジストリから一旦削除する
-    ' -------------------------------------------------------
-    ' レジストリ操作クラスを初期化する
-    Set registry = New RegistryManipulator
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, regSubKey) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-
-    Dim key     As Variant
-    Dim keyList As ValCollection
-    
-    Set keyList = registry.getKeyList
-    
-    For Each key In keyList.col
-        registry.delete key
-    Next
-    
-    ' -------------------------------------------------------
-    ' 全ての情報をレジストリに保存する
-    ' -------------------------------------------------------
-    Dim dbConnectInfo As ValDBConnectInfo
-    Dim dbConnectArray(0 To 9 _
-                             , 0 To 1) As Variant
-    
-    i = 0
-     For Each dbConnectInfo In dbConnectList.collection.col
+    Dim i As Long: i = 1
+    For Each val In dbConnectList.collection.col
         
-        ' レジストリ操作クラスを初期化する
-        Set registry = New RegistryManipulator
-        registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                    , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, regSubKey & "\" & i) _
-                    , RegAccessConstants.KEY_ALL_ACCESS _
-                    , True
-
-        j = 0
-        dbConnectArray(j, 0) = "no"
-        dbConnectArray(j, 1) = j: j = j + 1
-        dbConnectArray(j, 0) = "name"
-        dbConnectArray(j, 1) = dbConnectInfo.name: j = j + 1
-        dbConnectArray(j, 0) = "type"
-        dbConnectArray(j, 1) = dbConnectInfo.type_: j = j + 1
-        dbConnectArray(j, 0) = "dsn"
-        dbConnectArray(j, 1) = dbConnectInfo.dsn: j = j + 1
-        dbConnectArray(j, 0) = "host"
-        dbConnectArray(j, 1) = dbConnectInfo.host: j = j + 1
-        dbConnectArray(j, 0) = "port"
-        dbConnectArray(j, 1) = dbConnectInfo.port: j = j + 1
-        dbConnectArray(j, 0) = "db"
-        dbConnectArray(j, 1) = dbConnectInfo.db: j = j + 1
-        dbConnectArray(j, 0) = "user"
-        dbConnectArray(j, 1) = dbConnectInfo.user: j = j + 1
-        dbConnectArray(j, 0) = "password"
-        dbConnectArray(j, 1) = dbConnectInfo.password: j = j + 1
-        dbConnectArray(j, 0) = "option"
-        dbConnectArray(j, 1) = dbConnectInfo.option_: j = j + 1
-        
-        ' レジストリに情報を設定する
-        registry.setValues dbConnectArray
-    
-        Set registry = Nothing
-
+        values.setItem Array(i & "_" & "no", i)
+        values.setItem Array(i & "_" & "name", val.name)
+        values.setItem Array(i & "_" & "type", val.type_)
+        values.setItem Array(i & "_" & "dsn", val.dsn)
+        values.setItem Array(i & "_" & "host", val.host)
+        values.setItem Array(i & "_" & "port", val.port)
+        values.setItem Array(i & "_" & "db", val.db)
+        values.setItem Array(i & "_" & "user", val.user)
+        values.setItem Array(i & "_" & "password", val.password)
+        values.setItem Array(i & "_" & "option", val.option_)
         
         i = i + 1
     Next
-
+        
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
         
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
@@ -465,72 +439,46 @@ End Sub
 Private Sub restoreDbConnectInfo(ByVal formMode As DB_CONNECT_INFO_TYPE)
 
     On Error GoTo err
+        
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
     
-    ' レジストリのサブキーを決定する
-    Dim regSubKey As String
-    
-    If formMode = DB_CONNECT_INFO_TYPE.favorite Then
-        regSubKey = REG_SUB_KEY_DB_CONNECT_FAVORITE
-    Else
-        regSubKey = REG_SUB_KEY_DB_CONNECT_HISTORY
-    End If
-    
-    ' お気に入りの接続情報
+    ' 接続情報
     Dim connectInfoList As ValCollection
     Set connectInfoList = New ValCollection
     Dim connectInfo As ValDBConnectInfo
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-                
-    Dim key     As Variant
-    Dim keyList As ValCollection
 
-    ' -------------------------------------------------------
-    ' 全ての情報をレジストリから取得する（インデックス番号リストの取得）
-    ' -------------------------------------------------------
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, regSubKey) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
+    ' データを読み込む
+    Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
     
-    Set keyList = registry.getKeyList
-
-    Set registry = Nothing
+    Dim i As Long: i = 1
+    Do While True
     
-    ' -------------------------------------------------------
-    ' 全ての詳細情報をレジストリから取得する
-    ' -------------------------------------------------------
-    Dim valueNameList As ValCollection
-    Dim valueList As ValCollection
-    
-    For Each key In keyList.col
-    
-        ' レジストリ操作クラスを初期化する
-        Set registry = New RegistryManipulator
-        registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                    , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, regSubKey & "\" & key) _
-                    , RegAccessConstants.KEY_ALL_ACCESS _
-                    , True
-                    
-        registry.getValueList valueNameList, valueList
-
+        val = values.getItem(i & "_" & "no", vbVariant)
+        If Not IsArray(val) Then
+            Exit Do
+        End If
+        
         Set connectInfo = New ValDBConnectInfo
-        connectInfo.name = valueList.getItem("name", vbVariant)
-        connectInfo.type_ = valueList.getItem("type", vbVariant)
-        connectInfo.dsn = valueList.getItem("dsn", vbVariant)
-        connectInfo.host = valueList.getItem("host", vbVariant)
-        connectInfo.port = valueList.getItem("port", vbVariant)
-        connectInfo.db = valueList.getItem("db", vbVariant)
-        connectInfo.user = valueList.getItem("user", vbVariant)
-        connectInfo.password = valueList.getItem("password", vbVariant)
-        connectInfo.option_ = valueList.getItem("option", vbVariant)
+                    
+        val = values.getItem(i & "_" & "name", vbVariant): If IsArray(val) Then connectInfo.name = val(2)
+        val = values.getItem(i & "_" & "type", vbVariant): If IsArray(val) Then connectInfo.type_ = val(2)
+        val = values.getItem(i & "_" & "dsn", vbVariant): If IsArray(val) Then connectInfo.dsn = val(2)
+        val = values.getItem(i & "_" & "host", vbVariant): If IsArray(val) Then connectInfo.host = val(2)
+        val = values.getItem(i & "_" & "port", vbVariant): If IsArray(val) Then connectInfo.port = val(2)
+        val = values.getItem(i & "_" & "db", vbVariant): If IsArray(val) Then connectInfo.db = val(2)
+        val = values.getItem(i & "_" & "user", vbVariant): If IsArray(val) Then connectInfo.user = val(2)
+        val = values.getItem(i & "_" & "password", vbVariant): If IsArray(val) Then connectInfo.password = val(2)
+        val = values.getItem(i & "_" & "option", vbVariant): If IsArray(val) Then connectInfo.option_ = val(2)
         
         connectInfoList.setItem connectInfo
-                    
-        Set registry = Nothing
-    Next
+    
+        i = i + 1
+    Loop
     
     Set dbConnectList = New CntListBox: dbConnectList.init lstDbConnectList
     addDbConnectList connectInfoList
@@ -542,8 +490,6 @@ Private Sub restoreDbConnectInfo(ByVal formMode As DB_CONNECT_INFO_TYPE)
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
     
     Main.ShowErrorMessage
     

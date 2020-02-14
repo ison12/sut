@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmTableSheetList 
    Caption         =   "テーブルシート一覧"
-   ClientHeight    =   8415.001
+   ClientHeight    =   8415
    ClientLeft      =   45
    ClientTop       =   360
    ClientWidth     =   10905
@@ -48,6 +48,15 @@ Private tableSheetWithoutFilterList As ValCollection
 Private tableSheetList  As CntListBox
 
 Private inFilterProcess As Boolean
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -97,6 +106,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         

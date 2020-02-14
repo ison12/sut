@@ -53,6 +53,15 @@ Private queryResultSetInfoParam As ValQueryResultSetInfo
 ' テーブルリスト
 Private tableSheetList  As CntListBox
 
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
+
 ' =========================================================
 ' ▽フォーム表示
 '
@@ -103,6 +112,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
 

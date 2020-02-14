@@ -32,23 +32,30 @@ Private applicationSettingColFormat As ValApplicationSettingColFormat
 ' アドインのファイルクローズ時の処理
 Public Sub Auto_Close()
 
-    On Error GoTo err
+    ' 当初は以下のように、SutDestroyを呼び出すようにしていたが、特定のケースでうまく破棄処理ができないことがわかったのでコメントアウト
 
-    #If (DEBUG_MODE = 1) Then
+    '    On Error GoTo err
+    '
+    '    #If (DEBUG_MODE = 1) Then
+    '
+    '        Debug.Print "Auto_Close"
+    '    #End If
+    '
+    '    SutDestroy
+    '
+    '    Exit Sub
+    '
+    'err:
+    '
+    '    ' エラー発生
+    '    Main.ShowErrorMessage
     
-        Debug.Print "Auto_Close"
-    #End If
-    
-    'VBUtil.showMessageBoxForInformation "Auto_Close", "テスト"
-    
-    SutDestroy
-    
-    Exit Sub
-    
-err:
-
-    ' エラー発生
-    Main.ShowErrorMessage
+    ' ※破棄処理が正常にできない特定のケースとは
+    '   1. 本アドインが組み込まれている状態で、何かしらのブックを新規で開く
+    '   2. 新規ブックで何かしら編集を実施する
+    '   3. Excel全体を閉じようとする
+    '   4. 保存確認ダイアログが表示されるがキャンセルが押されて、閉じる処理自体がキャンセルされる
+    '   5. 閉じる処理がキャンセルされたにも関わらず、本アドインのAuto_Closeが実施されてしまう
 
 End Sub
 
@@ -128,6 +135,7 @@ Public Function SutRelease()
     
     Set applicationSetting = Nothing
     Set applicationSettingShortcut = Nothing
+    Set applicationSettingColFormat = Nothing
     
     Set menuDB = Nothing
     Set menuTable = Nothing
@@ -136,6 +144,33 @@ Public Function SutRelease()
     Set menuFile = Nothing
     Set menuTool = Nothing
     Set menuHelp = Nothing
+    
+    Unload frmDBColumnFormat
+    Unload frmDBColumnFormatSetting
+    Unload frmDBConnect
+    Unload frmDBConnectFavorite
+    Unload frmDBConnectSelector
+    Unload frmDBExplorer
+    Unload frmDBQueryBatch
+    Unload frmDBQueryBatchTypeSetting
+    Unload frmFileOutput
+    Unload frmMenuSetting
+    Unload frmOption
+    Unload frmPopupMenu
+    Unload frmProgress
+    Unload frmQueryParameter
+    Unload frmQueryParameterSetting
+    Unload frmQueryResult
+    Unload frmRecordAppender
+    Unload frmSelectConditionCreator
+    Unload frmShortcutKey
+    Unload frmShortcutKeySetting
+    Unload frmSnapShot
+    Unload frmSnapshotDiff
+    Unload frmSplash
+    Unload frmTableSheetCreator
+    Unload frmTableSheetList
+    Unload frmTableSheetUpdate
     
 End Function
 
@@ -148,37 +183,37 @@ End Function
 Private Sub initUIObject()
 
     If menuDB Is Nothing Then
-        
+
         Set menuDB = New UIMenuDB
     End If
-    
+
     If menuTable Is Nothing Then
-    
+
         Set menuTable = New UIMenuTable
     End If
-    
+
     If menuData Is Nothing Then
-    
+
         Set menuData = New UIMenuData
     End If
-    
+
     If menuDiff Is Nothing Then
-    
+
         Set menuDiff = New UIMenuDiff
     End If
-    
+
     If menuFile Is Nothing Then
-    
+
         Set menuFile = New UIMenuFile
     End If
-    
+
     If menuTool Is Nothing Then
-    
+
         Set menuTool = New UIMenuTool
     End If
-    
+
     If menuHelp Is Nothing Then
-        
+
         Set menuHelp = New UIMenuHelp
     End If
 
@@ -241,10 +276,6 @@ Public Function SutLoad()
 
     On Error GoTo err
     
-    ' Excel.Applicationプロパティを操作するオブジェクト
-    ' 関数を抜けると自動でApplicationプロパティが復元される
-    Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
-
     ' カレントドライブとカレントディレクトリを切り替える
     ChDrive SutWorkbook.path
     ChDir SutWorkbook.path
@@ -275,10 +306,6 @@ Public Function SutUnload()
 
     On Error GoTo err
 
-    ' Excel.Applicationプロパティを操作するオブジェクト
-    ' 関数を抜けると自動でApplicationプロパティが復元される
-    Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
-    
     ' ツールバーを削除する前に呼び出す
     ' グローバル領域のデータを解放する
     Main.SutRelease
@@ -1064,7 +1091,7 @@ Public Function SutSettingQueryParameter()
     
     menuTool.settingQueryParameter
     
-    'doAfterProcess
+    doAfterProcess
 
     Exit Function
 err:
@@ -1085,7 +1112,7 @@ Public Function SutSettingOption()
     
     ' UIオブジェクトの初期化
     initUIObject
-    
+
     menuTool.settingOption
     
     doAfterProcess
@@ -1504,6 +1531,8 @@ Public Function SutShowVersion()
 
     On Error GoTo err
     
+    ' フォームを設定する
+    If VBUtil.unloadFormIfChangeActiveBook(frmSplash) Then Unload frmSplash
     frmSplash.Show vbModal
 
     Exit Function
@@ -1660,7 +1689,7 @@ Public Function getApplicationSetting() As Object
     Else
     
         Set applicationSetting = New ValApplicationSetting
-        applicationSetting.readForRegistry
+        applicationSetting.readForData
         
     End If
 
@@ -1783,7 +1812,7 @@ Public Function restoreFormPosition(ByVal formName As String _
     formRect.Height = formObj.Height
     
     Dim formPosition As New ValFormPosition: formPosition.init formName
-    Call formPosition.readForRegistry(formRect)
+    Call formPosition.readForData(formRect)
 
     formObj.Top = formRect.Top
     formObj.Left = formRect.Left
@@ -1807,7 +1836,7 @@ Public Function storeFormPosition(ByVal formName As String _
     formRect.Height = formObj.Height
     
     Dim formPosition As New ValFormPosition: formPosition.init formName
-    Call formPosition.writeForRegistry(formRect)
+    Call formPosition.writeForData(formRect)
 
 End Function
 
@@ -3153,7 +3182,7 @@ Private Function doAfterProcess()
     
     ' 処理終了後に、Excelウィンドウがアクティブにならずに、他のウィンドウがアクティブになる事象を確認
     ' これを受けて、以下のように、現在のアクティブブックをアクティブにするように明示的に指定する
-    Application.ActiveWindow.activate
+    'Application.ActiveWindow.activate
 
     On Error GoTo 0
 

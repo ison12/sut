@@ -99,7 +99,7 @@ Private Sub frmMenuSettingVar_ok(ByRef appSettingShortcut As ValApplicationSetti
 
     ' アプリケーション設定情報に右クリックメニューに登録する項目を設定しレジストリに登録する
     Set appSettingShortcut.rclickMenuItemList = selectedItemList
-    appSettingShortcut.writeForRegistryForRClick
+    appSettingShortcut.writeForDataRClick
 
     ' 登録された情報で右クリックメニューを更新する
     appSettingShortcut.updateRClickMenu
@@ -125,7 +125,7 @@ End Sub
 '
 ' =========================================================
 Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingShortcut _
-                                  , ByRef cancel As Boolean)
+                                  , ByRef Cancel As Boolean)
 
     Dim result As Long
     result = VBUtil.showMessageBoxForYesNo("右クリックメニューが初期状態にリセットされます。" & vbNewLine & _
@@ -134,7 +134,7 @@ Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingS
     
     If result = WinAPI_User.IDNO Then
     
-        cancel = True
+        Cancel = True
         Exit Sub
     End If
     
@@ -143,7 +143,7 @@ Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingS
 
     ' 空のコレクションを設定しレジストリに登録する（＝情報を全て削除する）
     Set appSettingShortcut.rclickMenuItemList = New ValCollection
-    appSettingShortcut.writeForRegistryForRClick
+    appSettingShortcut.writeForDataRClick
 
 End Sub
 
@@ -153,34 +153,12 @@ End Sub
 ' =========================================================
 Private Sub Class_Initialize()
 
-    ' フォームをロードする
-    Load frmQueryParameter
-    Load frmOption
-    Load frmMenuSetting
-    Load frmShortcutKey
-    Load frmPopupMenu
-
 End Sub
 
 ' =========================================================
 ' ▽クラス後処理メソッド
 ' =========================================================
 Private Sub Class_Terminate()
-
-    ' イベント受信用のクエリパラメータフォームを破棄する
-    Set frmQueryParameterVar = Nothing
-
-    ' イベント受信用のオプションフォームを破棄する
-    Set frmOptionVar = Nothing
-
-    ' イベント受信用のメニュー設定フォームを破棄する
-    Set frmMenuSettingVar = Nothing
-
-    ' イベント受信用のショートカットキーフォームを破棄する
-    Set frmShortcutKeyVar = Nothing
-
-    ' イベント受信用のポップアップメニューフォームを破棄する
-    Set frmPopupMenuVar = Nothing
 
 End Sub
 
@@ -194,6 +172,9 @@ Public Sub settingQueryParameter()
 
     On Error GoTo err
 
+    ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmQueryParameter) Then Unload frmQueryParameter
+    Load frmQueryParameter
     ' イベント受信用のフォームを初期化する
     Set frmQueryParameterVar = frmQueryParameter
     
@@ -224,6 +205,9 @@ Public Sub settingOption()
 
     On Error GoTo err
 
+    ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmOption) Then Unload frmOption
+    Load frmOption
     ' イベント受信用のフォームを初期化する
     Set frmOptionVar = frmOption
     
@@ -257,6 +241,10 @@ Public Sub settingRClickMenu()
     Dim appSettingShortcut As ValApplicationSettingShortcut
     Set appSettingShortcut = Main.getApplicationSettingShortcut
 
+    ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmMenuSetting) Then Unload frmMenuSetting
+    Load frmMenuSetting
+    ' イベント受信用のフォームを初期化する
     Set frmMenuSettingVar = frmMenuSetting
 
     ' メニュー設定フォームを表示する
@@ -293,6 +281,10 @@ Public Sub settingShortCutKey()
 
     On Error GoTo err
 
+    ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmShortcutKey) Then Unload frmShortcutKey
+    Load frmShortcutKey
+    ' イベント受信用のフォームを初期化する
     Set frmShortcutKeyVar = frmShortcutKey
     ' ショートカットキーフォームを表示する
     frmShortcutKeyVar.ShowExt vbModal, Main.getApplicationSettingShortcut
@@ -321,8 +313,11 @@ Public Sub settingPopupMenu()
 
     On Error GoTo err
 
+    ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmPopupMenu) Then Unload frmPopupMenu
+    Load frmPopupMenu
+    ' イベント受信用のフォームを初期化する
     Set frmPopupMenuVar = frmPopupMenu
-    
     ' ショートカットキーフォームを表示する
     frmPopupMenuVar.ShowExt vbModal, Main.getApplicationSettingShortcut
 

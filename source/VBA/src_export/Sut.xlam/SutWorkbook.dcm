@@ -17,6 +17,8 @@ Option Explicit
 ' 特記事項：
 ' *********************************************************
 
+Private appEvent As New ApplicationEvent
+
 ' =========================================================
 ' ▽アドインとして組み込まれた際に発生するイベント
 '
@@ -64,6 +66,8 @@ Private Sub Workbook_Open()
         VBUtil.showMessageBoxForWarning "デバッグモードになっています", ConstantsCommon.APPLICATION_NAME, Nothing
     #End If
     
+    appEvent.init Application
+    
     SutPreload
     
     Exit Sub
@@ -81,23 +85,12 @@ End Sub
 ' 概要　　　：
 '
 ' =========================================================
-Private Sub Workbook_BeforeClose(cancel As Boolean)
-
-    On Error GoTo err
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
 
     #If (DEBUG_MODE = 1) Then
     
         Debug.Print "Workbook_BeforeClose"
     #End If
-    
-    SutDestroy
-    
-    Exit Sub
-    
-err:
-
-    ' エラー発生
-    Main.ShowErrorMessage
 
 End Sub
 

@@ -18,29 +18,12 @@ Option Explicit
 ' 特記事項：
 ' *********************************************************
 
-' SELECTの再実行に関するレジストリのキー
-Private Const REG_SUB_KEY_SELECT_LATEST                    As String = "select_latest"
-    
-' SELECTの再実行のSQL本体
-    Private Const REG_SUB_KEY_SELECT_LATEST_SQL                As String = "sql"
-' SELECTの再実行の条件指定の場合の追加有無フラグ
-Private Const REG_SUB_KEY_SELECT_LATEST_TYPE               As String = "type"
-' SELECTの再実行の種類（全て）
-Private Const REG_SUB_KEY_SELECT_LATEST_TYPE_ALL           As String = "1"
-' SELECTの再実行の種類（条件指定）
-Private Const REG_SUB_KEY_SELECT_LATEST_TYPE_CONDITION     As String = "2"
-' SELECTの再実行の条件指定の場合の追加有無フラグ
-Private Const REG_SUB_KEY_SELECT_LATEST_APPEND             As String = "append"
-' SELECTの再実行の条件指定の場合の追加有無フラグ
-Private Const REG_SUB_KEY_SELECT_LATEST_APPEND_TRUE        As String = "True"
-
 ' セルカラーインデックス　エラー時
 Private Const CELL_COLOR_INDEX_ERROR        As Long = 40
 ' セルカラーインデックス　成功時
 Private Const CELL_COLOR_INDEX_SUCCESS      As Long = 15
 ' セルカラーインデックス　0件更新
 Private Const CELL_COLOR_INDEX_ZERO_UPDATED As Long = 36
-
 
 ' プログレスフォーム
 Private WithEvents frmProgressVar               As frmProgress
@@ -1502,21 +1485,25 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
               , Optional ByVal clearQueryResults As Boolean = True)
 
     ' フォームを設定する
+    If VBUtil.unloadFormIfChangeActiveBook(frmProgress) Then Unload frmProgress
     Load frmProgress
     ' フォームを設定する
     Set frmProgressVar = frmProgress
     
     ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmSelectConditionCreator) Then Unload frmSelectConditionCreator
     Load frmSelectConditionCreator
     ' フォームを設定する
     Set frmSelectConditionCreatorVar = frmSelectConditionCreator
 
     ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmRecordAppender) Then Unload frmRecordAppender
     Load frmRecordAppender
     ' フォームを設定する
     Set frmRecAppender = frmRecordAppender
     
     ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmQueryResult) Then Unload frmQueryResult
     Load frmQueryResult
     ' フォームを設定する
     Set frmQueryResultVar = frmQueryResult
@@ -2460,19 +2447,22 @@ Public Sub selectAll()
     ' テーブル定義を取得する
     Set tableSheet = tableSheetReader.readTableInfo(True)
 
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_SELECT_LATEST & "\" & tableSheet.table.schemaTableName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForSelectLatest(tableSheet.sheet.parent, tableSheet.sheetName)
     
-    registry.setValue REG_SUB_KEY_SELECT_LATEST_TYPE, REG_SUB_KEY_SELECT_LATEST_TYPE_ALL
-    registry.setValue REG_SUB_KEY_SELECT_LATEST_APPEND, ""
-    registry.setValue REG_SUB_KEY_SELECT_LATEST_SQL, ""
-
-    Set registry = Nothing
+    ' 書き込みデータ
+    Dim values As New ValCollection
+    Dim val As Variant
+    
+    values.setItem Array(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_TYPE, ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_TYPE_ALL)
+    values.setItem Array(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_SQL, "")
+    values.setItem Array(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_APPEND, "")
+    
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
     
     Exit Sub
     
@@ -2594,6 +2584,7 @@ Public Sub queryBatch()
     Set book = ActiveWorkbook
     
     ' フォームを設定する
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBQueryBatch) Then Unload frmDBQueryBatch
     Load frmDBQueryBatch
     Set frmDbQueryBatchVar = frmDBQueryBatch
     
@@ -2755,22 +2746,22 @@ Private Sub frmSelectConditionCreatorVar_ok(ByVal sql As String, ByVal append As
         queryResultSetInfo.addInfo queryResultInfo
     End If
     
-    ' --------------------------------------------------------------
-    ' レジストリに実行したSQLを前回実行したSQLの情報として設定する
-    ' --------------------------------------------------------------
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_SELECT_LATEST & "\" & tableSheet.table.schemaTableName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForSelectLatest(tableSheet.sheet.parent, tableSheet.sheetName)
     
-    registry.setValue REG_SUB_KEY_SELECT_LATEST_TYPE, REG_SUB_KEY_SELECT_LATEST_TYPE_CONDITION
-    registry.setValue REG_SUB_KEY_SELECT_LATEST_APPEND, CStr(append)
-    registry.setValue REG_SUB_KEY_SELECT_LATEST_SQL, sql
-
-    Set registry = Nothing
+    ' 書き込みデータ
+    Dim values As New ValCollection
+    Dim val As Variant
+    
+    values.setItem Array(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_TYPE, ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_TYPE_CONDITION)
+    values.setItem Array(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_SQL, sql)
+    values.setItem Array(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_APPEND, CStr(append))
+    
+    ' データを書き込む
+    appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
     
     Exit Sub
     
@@ -2832,38 +2823,27 @@ Public Sub selectReExecute()
     Dim latestSql    As String      ' SQL
     Dim latestAppend As String      ' 追加有無フラグ
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_SELECT_LATEST & "\" & tableSheet.table.schemaTableName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationPropertiesForSelectLatest(tableSheet.sheet.parent, tableSheet.sheetName)
+
+    ' データを読み込む
+    Dim val As Variant
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
     
-    Dim value    As String
-    Dim valueKey As String
-    
-    ' SQL種類を取得する
-    ' 前回指定されたSELECT文は無いと見なして、条件無しのSELECT文を発行する
-    valueKey = REG_SUB_KEY_SELECT_LATEST_TYPE
-    If registry.getValue(valueKey, value) = False Then
-    
-        ' レジストリに情報自体存在しない場合は、”全て”をデフォルト値として実行する
-        latestType = REG_SUB_KEY_SELECT_LATEST_TYPE_ALL
-        
+    ' SELECT発行種類を取得する
+    val = values.getItem(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_TYPE, vbVariant)
+    If IsArray(val) Then
+        latestType = val(2)
     Else
-        latestType = value
+        ' 情報自体存在しない場合は、”全て”をデフォルト値として実行する
+        latestType = ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_TYPE_ALL
     End If
-    
     ' SQLを取得する
-    valueKey = REG_SUB_KEY_SELECT_LATEST_SQL
-    registry.getValue valueKey, value
-    latestSql = value
-    
+    val = values.getItem(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_SQL, vbVariant): If IsArray(val) Then latestSql = val(2)
     ' 追加有無を取得する
-    valueKey = REG_SUB_KEY_SELECT_LATEST_APPEND
-    registry.getValue valueKey, value
-    latestAppend = value
+    val = values.getItem(ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_APPEND, vbVariant): If IsArray(val) Then latestAppend = val(2)
     
     ' Excel.Applicationプロパティを操作するオブジェクト
     ' 関数を抜けると自動でApplicationプロパティが復元される
@@ -2875,9 +2855,9 @@ Public Sub selectReExecute()
     frmProgressVar.ShowExt vbModeless, False
     frmProgressVar.title = "SELECT - 再実行" & createProgressTitleOptionalMessage
     
-    If latestType = REG_SUB_KEY_SELECT_LATEST_TYPE_CONDITION Then
+    If latestType = ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_TYPE_CONDITION Then
         
-        If latestAppend = REG_SUB_KEY_SELECT_LATEST_APPEND_TRUE Then
+        If latestAppend = ConstantsApplicationProperties.INI_KEY_SELECT_LATEST_APPEND_TRUE Then
         
             select_.appendSheet = True
         Else
@@ -2998,4 +2978,17 @@ Private Sub frmQueryResultVar_selected(tableSheet As ValTableWorksheet)
 err:
 
 End Sub
+
+' =========================================================
+' ▽設定情報の生成
+' =========================================================
+Private Function createApplicationPropertiesForSelectLatest(ByVal book As Workbook, ByVal sheetName As String) As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & "selectLatest" & "\" & sheetName & ".ini"
+    appProp.initWorksheet book, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & "selectLatest" & "\" & sheetName & ".ini"
+
+    Set createApplicationPropertiesForSelectLatest = appProp
+    
+End Function
 

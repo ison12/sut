@@ -322,8 +322,8 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
 
                 ' 背景色を変更する
                 sheet.Range( _
-                    Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL).Address, _
-                    Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL + VBUtil.arraySize(diff1Rec.headerList) - 1).Address _
+                    sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL).Address, _
+                    sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL + VBUtil.arraySize(diff1Rec.headerList) - 1).Address _
                 ).Interior.Color = _
                     RGB( _
                         ConstantsSnapDiff.INSERT_COLOR_R, _
@@ -421,8 +421,8 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
             
                 ' 背景色を変更する
                 sheet.Range( _
-                    Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL).Address, _
-                    Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL + VBUtil.arraySize(diffDeletedRecord) - 1).Address _
+                    sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL).Address, _
+                    sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL + VBUtil.arraySize(diffDeletedRecord) - 1).Address _
                 ).Interior.Color = _
                     RGB( _
                         ConstantsSnapDiff.DELETE_COLOR_R, _
@@ -482,8 +482,8 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
     
     ' ヘッダとレコード部の行をグループ化する
     sheet.Range( _
-        Cells(offsetRow + RESULT_START_OFFSET_HEADER, 1).Address, _
-        Cells(endOffsetRow - 2, 1).Address).Rows.Group
+        sheet.Cells(offsetRow + RESULT_START_OFFSET_HEADER, 1).Address, _
+        sheet.Cells(endOffsetRow - 2, 1).Address).Rows.Group
     
     diffRecords = endOffsetRow
     
@@ -550,20 +550,23 @@ Private Sub insertResultRange(ByRef sheet As Worksheet, ByVal recordOffset As Lo
     Dim srcRange As Range
     ' コピー先セル
     Dim desRange As Range
+    
+    Dim srcSheet As Worksheet
+    Set srcSheet = ThisWorkbook.Worksheets(ConstantsSnapDiff.SHEET_NAME_TEMPLATE)
 
     ' コピー元のRangeオブジェクトを取得する
-    Set srcRange = ThisWorkbook.Worksheets(ConstantsSnapDiff.SHEET_NAME_TEMPLATE) _
+    Set srcRange = srcSheet _
                     .Range( _
-                        Cells(ConstantsSnapDiff.RESULT_RANGE_START_ROW _
+                        srcSheet.Cells(ConstantsSnapDiff.RESULT_RANGE_START_ROW _
                             , ConstantsSnapDiff.RESULT_RANGE_START_COL).Address & ":" & _
-                        Cells(ConstantsSnapDiff.RESULT_RANGE_END_ROW _
+                        srcSheet.Cells(ConstantsSnapDiff.RESULT_RANGE_END_ROW _
                             , ConstantsSnapDiff.RESULT_RANGE_END_COL).Address)
                   
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.RESULT_RANGE_START_COL).Address)
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.RESULT_RANGE_START_COL).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -615,10 +618,10 @@ Private Sub insertHeaderListCell(ByRef sheet As Worksheet, ByVal recordOffset As
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.HEADER_COL).Address & ":" & _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.HEADER_COL + columnCount - 1).Address)
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.HEADER_COL).Address & ":" & _
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.HEADER_COL + columnCount - 1).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -638,10 +641,10 @@ Private Sub insertHeaderListCell(ByRef sheet As Worksheet, ByVal recordOffset As
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.RECORD_NUM_COL).Address)
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.RECORD_NUM_COL).Address)
 
     srcRange.copy Destination:=desRange
 
@@ -657,10 +660,10 @@ Private Sub insertHeaderListCell(ByRef sheet As Worksheet, ByVal recordOffset As
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.RECORD_MODIFY_COL).Address)
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.RECORD_MODIFY_COL).Address)
                             
     srcRange.copy Destination:=desRange
 
@@ -712,10 +715,10 @@ Private Sub insertRecordListCell(ByRef sheet As Worksheet, ByVal recordOffset As
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
-                        Cells(recordOffset + recordSize - 1 _
-                            , ConstantsSnapDiff.RECORD_COL + columnCount - 1).Address)
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
+                        sheet.Cells(recordOffset + recordSize - 1 _
+                                  , ConstantsSnapDiff.RECORD_COL + columnCount - 1).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -747,10 +750,10 @@ Private Sub insertRecordListCell(ByRef sheet As Worksheet, ByVal recordOffset As
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
-                        Cells(recordOffset + recordSize - 1 _
-                            , ConstantsSnapDiff.RECORD_NUM_COL).Address)
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
+                        sheet.Cells(recordOffset + recordSize - 1 _
+                                  , ConstantsSnapDiff.RECORD_NUM_COL).Address)
 
     srcRange.copy Destination:=desRange
 
@@ -766,10 +769,10 @@ Private Sub insertRecordListCell(ByRef sheet As Worksheet, ByVal recordOffset As
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
-                        Cells(recordOffset + recordSize - 1 _
-                            , ConstantsSnapDiff.RECORD_MODIFY_COL).Address)
+                        sheet.Cells(recordOffset _
+                                  , ConstantsSnapDiff.RECORD_COL).Address & ":" & _
+                        sheet.Cells(recordOffset + recordSize - 1 _
+                                  , ConstantsSnapDiff.RECORD_MODIFY_COL).Address)
                             
     srcRange.copy Destination:=desRange
 
@@ -792,7 +795,7 @@ Private Sub setModifyCell(ByRef sheet As Worksheet, ByVal row As Long, ByVal col
 
     ' コピー先のRangeオブジェクトを取得する
     Set targetRange = sheet _
-                     .Range(Cells(row, col).Address)
+                     .Range(sheet.Cells(row, col).Address)
 
     If modify Then
         targetRange.value = ConstantsSnapDiff.MODIFY_ON

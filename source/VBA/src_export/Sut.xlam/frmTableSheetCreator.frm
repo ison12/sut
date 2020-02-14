@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmTableSheetCreator 
    Caption         =   "テーブルシートの作成"
-   ClientHeight    =   8790.001
+   ClientHeight    =   8790
    ClientLeft      =   45
    ClientTop       =   330
-   ClientWidth     =   8505.001
+   ClientWidth     =   8505
    OleObjectBlob   =   "frmTableSheetCreator.frx":0000
 End
 Attribute VB_Name = "frmTableSheetCreator"
@@ -40,7 +40,7 @@ Public Event complete(ByRef createTargetTable As ValCollection)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 Private Const MULTIPAGE_MIN_PAGE As Long = 0
 Private Const MULTIPAGE_MAX_PAGE As Long = 4
@@ -71,6 +71,15 @@ Private tableInfoListRowFormat As CntListBox
 ' 選択されたテーブルリスト
 Private selectedTableList As ValCollection
 ' -------------------------------------------------------------
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -198,6 +207,49 @@ Private Sub deactivate()
 End Sub
 
 ' =========================================================
+' ▽フォーム初期化時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_Initialize()
+
+    On Error GoTo err
+    
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
+
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽フォーム破棄時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_Terminate()
+
+    On Error GoTo err
+    
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
 ' ▽フォームクローズ時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -205,7 +257,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
 
     ' Xボタン押下時
     If CloseMode = 0 Then
@@ -216,7 +268,7 @@ Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
             HideExt
         Else
             ' 終了しない場合、本イベントをキャンセルする
-            cancel = True
+            Cancel = True
         End If
     End If
 
@@ -359,7 +411,7 @@ Private Sub btnCancel_Click()
         HideExt
     
         ' イベントを発行する
-        RaiseEvent cancel
+        RaiseEvent Cancel
     End If
     
     

@@ -1,14 +1,6 @@
 Attribute VB_Name = "ZTest"
 Option Explicit
 
-Private Sub assert(ByVal test As Boolean)
-
-    If Not test Then
-        err.Raise vbObjectError + 513, "Assert", "Assert Error"
-    End If
-
-End Sub
-
 #If DEBUG_MODE = 1 Then
 
 #If VBA7 And Win64 Then
@@ -16,6 +8,25 @@ End Sub
 #Else
     Declare Function GetTickCount Lib "kernel32" () As Long
 #End If
+
+Private Sub assert(ByVal test As Boolean)
+
+    Debug.Assert test
+
+    If Not test Then
+        err.Raise vbObjectError + 513, "Assert", "Assert Error"
+    End If
+
+End Sub
+
+Private Sub testAll()
+
+    testIniFile
+    testIniFilePerform
+    testIniWorksheet
+    testIniWorksheetPerform
+    
+End Sub
 
 Private Sub taest3()
 
@@ -90,7 +101,7 @@ Private Sub test6()
         Debug.Print tmp
     Next
     
-    Set a = New RegistryManipulator: a.init WinAPI_ADVAP.HKEY_CURRENT_USER, "Software\SandSoft\Sut", WinAPI_ADVAP.KEY_ALL_ACCESS, True
+    Set a = New RegistryManipulator: a.init WinAPI_ADVAP.HKEY_CURRENT_USER, "Software\ison\Sut", WinAPI_ADVAP.KEY_ALL_ACCESS, True
 
     Dim value As String
     Set b = a.getKeyList
@@ -100,7 +111,7 @@ Private Sub test6()
     
     a.deleteValue "key1"
     
-    Set a = New RegistryManipulator: a.init WinAPI_ADVAP.HKEY_CURRENT_USER, "Software\SandSoft", WinAPI_ADVAP.KEY_ALL_ACCESS, True
+    Set a = New RegistryManipulator: a.init WinAPI_ADVAP.HKEY_CURRENT_USER, "Software\ison", WinAPI_ADVAP.KEY_ALL_ACCESS, True
     a.delete "Sut"
     
 End Sub
@@ -221,167 +232,6 @@ Private Sub test13()
 
 End Sub
 
-Private Sub test14()
-
-    Dim password As String
-    Dim passwordLen As Long
-    
-    password = "password"
-    passwordLen = Len(password)
-
-    Dim buffer(0 To 1) As Byte
-    Dim bufferLen      As Long
-    
-    Dim resultBuffer() As Byte
-    Dim resultLen      As Long
-    
-    buffer(0) = Asc("a")
-    buffer(1) = Asc("b")
-    bufferLen = 2
-    
-    resultLen = 0
-    If SutGray.Encrypt(password _
-                      , passwordLen _
-                      , buffer(0) _
-                      , bufferLen _
-                      , 0 _
-                      , resultLen) = 0 Then
-    
-    End If
-
-    ReDim resultBuffer(0 To resultLen - 1)
-
-    If SutGray.Encrypt(password _
-                      , passwordLen _
-                      , buffer(0) _
-                      , bufferLen _
-                      , resultBuffer(0) _
-                      , resultLen) = 0 Then
-    
-    End If
-
-End Sub
-
-Private Sub test15()
-
-    Dim buffer         As String
-    Dim bufferLen      As Long
-    
-    Dim resultBuffer() As Byte
-    Dim resultLen      As Long
-    
-    buffer = "0102030405060708090a0b0c0d0e0f10"
-    bufferLen = Len(buffer)
-    resultLen = 0
-    If SutGray.ConvertHexToBinaryData(buffer _
-                                    , bufferLen _
-                                    , 0 _
-                                    , resultLen) = 0 Then
-    
-    
-    End If
-
-    ReDim resultBuffer(0 To resultLen - 1)
-
-    If SutGray.ConvertHexToBinaryData(buffer _
-                                    , bufferLen _
-                                    , resultBuffer(0) _
-                                    , resultLen) = 0 Then
-    
-    End If
-
-End Sub
-
-Private Sub test16()
-
-    Dim buffer()       As Byte
-    Dim bufferLen      As Long
-    
-    Dim resultBuffer   As String
-    Dim resultLen      As Long
-    
-    ReDim buffer(0 To 16)
-    Dim i As Long
-    For i = 0 To 16
-    
-        buffer(i) = i
-    Next
-    bufferLen = 17
-    
-    resultLen = 0
-    If SutGray.ConvertBinaryDataToHex(buffer(0) _
-                                    , bufferLen _
-                                    , 0 _
-                                    , resultLen) = 0 Then
-    
-    
-    End If
-
-    resultBuffer = Space(resultLen)
-
-    If SutGray.ConvertBinaryDataToHex(buffer(0) _
-                                    , bufferLen _
-                                    , resultBuffer _
-                                    , resultLen) = 0 Then
-    
-    End If
-
-End Sub
-
-Private Sub test17()
-
-    On Error GoTo err
-    
-    Dim a As New ExeAuthenticateLicence
-
-    Dim b As Date
-
-    b = a.getProbationDate
-
-    Exit Sub
-    
-err:
-
-    Main.ShowErrorMessage
-
-End Sub
-
-Private Sub test18()
-
-    On Error GoTo err
-    
-    Dim a As New ExeAuthenticateLicence
-    
-    Dim b As Date
-    
-    Dim i As Long
-    
-    For i = 0 To 20
-    
-        b = DateAdd("d", -1 * (20 - i), Now)
-    
-        If a.isRangeProbation(b) = True Then
-        
-            Debug.Print b & "範囲内 " & a.getRemainderProbationDay(b)
-        Else
-        
-            Debug.Print b & "範囲外 " & a.getRemainderProbationDay(b)
-        End If
-        
-    Next
-    
-    Exit Sub
-err:
-
-End Sub
-
-Private Sub test19()
-
-    Dim tmp As IPictureDisp
-    Set tmp = SutYellow.LoadIconAndGetPictureDisp(101)
-    
-End Sub
-
 Private Sub test20()
 
     Dim aaa As New ValApplicationSettingShortcut
@@ -393,8 +243,8 @@ Private Sub test20()
 
     Set aaa.rclickMenuItemList = temp
     
-    aaa.readForRegistryForRClick
-    aaa.writeForRegistryForRClick
+    aaa.readForDataRClick
+    aaa.writeForDataRClick
 End Sub
 
 
@@ -603,44 +453,9 @@ Private Sub testValAppSettingColFormatR()
 
 End Sub
 
-Private Sub testValAppSettingColFormatW()
-
-    Dim a As New ValApplicationSettingColFormat
-
-    Set a.dbList = New ValCollection
-    
-    Dim i As Long
-    
-    Dim dbInfo1 As New ValDbColumnFormatInfo
-    dbInfo1.dbName = "oracle"
-
-    Dim colList1(0 To 10) As ValDbColumnTypeColInfo
-    
-    For i = LBound(colList1) To UBound(colList1)
-    
-        Set colList1(i) = New ValDbColumnTypeColInfo
-        
-        colList1(i).columnName = "カラム名：" & i
-        colList1(i).formatUpdate = "フォーマットU：" & i
-        colList1(i).formatSelect = "フォーマットS：" & i
-    
-    Next
-    
-    Set dbInfo1.columnList = colList1
-
-    Dim dbInfo2 As New ValDbColumnFormatInfo
-    dbInfo2.dbName = "postgre"
-
-    a.dbList.setItem dbInfo1
-    a.dbList.setItem dbInfo2
-    
-    a.writeForRegistry
-
-End Sub
-
 Private Sub testExeDataTypeReader()
 
-    Dim ct As ValDbColumnFormatInfo
+    Dim ct As ValCollection
 
     Dim impl As IDbColumnType
     Dim fac As New DbObjectFactory
@@ -648,6 +463,8 @@ Private Sub testExeDataTypeReader()
     Set impl = fac.createColumnType(DbmsType.MySQL): Set ct = impl.getDefaultColumnFormat
     Set impl = fac.createColumnType(DbmsType.PostgreSQL): Set ct = impl.getDefaultColumnFormat
     Set impl = fac.createColumnType(DbmsType.Symfoware): Set ct = impl.getDefaultColumnFormat
+    Set impl = fac.createColumnType(DbmsType.MicrosoftAccess): Set ct = impl.getDefaultColumnFormat
+    Set impl = fac.createColumnType(DbmsType.MicrosoftSqlServer): Set ct = impl.getDefaultColumnFormat
     Set impl = fac.createColumnType(DbmsType.Other): Set ct = impl.getDefaultColumnFormat
     
 '
@@ -676,198 +493,129 @@ Public Sub pallet()
     Application.Dialogs.item(xlDialogColorPalette).Show
 End Sub
 
-Private Sub StringTest()
-
-    Dim str  As String
-    Dim tmp  As String
-    
-    Dim str2 As New SutString
-    Dim str3 As New SutString
-    
-    Dim i   As Long
-    
-    Dim timeBegin As Long
-    Dim timeEnd   As Long
-    
-    ' -----------------------------------------------------------
-    ' その２
-    ' -----------------------------------------------------------
-    timeBegin = GetTickCount
-    For i = 0 To 1000000
-        str2.append "a"
-    Next
-    tmp = str2.str
-    timeEnd = GetTickCount
-    ' -----------------------------------------------------------
-
-    MsgBox "その２：" & (timeEnd - timeBegin) & "ミリ秒" & tmp
-    
-    ' -----------------------------------------------------------
-    ' その３
-    ' -----------------------------------------------------------
-    timeBegin = GetTickCount
-    str3.reserve 1000000
-    For i = 0 To 1000000
-        str3.append "a"
-    Next
-    tmp = str3.str
-    timeEnd = GetTickCount
-    ' -----------------------------------------------------------
-
-    MsgBox "その３：" & (timeEnd - timeBegin) & "ミリ秒" & tmp
-    
-    ' -----------------------------------------------------------
-    ' その１
-    ' -----------------------------------------------------------
-    timeBegin = GetTickCount
-    For i = 0 To 100000
-        str = str & "a"
-    Next
-    timeEnd = GetTickCount
-    ' -----------------------------------------------------------
-
-    MsgBox "その１：" & (timeEnd - timeBegin) & "ミリ秒" & str
-    
-End Sub
-
-Private Sub SutStringTest()
-
-    Dim str As New SutString
-    
-    Debug.Print str.str
-    str.Erase
-    Debug.Print str.str
-    str.append "あbc"
-    Debug.Print str.str
-    str.Erase 0, 1
-    Debug.Print str.str
-    str.Erase
-    Debug.Print str.str
-    str.append "abc"
-    str.reserve 10000
-    Debug.Print str.str
-    
-    str.Erase 2, 1
-    Debug.Print str.str
-    str.Erase 10, 10
-    Debug.Print str.str
-    
-End Sub
-
-Private Sub SutStringTest2()
-
-    Dim str As New SutString
-    
-    str.append "あいうえお"
-    str.replace "", ""
-    Debug.Print "result: " & str.str
-    str.replace "あ", "お"
-    Debug.Print "result: " & str.str
-    str.replace "お", "a"
-    Debug.Print "result: " & str.str
-    str.replace "a", "あ"
-    Debug.Print "result: " & str.str
-    str.replace "あ", ""
-    Debug.Print "result: " & str.str
-    
-End Sub
-
-Private Sub SutStringTest3()
-
-    Dim str As New SutString
-    
-    str.assign "a"
-    Debug.Print "result: " & str.str
-    
-    str.append("a").append ("b")
-    Debug.Print str.substr
-    Debug.Print str.substr(0)
-    Debug.Print str.substr(1)
-    Debug.Print str.substr(1, 0)
-    Debug.Print str.substr(1, 2)
-    Debug.Print str.substr(1, 3)
-    Debug.Print str.substr(1, 4)
-    Debug.Print str.substr(4, 1)
-    Debug.Print str.substr(5, 1)
-    Debug.Print str.substr(-2, -2)
-    
-    
-    str.assign "abあ": str.insert -1, "か": Debug.Print str.str
-    str.assign "abあ": str.insert 0, "か": Debug.Print str.str
-    str.assign "abあ": str.insert 1, "か": Debug.Print str.str
-    str.assign "abあ": str.insert 2, "か": Debug.Print str.str
-    str.assign "abあ": str.insert 3, "か": Debug.Print str.str
-    
-    str.assign "abあ": str.insert 3, "あか", 0: Debug.Print str.str
-    str.assign "abあ": str.insert 3, "あか", 0, 1: Debug.Print str.str
-    
-End Sub
-
 Public Sub StringBuilderTest()
 
     Dim str As StringBuilder
     Set str = New StringBuilder
     
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    assert str.length = 0
     
     str.clear
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    str.append "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf
+    assert str.length = 118
+    assert str.str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf
     
+    str.clear
+    str.append "a"
+    assert str.length = 1
+    assert str.str = "a"
+    
+    str.clear
+    assert str.length = 0
+    assert str.str = ""
+    
+    str.append "ab"
+    
+    ' 引数不正
     str.remove 0, 0
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    str.remove 1, 0
+    str.remove 0, 1
+    
+    assert str.length = 2
+    assert str.str = "ab"
     
     str.append "あいうえお"
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    assert str.length = 7
+    assert str.str = "abあいうえお"
     
     str.append "かきくけこ"
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    assert str.length = 12
+    assert str.str = "abあいうえおかきくけこ"
     
     str.remove 1, 5
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    assert str.length = 7
+    assert str.str = "えおかきくけこ"
     
     str.remove 1, 5
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    assert str.length = 2
+    assert str.str = "けこ"
     
     str.append "あいうえお"
     str.append "かきくけこ"
     str.remove 1, 11
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    assert str.length = 1
+    assert str.str = "こ"
     
     str.clear
     str.append "あいうえお"
-    str.insert "かきくけこ", 0
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
     
-    str.insert "かきくけこ", 7
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    ' 引数不正
+    str.insert 0, "かきくけこ"
+    assert str.length = 5
+    assert str.str = "あいうえお"
     
-    str.insert "かきくけこ", 6
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
-  
-    str.insert "さしすせそ", 1
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
-  
-    str.insert "真ん中", 2
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
-  
-    str.replace "真ん中", "中々"
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
-  
-    str.replace "中々", "真ん中"
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
-  
-    str.replace "真ん中", "真ん中"
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    ' 引数不正
+    str.insert 7, "かきくけこ"
+    assert str.length = 5
+    assert str.str = "あいうえお"
     
     str.clear
-    str.append String(1050, "あ")
-    Debug.Print "result: " & str.length & ":" & str.capacity & ":" & str.str
+    str.insert 1, "かきくけこ"
+    assert str.length = 5
+    assert str.str = "かきくけこ"
+    
+    str.clear
+    str.append "あいうえお　かきくけこ"
+    str.replace "いう", "置換REP"
+    assert str.length = 14
+    assert str.str = "あ置換REPえお　かきくけこ"
+    
+    str.clear
+    str.append "あいうえお　かきくけこ"
+    str.replace "いうお", "置換REP"
+    assert str.length = 11
+    assert str.str = "あいうえお　かきくけこ"
+    
+    str.clear
+    str.append "あいうえお　かきくけこ"
+    str.replace "あ", "ア"
+    assert str.length = 11
+    assert str.str = "アいうえお　かきくけこ"
+    
+    str.clear
+    str.append "あいうえお　かきくけこ"
+    str.replace "こ", "コ"
+    assert str.length = 11
+    assert str.str = "あいうえお　かきくけコ"
+    
+    str.clear
+    str.append "あいうえお　かきくけこあ"
+    str.replace "あ", "亜"
+    assert str.length = 12
+    assert str.str = "亜いうえお　かきくけこ亜"
+    
+    str.clear
+    str.append String(1000, "あ")
+    assert str.length = 1000
+    assert str.str = String(1000, "あ")
+    
+    str.append String(1000, "あ")
+    assert str.length = 2000
+    assert str.str = String(2000, "あ")
+    
+    str.append String(1000, "あ")
+    assert str.length = 3000
+    assert str.str = String(3000, "あ")
+    
+    str.append String(1000, "あ")
+    assert str.length = 4000
+    assert str.str = String(4000, "あ")
+    
+    str.append String(1000, "あ")
+    assert str.length = 5000
+    assert str.str = String(5000, "あ")
   
 End Sub
-
-
-#End If
-
 
 Private Sub testCsvParser()
 
@@ -1279,4 +1027,538 @@ Public Sub testExcelCursorWait()
     Application.cursor = xlDefault
 
 End Sub
+
+' =========================================================
+' ▽Error発生時のテスト
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub testErrorRaise()
+
+    On Error GoTo err
+    
+    ' 何か適当なオブジェクトを初期化しておく
+    Dim obj As ExcelLongTimeProcessing
+    Set obj = New ExcelLongTimeProcessing
+    obj.init
+
+    err.Raise 1000, "my source", "my description"
+
+    Exit Sub
+
+err:
+
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
+    
+    ' 何か適当なオブジェクトを破棄する（デストラクタ内でErrに関する操作が行われること）
+    Set obj = Nothing
+
+    assert err.Number = 0
+    assert err.Source = ""
+    assert err.Description = ""
+    
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
+
+    assert err.Number = 1000
+    assert err.Source = "my source"
+    assert err.Description = "my description"
+    
+    On Error GoTo 0
+
+    assert err.Number = 0
+    assert err.Source = ""
+    assert err.Description = ""
+
+End Sub
+
+' =========================================================
+' ▽Iniファイル操作のテスト
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub testIniFile()
+
+    Dim retValue As String
+    Dim retValueArray As ValCollection
+    
+    Dim values As New ValCollection
+    
+
+    Dim i As Long
+    Dim im As IniFile
+    
+    Dim testFilePath As String
+    testFilePath = VBUtil.getApplicationIniFilePath("test.ini")
+    
+    ' ファイルが存在する場合は、削除する
+    If (dir(testFilePath, vbNormal) <> "") Then
+        Kill testFilePath
+    End If
+    
+    ' ---------------------------------------------------------
+    ' ファイル書き込み
+    Set im = New IniFile
+    im.init testFilePath
+    
+    im.setValue "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
+              , "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
+              , "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf
+    im.destroy
+    
+        ' ファイル読み込み
+    Set im = New IniFile
+    im.init testFilePath
+    
+    retValue = im.getValue("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
+                         , "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf)
+    assert retValue = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf
+
+    im.destroy
+    ' ---------------------------------------------------------
+    
+    ' ---------------------------------------------------------
+    ' ファイル書き込み
+    Set im = New IniFile
+    im.init testFilePath
+    
+    im.setValue "section", "key", "value"
+    im.setValue "section", "key2", ""
+    im.setValue "セクション", "キー", "値"
+    im.setValue "セクション", "キー=" & vbCr & vbLf, "値=" & vbCr & vbLf
+    
+    values.setItem Array("key", "value")
+    values.setItem Array("キー", "値" & ChrW(&H9EB4))
+    values.setItem Array("key3", "")
+    im.setValues "sectionArray", values
+    
+    im.destroy
+    ' ---------------------------------------------------------
+    
+    ' ---------------------------------------------------------
+    ' ファイル読み込み
+    Set im = New IniFile
+    im.init testFilePath
+    
+    retValue = im.getValue("section", "key")
+    assert retValue = "value"
+    
+    retValue = im.getValue("section", "key2")
+    assert retValue = ""
+    
+    retValue = im.getValue("sectionNotExists", "key")
+    assert retValue = ""
+    
+    retValue = im.getValue("section", "keyNotExists")
+    assert retValue = ""
+    
+    retValue = im.getValue("セクション", "キー")
+    assert retValue = "値"
+    
+    retValue = im.getValue("セクション", "キー=" & vbCr & vbLf)
+    assert retValue = "値=" & vbCr & vbLf
+    
+    Set retValueArray = im.getValues("sectionArray")
+    assert retValueArray.getItemByIndex(1, vbVariant)(1) = "key"
+    assert retValueArray.getItemByIndex(1, vbVariant)(2) = "value"
+    assert retValueArray.getItemByIndex(2, vbVariant)(1) = "キー"
+    assert retValueArray.getItemByIndex(2, vbVariant)(2) = "値" & ChrW(&H9EB4)
+    assert retValueArray.getItemByIndex(3, vbVariant)(1) = "key3"
+    assert retValueArray.getItemByIndex(3, vbVariant)(2) = ""
+    
+    im.destroy
+    ' ---------------------------------------------------------
+    
+    ' ---------------------------------------------------------
+    ' ファイル書き込みして削除
+    Set im = New IniFile
+    im.init testFilePath
+    
+    ' ※一回目
+    im.delete "sectionArray"
+    im.delete "section", "key"
+    
+    ' ※二回呼び出してみる
+    im.delete "sectionArray"
+    im.delete "section", "key"
+    
+    retValue = im.getValue("section", "key")
+    assert retValue = "" ' 削除したキーなので存在しない
+    
+    retValue = im.getValue("セクション", "キー")
+    assert retValue = "値" ' 何もしていないので存在する
+    
+    Set retValueArray = im.getValues("sectionArray")
+    assert retValueArray.count = 0 ' セクションごと削除
+    
+    im.destroy
+    ' ---------------------------------------------------------
+    
+
+End Sub
+
+' =========================================================
+' ▽Iniファイル操作のパフォーマンステスト
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub testIniFilePerform()
+
+    Dim timeBegin As Long
+    Dim timeEnd   As Long
+    
+    Dim retValue As String
+    Dim retValueArray As ValCollection
+    
+
+    Dim i As Long
+    Dim im As IniFile
+    
+    Dim testFilePath As String
+    testFilePath = VBUtil.getApplicationIniFilePath("test_manydata.ini")
+    
+    ' ファイルが存在する場合は、削除する
+    If (dir(testFilePath, vbNormal) <> "") Then
+        Kill testFilePath
+    End If
+    
+    ' ---------------------------------------------------------
+    ' ファイル書き込み
+    timeBegin = GetTickCount
+    
+    Set im = New IniFile
+    im.init testFilePath
+    
+    For i = 1 To 10000
+        im.setValue "section", "key" & i, "valueを書き込む・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・"
+    Next
+    
+    im.destroy
+    
+    timeEnd = GetTickCount
+    
+    Debug.Print "Ini書き込み：" & timeEnd - timeBegin & "ミリ秒経過"
+    ' ---------------------------------------------------------
+        
+    ' ---------------------------------------------------------
+    ' ファイル読み込み
+    timeBegin = GetTickCount
+    
+    Set im = New IniFile
+    im.init testFilePath
+    
+    Set retValueArray = im.getValues("section")
+    
+    im.destroy
+    
+    timeEnd = GetTickCount
+    
+    Debug.Print "Ini読み込み：" & timeEnd - timeBegin & "ミリ秒経過"
+    ' ---------------------------------------------------------
+
+End Sub
+
+' =========================================================
+' ▽Iniワークシート操作のテスト
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub testIniWorksheet()
+
+    Dim retValue As String
+    Dim retValueArray As ValCollection
+    
+    Dim values As New ValCollection
+    
+
+    Dim i As Long
+    Dim im As IniWorksheet
+        
+    Dim testFileName As String
+    testFileName = "test.ini"
+
+    Dim wb As Workbook
+    Set wb = Application.Workbooks.Add
+        
+    ' ---------------------------------------------------------
+    ' ファイル書き込み
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    ' 既にブックは存在するがデータはない場合
+    assert Not im.isExistsData
+    
+    im.setValue "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
+              , "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
+              , "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf
+    im.writeSheet
+    
+    ' データが存在する場合
+    assert im.isExistsData
+    
+    ' ファイル読み込み
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    retValue = im.getValue("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
+                         , "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf)
+    assert retValue = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf
+
+    im.writeSheet
+    ' ---------------------------------------------------------
+
+    ' ---------------------------------------------------------
+    ' ファイル書き込み
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    im.setValue "section", "key", "value"
+    im.setValue "section", "key2", ""
+    im.setValue "セクション", "キー", "値"
+    im.setValue "セクション", "キー=" & vbCr & vbLf, "値=" & vbCr & vbLf
+    
+    values.setItem Array("key", "value")
+    values.setItem Array("キー", "値" & ChrW(&H9EB4))
+    values.setItem Array("key3", "")
+    im.setValues "sectionArray", values
+    
+    im.writeSheet
+    ' ---------------------------------------------------------
+    
+    ' ---------------------------------------------------------
+    ' ファイル読み込み
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    retValue = im.getValue("section", "key")
+    assert retValue = "value"
+    
+    retValue = im.getValue("section", "key2")
+    assert retValue = ""
+    
+    retValue = im.getValue("sectionNotExists", "key")
+    assert retValue = ""
+    
+    retValue = im.getValue("section", "keyNotExists")
+    assert retValue = ""
+    
+    retValue = im.getValue("セクション", "キー")
+    assert retValue = "値"
+    
+    retValue = im.getValue("セクション", "キー=" & vbCr & vbLf)
+    assert retValue = "値=" & vbCr & vbLf
+    
+    Set retValueArray = im.getValues("sectionArray")
+    assert retValueArray.getItemByIndex(1, vbVariant)(1) = "key"
+    assert retValueArray.getItemByIndex(1, vbVariant)(2) = "value"
+    assert retValueArray.getItemByIndex(2, vbVariant)(1) = "キー"
+    assert retValueArray.getItemByIndex(2, vbVariant)(2) = "値" & ChrW(&H9EB4)
+    assert retValueArray.getItemByIndex(3, vbVariant)(1) = "key3"
+    assert retValueArray.getItemByIndex(3, vbVariant)(2) = ""
+    
+    im.writeSheet
+    ' ---------------------------------------------------------
+    
+    ' ---------------------------------------------------------
+    ' ファイル書き込みして削除
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    ' ※一回目
+    im.delete "sectionArray"
+    im.delete "section", "key"
+    
+    ' ※二回呼び出してみる
+    im.delete "sectionArray"
+    im.delete "section", "key"
+    
+    retValue = im.getValue("section", "key")
+    assert retValue = "" ' 削除したキーなので存在しない
+    
+    retValue = im.getValue("セクション", "キー")
+    assert retValue = "値" ' 何もしていないので存在する
+    
+    Set retValueArray = im.getValues("sectionArray")
+    assert retValueArray.count = 0 ' セクションごと削除
+    
+    im.writeSheet
+    ' ---------------------------------------------------------
+    
+    ' ---------------------------------------------------------
+    ' ファイル再読み込み
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    retValue = im.getValue("section", "key2")
+    assert retValue = ""
+    
+    retValue = im.getValue("セクション", "キー")
+    assert retValue = "値"
+    
+    retValue = im.getValue("セクション", "キー=" & vbCr & vbLf)
+    assert retValue = "値=" & vbCr & vbLf
+    
+    Set retValueArray = im.getValues("sectionArray")
+    assert retValueArray.count = 0
+    
+    im.writeSheet
+    ' ---------------------------------------------------------
+    
+    ' ファイル名を変更
+    testFileName = "test2.ini"
+    
+    ' ---------------------------------------------------------
+    ' ファイル書き込み
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    ' 既にブックは存在するがデータはない場合
+    assert Not im.isExistsData
+    
+    im.setValue "section", "key", "value"
+    im.setValue "section", "key2", ""
+    im.setValue "セクション", "キー", "値"
+    im.setValue "セクション", "キー=" & vbCr & vbLf, "値=" & vbCr & vbLf
+    
+    values.setItem Array("key", "value")
+    values.setItem Array("キー", "値" & ChrW(&H9EB4))
+    values.setItem Array("key3", "")
+    im.setValues "sectionArray", values
+    
+    im.writeSheet
+    
+    ' データが存在する
+    assert im.isExistsData
+    ' ---------------------------------------------------------
+    
+    ' ---------------------------------------------------------
+    ' ファイル読み込み
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    retValue = im.getValue("section", "key")
+    assert retValue = "value"
+    
+    retValue = im.getValue("section", "key2")
+    assert retValue = ""
+    
+    retValue = im.getValue("sectionNotExists", "key")
+    assert retValue = ""
+    
+    retValue = im.getValue("section", "keyNotExists")
+    assert retValue = ""
+    
+    retValue = im.getValue("セクション", "キー")
+    assert retValue = "値"
+    
+    retValue = im.getValue("セクション", "キー=" & vbCr & vbLf)
+    assert retValue = "値=" & vbCr & vbLf
+    
+    Set retValueArray = im.getValues("sectionArray")
+    assert retValueArray.getItemByIndex(1, vbVariant)(1) = "key"
+    assert retValueArray.getItemByIndex(1, vbVariant)(2) = "value"
+    assert retValueArray.getItemByIndex(2, vbVariant)(1) = "キー"
+    assert retValueArray.getItemByIndex(2, vbVariant)(2) = "値" & ChrW(&H9EB4)
+    assert retValueArray.getItemByIndex(3, vbVariant)(1) = "key3"
+    assert retValueArray.getItemByIndex(3, vbVariant)(2) = ""
+    
+    im.writeSheet
+    ' ---------------------------------------------------------
+    
+    ' ファイル名を変更
+    testFileName = "test3.ini"
+    
+    ' ---------------------------------------------------------
+    ' ファイル書き込み
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
+    
+    im.setValue "section", "key", "value"
+    im.setValue "section", "key2", ""
+    im.setValue "セクション", "キー", "値"
+    im.setValue "セクション", "キー=" & vbCr & vbLf, "値=" & vbCr & vbLf
+    
+    values.setItem Array("key", "value")
+    values.setItem Array("キー", "値" & ChrW(&H9EB4))
+    values.setItem Array("key3", "")
+    im.setValues "sectionArray", values
+    
+    im.writeSheet
+    ' ---------------------------------------------------------
+    
+End Sub
+
+' =========================================================
+' ▽Iniワークシート操作のパフォーマンステスト
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub testIniWorksheetPerform()
+
+    Dim timeBegin As Long
+    Dim timeEnd   As Long
+    
+    Dim retValue As String
+    Dim retValueArray As ValCollection
+    
+
+    Dim i As Long
+    Dim im As IniWorksheet
+    
+    Dim testFilePath As String
+    testFilePath = "test_manydata.ini"
+
+    Dim wb As Workbook
+    Set wb = Application.Workbooks.Add
+    
+    ' ---------------------------------------------------------
+    ' ファイル書き込み
+    timeBegin = GetTickCount
+    
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFilePath
+    
+    For i = 1 To 10000
+        im.setValue "section", "key" & i, "valueを書き込む・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・"
+    Next
+    
+    im.writeSheet
+    
+    timeEnd = GetTickCount
+    
+    Debug.Print "Ini書き込み：" & timeEnd - timeBegin & "ミリ秒経過"
+    ' ---------------------------------------------------------
+    
+    ' ---------------------------------------------------------
+    ' ファイル読み込み
+    timeBegin = GetTickCount
+    
+    Set im = New IniWorksheet
+    im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFilePath
+    
+    Set retValueArray = im.getValues("section")
+    
+    timeEnd = GetTickCount
+    
+    Debug.Print "Ini読み込み：" & timeEnd - timeBegin & "ミリ秒経過"
+    
+    timeBegin = GetTickCount
+    
+    im.delete "section"
+    im.writeSheet
+    
+    timeEnd = GetTickCount
+    
+    Debug.Print "Ini消し込み：" & timeEnd - timeBegin & "ミリ秒経過"
+    ' ---------------------------------------------------------
+
+End Sub
+
+#End If
 

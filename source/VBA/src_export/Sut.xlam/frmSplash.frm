@@ -33,6 +33,15 @@ Option Explicit
 ' =========================================================
 Public Event closed()
 
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
+
 ' =========================================================
 ' ▽フォーム表示
 '
@@ -130,6 +139,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         
@@ -200,11 +211,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdClose_Click
     End If

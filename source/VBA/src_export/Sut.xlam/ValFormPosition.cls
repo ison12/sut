@@ -25,25 +25,6 @@ Option Explicit
 Private m_formName As String
 
 ' =========================================================
-' ▽定数プロパティ
-' 　Classモジュールでは、Public Constが定義できないのでプロパティで代用する
-' =========================================================
-Public Property Get REG_SUB_KEY_FORM_POSITION() As String
-
-    REG_SUB_KEY_FORM_POSITION = "form_position"
-End Property
-
-Public Property Get REG_SUB_KEY_FORM_POSITION_X() As String
-
-    REG_SUB_KEY_FORM_POSITION_X = "x"
-End Property
-
-Public Property Get REG_SUB_KEY_FORM_POSITION_Y() As String
-
-    REG_SUB_KEY_FORM_POSITION_Y = "y"
-End Property
-
-' =========================================================
 ' ▽クラス初期化メソッド
 ' =========================================================
 Private Sub Class_Initialize()
@@ -66,9 +47,19 @@ Public Sub init(ByVal formName As String)
 End Sub
 
 ' =========================================================
-' ▽レジストリから情報を読み込む
+' ▽アプリケーションプロパティの生成
 ' =========================================================
-Public Function readForRegistry(ByRef rect As ValRectPt)
+Private Function createApplicationProperties() As ApplicationProperties
+
+    Set createApplicationProperties = New ApplicationProperties
+    createApplicationProperties.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM_POSITION & "\" & m_formName & ".ini"
+    
+End Function
+
+' =========================================================
+' ▽情報を読み込む
+' =========================================================
+Public Function readForData(ByRef rect As ValRectPt)
 
     On Error GoTo err
     
@@ -76,54 +67,38 @@ Public Function readForRegistry(ByRef rect As ValRectPt)
     Dim ss As ScreenSizePt
     ss = WinAPI_User.getScreenSizePt
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_FORM_POSITION & "\" & m_formName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
+    Dim appProp As ApplicationProperties: Set appProp = createApplicationProperties
+    
     Dim varX As String
     Dim varY As String
     
-    Dim successedX As Boolean
-    Dim successedY As Boolean
+    varX = appProp.getValue(ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_X)
+    varY = appProp.getValue(ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_Y)
     
-    successedX = registry.getValue(REG_SUB_KEY_FORM_POSITION_X, varX)
-    successedY = registry.getValue(REG_SUB_KEY_FORM_POSITION_Y, varY)
-    
-    ' 両方の取得に成功した場合
+    ' レジストリから情報を取得できた場合は、そちらを利用する
     If _
-        successedX = True _
-    And successedY = True Then
+        IsNumeric(varX) = True _
+    And IsNumeric(varY) = True Then
     
-        ' レジストリから情報を取得できた場合は、そちらを利用する
-        If _
-            IsNumeric(varX) = True _
-        And IsNumeric(varY) = True Then
+        ' 情報を設定処理を抜ける
+        rect.Left = CSng(varX)
+        rect.Top = CSng(varY)
         
-            ' 情報を設定処理を抜ける
-            rect.Left = CSng(varX)
-            rect.Top = CSng(varY)
-            
-            ' 計算した中心位置がスクリーン内に収まっているか
-            If VBUtil.isInnerScreen( _
-                                ss.virtualSizeX _
-                              , ss.virtualSizeY _
-                              , ss.virtualSizeWidth _
-                              , ss.virtualSizeHeight _
-                              , rect.Left _
-                              , rect.Top _
-                              , rect.Width _
-                              , rect.Height) = True Then
+        ' 計算した中心位置がスクリーン内に収まっているか
+        If VBUtil.isInnerScreen( _
+                            ss.virtualSizeX _
+                          , ss.virtualSizeY _
+                          , ss.virtualSizeWidth _
+                          , ss.virtualSizeHeight _
+                          , rect.Left _
+                          , rect.Top _
+                          , rect.Width _
+                          , rect.Height) = True Then
 
-                ' レジストリから取得した情報がスクリーン内に収まっていれば処理を抜ける
-                Exit Function
-            End If
-            
+            ' レジストリから取得した情報がスクリーン内に収まっていれば処理を抜ける
+            Exit Function
         End If
-    
+        
     End If
     
     Dim newX As Single
@@ -168,45 +143,49 @@ Public Function readForRegistry(ByRef rect As ValRectPt)
     rect.Left = newX
     rect.Top = newY
     
-    Set registry = Nothing
-    
+    Set appProp = Nothing
     
     Exit Function
     
 err:
+
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
     
-    Set registry = Nothing
+    Set appProp = Nothing
+
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
 
     Main.ShowErrorMessage
-
+    
 End Function
 
 ' =========================================================
-' ▽レジストリに情報を書き込む
+' ▽情報を書き込む
 ' =========================================================
-Public Sub writeForRegistry(ByRef rect As ValRectPt)
+Public Sub writeForData(ByRef rect As ValRectPt)
 
     On Error GoTo err
     
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_FORM_POSITION & "\" & m_formName) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
-                
-    registry.setValue REG_SUB_KEY_FORM_POSITION_X, rect.Left
-    registry.setValue REG_SUB_KEY_FORM_POSITION_Y, rect.Top
+    Dim appProp As ApplicationProperties: Set appProp = createApplicationProperties
     
-    Set registry = Nothing
+    appProp.setValue ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_X, rect.Left
+    appProp.setValue ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_Y, rect.Top
+    
+    Set appProp = Nothing
     
     Exit Sub
     
 err:
     
-    Set registry = Nothing
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
+    
+    Set appProp = Nothing
+
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
 
     Main.ShowErrorMessage
 

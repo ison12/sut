@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmQueryParameterSetting 
    Caption         =   "クエリパラメータの編集"
-   ClientHeight    =   8685.001
+   ClientHeight    =   8685
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   7095
@@ -40,10 +40,19 @@ Public Event ok(ByVal queryParameter As ValQueryParameter)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' クエリパラメータ情報（フォーム表示時点での情報）
 Private queryParameterParam As ValQueryParameter
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -123,6 +132,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         
@@ -216,7 +227,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     

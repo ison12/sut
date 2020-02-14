@@ -270,10 +270,10 @@ Public Sub insertEmptyCellForResultCount(ByVal recordOffset As Long, ByVal colum
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = m_sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , columnOffset).Address & ":" & _
-                        Cells(recordOffset _
-                            , columnOffset).Address)
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address & ":" & _
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -309,10 +309,10 @@ Public Sub insertEmptyCellForError(ByVal recordOffset As Long, ByVal columnOffse
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = m_sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , columnOffset).Address & ":" & _
-                        Cells(recordOffset _
-                            , columnOffset).Address)
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address & ":" & _
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -350,10 +350,10 @@ Public Sub insertEmptyCellForTitle(ByVal recordOffset As Long, ByVal columnOffse
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = m_sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , columnOffset).Address & ":" & _
-                        Cells(recordOffset _
-                            , columnOffset).Address)
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address & ":" & _
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -391,10 +391,10 @@ Public Sub insertEmptyCellForResultSet(ByVal recordOffset As Long, ByVal columnO
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = m_sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , columnOffset).Address & ":" & _
-                        Cells(recordOffset _
-                            , columnOffset).Address)
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address & ":" & _
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -453,10 +453,10 @@ Public Sub insertEmptyCellForRecord(ByVal recordOffset As Long, ByVal recordSize
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = m_sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , columnOffset).Address & ":" & _
-                        Cells(recordOffset + recordSize - 1 _
-                            , columnOffset + columnCount - 1).Address)
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address & ":" & _
+                        m_sheet.Cells(recordOffset + recordSize - 1 _
+                                    , columnOffset + columnCount - 1).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -489,10 +489,10 @@ Public Sub insertEmptyCellForRecord(ByVal recordOffset As Long, ByVal recordSize
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = m_sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsTable.QUERY_COLUMN_TITLE_COL).Address & ":" & _
-                        Cells(recordOffset + recordSize - 1 _
-                            , ConstantsTable.QUERY_COLUMN_TITLE_COL).Address)
+                        m_sheet.Cells(recordOffset _
+                                     , ConstantsTable.QUERY_COLUMN_TITLE_COL).Address & ":" & _
+                        m_sheet.Cells(recordOffset + recordSize - 1 _
+                                    , ConstantsTable.QUERY_COLUMN_TITLE_COL).Address)
 
     ' レコード番号をコピーする
     srcRange.copy Destination:=desRange
@@ -554,10 +554,10 @@ Public Sub insertEmptyCellForColumn(ByVal recordOffset As Long, ByVal columnOffs
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = m_sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , columnOffset).Address & ":" & _
-                        Cells(recordOffset _
-                            , columnOffset + columnCount - 1).Address)
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset).Address & ":" & _
+                        m_sheet.Cells(recordOffset _
+                                    , columnOffset + columnCount - 1).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange

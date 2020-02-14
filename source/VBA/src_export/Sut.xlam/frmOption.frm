@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmOption
    ClientHeight    =   7425
    ClientLeft      =   45
    ClientTop       =   360
-   ClientWidth     =   8655.001
+   ClientWidth     =   8655
    OleObjectBlob   =   "frmOption.frx":0000
    WhatsThisHelp   =   -1  'True
 End
@@ -41,7 +41,7 @@ Public Event ok(ByRef applicationSetting As ValApplicationSetting)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' カラム書式設定
 Private WithEvents frmDBColumnFormatVar As frmDBColumnFormat
@@ -59,6 +59,15 @@ Private fontSizeList As CntListBox
 
 ' カラム書式を設定中のDB
 Private settingColFormatDb As DbmsType
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -140,6 +149,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
 
@@ -232,7 +243,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -253,6 +264,7 @@ End Sub
 Private Sub initial()
 
     ' カラム書式設定を初期化する
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBColumnFormat) Then Unload frmDBColumnFormat
     Load frmDBColumnFormat
     Set frmDBColumnFormatVar = frmDBColumnFormat
     
@@ -405,7 +417,7 @@ Private Sub storeOptionInfo()
         End If
         
         ' レジストリに書き込みを行う
-        .writeForRegistry
+        .writeForData
     
     End With
 End Sub
@@ -424,7 +436,7 @@ Private Sub restoreOptionInfo()
     With applicationSetting
         
         ' レジストリから読み込みを行う
-        .readForRegistry
+        .readForData
         
         ' レコード処理単位をコントロールに反映する
         If .recProcessCount = .REC_PROCESS_COUNT_ALL Then
@@ -543,7 +555,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecProcessCountUserInput_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtRecProcessCountUserInput_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -551,7 +563,7 @@ Private Sub txtRecProcessCountUserInput_BeforeUpdate(ByVal cancel As MSForms.Ret
     If validInteger(txtRecProcessCountUserInput.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
         
@@ -562,7 +574,7 @@ Private Sub txtRecProcessCountUserInput_BeforeUpdate(ByVal cancel As MSForms.Ret
     ElseIf CDbl(txtRecProcessCountUserInput.text) < 1 Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         
@@ -594,7 +606,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtDirectInputCharEnableCustom_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtDirectInputCharEnableCustom_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -602,7 +614,7 @@ Private Sub txtDirectInputCharEnableCustom_BeforeUpdate(ByVal cancel As MSForms.
     If txtDirectInputCharEnableCustom.text = "" Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_REQUIRED
         
@@ -634,7 +646,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtCellWidth_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtCellWidth_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -642,7 +654,7 @@ Private Sub txtCellWidth_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If validUnsignedNumeric(txtCellWidth.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_NUMERIC
         
@@ -653,7 +665,7 @@ Private Sub txtCellWidth_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtCellWidth.text) < applicationSetting.CELL_WIDTH_DEFAULT Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", applicationSetting.CELL_WIDTH_DEFAULT)
         
@@ -685,7 +697,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtCellHeight_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtCellHeight_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -693,7 +705,7 @@ Private Sub txtCellHeight_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If validUnsignedNumeric(txtCellHeight.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_NUMERIC
         
@@ -704,7 +716,7 @@ Private Sub txtCellHeight_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtCellHeight.text) < applicationSetting.CELL_HEIGHT_DEFAULT Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", applicationSetting.CELL_HEIGHT_DEFAULT)
         
@@ -736,7 +748,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub cboFontList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub cboFontList_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -750,7 +762,7 @@ Private Sub cboFontList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If col.exist(cboFontList.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_NO_LIST_ITEM
         
@@ -783,7 +795,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub cboFontSizeList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub cboFontSizeList_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
     
@@ -791,7 +803,7 @@ Private Sub cboFontSizeList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If validUnsignedNumeric(cboFontSizeList.value) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_NUMERIC
         
@@ -925,10 +937,10 @@ Private Sub cmdColumnTypeFormatSymfoware_Click()
 End Sub
 
 ' =========================================================
-' ▽カラム書式設定ウィンドウのロードボタン押下時のイベントプロシージャ
+' ▽カラム書式設定ウィンドウのOKボタン押下時のイベントプロシージャ
 '
 ' 概要　　　：
-' 引数　　　：info カラム書式設定ウィンドウで設定された情報
+' 引数　　　：dbColumnFormatInfo カラム書式設定ウィンドウで設定された情報
 ' 戻り値　　：
 '
 ' =========================================================
@@ -937,32 +949,20 @@ Private Sub frmDBColumnFormatVar_ok(ByVal dbColumnFormatInfo As ValDbColumnForma
     ' アプリケーション設定情報にロードされた情報を設定する
     applicationSettingColFmt.setDbColFormatInfo dbColumnFormatInfo
     
-    ' レジストリに情報を書き込む
-    applicationSettingColFmt.writeForRegistryDbInfo dbColumnFormatInfo
+    ' 情報を書き込む
+    applicationSettingColFmt.writeForDataDbInfo dbColumnFormatInfo
 
 End Sub
 
 ' =========================================================
-' ▽カラム書式設定ウィンドウのロードボタン押下時のイベントプロシージャ
+' ▽カラム書式設定ウィンドウのキャンセルボタン押下時のイベントプロシージャ
 '
 ' 概要　　　：
-' 引数　　　：info カラム書式設定ウィンドウで設定された情報
+' 引数　　　：
 ' 戻り値　　：
 '
 ' =========================================================
 Private Sub frmDBColumnFormatVar_cancel()
-
-End Sub
-
-' =========================================================
-' ▽カラム書式設定ウィンドウの閉じるボタン押下時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：info カラム書式設定ウィンドウで設定された情報
-' 戻り値　　：
-'
-' =========================================================
-Private Sub columnTypeFormatter_OnClose()
 
 End Sub
 

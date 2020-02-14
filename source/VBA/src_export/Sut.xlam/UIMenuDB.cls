@@ -109,8 +109,8 @@ End Sub
 Public Sub init()
 
     ' DB接続フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBConnect) Then Unload frmDBConnect
     Load frmDBConnect
-
     ' イベント受信用のDB接続フォームを初期化する
     Set frmDBConnectVar = frmDBConnect
 
@@ -125,7 +125,7 @@ End Sub
 Public Sub connectDb()
 
     ' DB接続フォームを表示する
-    frmDBConnect.ShowExt vbModal
+    frmDBConnectVar.ShowExt vbModal
 End Sub
 
 ' =========================================================

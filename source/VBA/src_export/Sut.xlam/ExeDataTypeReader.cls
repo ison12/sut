@@ -20,11 +20,19 @@ Option Explicit
 
 ' ワークシート
 Public sheet         As Worksheet
+' DB名
+Public dbName        As String
 
 ' =========================================================
 ' ▽定数プロパティ
 ' 　Classモジュールでは、Public Constが定義できないのでプロパティで代用する
 ' =========================================================
+' セル行番号 DB名
+Public Property Get CELL_ROW_DBNAME() As Long
+
+    CELL_ROW_DBNAME = 1
+End Property
+
 ' セル行番号 オフセット
 Public Property Get CELL_ROW_OFFSET() As Long
 
@@ -70,6 +78,31 @@ Private Sub Class_Terminate()
 End Sub
 
 ' =========================================================
+' ▽DB名から列番号を検索する。
+'
+' 概要　　　：
+' 引数　　　：sheet    シート名
+'     　　　：dbName   DB名
+' 戻り値　　：列番号
+'
+' =========================================================
+Private Function findColumnDbName(ByVal sheet As Worksheet, ByVal dbName As String) As Long
+
+    findColumnDbName = 0
+
+    ' Findで検索する
+    Dim findRange As Range
+    Set findRange = sheet.Range(CELL_ROW_DBNAME & ":" & CELL_ROW_DBNAME).Find(what:=dbName, MatchCase:=False, MatchByte:=True, SearchFormat:=False)
+    
+    If Not findRange Is Nothing Then
+        ' 見つかった場合
+        findColumnDbName = findRange.column
+        Exit Function
+    End If
+    
+End Function
+
+' =========================================================
 ' ▽任意のシートからデータ種類の定義を読み取る
 '
 ' 概要　　　：
@@ -79,11 +112,6 @@ End Sub
 ' =========================================================
 Public Function execute() As Variant
 
-    ' 定義情報のサイズ
-    Dim size As Long
-    ' 定義情報のサイズを取得する
-    size = ExcelUtil.getCellEndOfLastInputtedRow(sheet, CELL_COL_LITERAL) - CELL_ROW_OFFSET + 1
-    
     ' カラム情報リスト
     Dim colList As ValCollection
     ' カラム情報
@@ -91,6 +119,21 @@ Public Function execute() As Variant
 
     ' カラム情報リストのサイズを確保する
     Set colList = New ValCollection
+    
+    ' 基準位置となる列番号を検索する
+    Dim offsetColumn As Long
+    offsetColumn = findColumnDbName(sheet, dbName)
+    
+    If offsetColumn <= 0 Then
+        ' 見つからない場合
+        Set execute = colList
+        Exit Function
+    End If
+    
+    ' 定義情報のサイズ
+    Dim size As Long
+    ' 定義情報のサイズを取得する
+    size = ExcelUtil.getCellEndOfLastInputtedRow(sheet, offsetColumn - 2 + CELL_COL_LITERAL) - CELL_ROW_OFFSET + 1
     
     Dim i As Long
     
@@ -100,11 +143,11 @@ Public Function execute() As Variant
         Set colType = New ValDbColumnTypeColInfo
     
         ' データ種類を取得する（常に大文字でカラム情報を検索するため、大文字に変換する）
-        colType.columnName = UCase$(sheet.Cells(i + CELL_ROW_OFFSET, CELL_COL_DATA_TYPE))
+        colType.columnName = UCase$(sheet.Cells(i + CELL_ROW_OFFSET, offsetColumn - 2 + CELL_COL_DATA_TYPE))
         ' 更新時の書式情報を取得する
-        colType.formatUpdate = sheet.Cells(i + CELL_ROW_OFFSET, CELL_COL_FORMAT_UPDATE)
+        colType.formatUpdate = sheet.Cells(i + CELL_ROW_OFFSET, offsetColumn - 2 + CELL_COL_FORMAT_UPDATE)
         ' 参照時の書式情報を取得する
-        colType.formatSelect = sheet.Cells(i + CELL_ROW_OFFSET, CELL_COL_FORMAT_SELECT)
+        colType.formatSelect = sheet.Cells(i + CELL_ROW_OFFSET, offsetColumn - 2 + CELL_COL_FORMAT_SELECT)
         
         colList.setItem colType, colType.columnName
     Next

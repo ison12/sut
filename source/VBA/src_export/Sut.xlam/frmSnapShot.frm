@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSnapshot 
    Caption         =   "スナップショット取得"
-   ClientHeight    =   8265.001
+   ClientHeight    =   8265
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   8385.001
+   ClientWidth     =   8385
    OleObjectBlob   =   "frmSnapShot.frx":0000
 End
 Attribute VB_Name = "frmSnapShot"
@@ -40,7 +40,7 @@ Public Event execSnapshot(ByRef sheet As Worksheet)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' =========================================================
 ' ▽DB変更イベント
@@ -95,6 +95,15 @@ Private dbConnStr As String
 Private executeSqltList  As CntListBox
 ' スナップショットリスト
 Private snapShotList     As CntListBox
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -152,6 +161,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
     
@@ -194,7 +205,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
 
     Main.storeFormPosition Me.name, Me
 
@@ -426,7 +437,7 @@ Private Sub cmdClose_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     

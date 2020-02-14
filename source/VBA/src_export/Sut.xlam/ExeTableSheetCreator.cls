@@ -1234,10 +1234,10 @@ Private Sub insertEmptyCellToUnder(ByRef tableSheet As ValTableWorksheet, ByVal 
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = tableSheet.sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsTable.U_COLUMN_OFFSET_COL).Address & ":" & _
-                        Cells(recordOffset + recordSize - 1 _
-                            , ConstantsTable.U_COLUMN_OFFSET_COL + columnCount - 1).Address)
+                        tableSheet.sheet.Cells(recordOffset _
+                                             , ConstantsTable.U_COLUMN_OFFSET_COL).Address & ":" & _
+                        tableSheet.sheet.Cells(recordOffset + recordSize - 1 _
+                                             , ConstantsTable.U_COLUMN_OFFSET_COL + columnCount - 1).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -1269,10 +1269,10 @@ Private Sub insertEmptyCellToUnder(ByRef tableSheet As ValTableWorksheet, ByVal 
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = tableSheet.sheet _
                      .Range( _
-                        Cells(recordOffset _
-                            , ConstantsTable.U_RECORD_NUM_COL).Address & ":" & _
-                        Cells(recordOffset + recordSize - 1 _
-                            , ConstantsTable.U_RECORD_NUM_COL).Address)
+                        tableSheet.sheet.Cells(recordOffset _
+                                             , ConstantsTable.U_RECORD_NUM_COL).Address & ":" & _
+                        tableSheet.sheet.Cells(recordOffset + recordSize - 1 _
+                                             , ConstantsTable.U_RECORD_NUM_COL).Address)
 
     ' レコード番号をコピーする
     srcRange.copy Destination:=desRange
@@ -1325,10 +1325,10 @@ Private Sub insertEmptyCellToRight(ByRef tableSheet As ValTableWorksheet, ByVal 
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = tableSheet.sheet _
                      .Range( _
-                        Cells(ConstantsTable.R_COLUMN_OFFSET_ROW _
-                            , recordOffset).Address & ":" & _
-                        Cells(ConstantsTable.R_COLUMN_OFFSET_ROW + columnCount - 1 _
-                            , recordOffset + recordSize - 1).Address)
+                        tableSheet.sheet.Cells(ConstantsTable.R_COLUMN_OFFSET_ROW _
+                                             , recordOffset).Address & ":" & _
+                        tableSheet.sheet.Cells(ConstantsTable.R_COLUMN_OFFSET_ROW + columnCount - 1 _
+                                             , recordOffset + recordSize - 1).Address)
 
     ' 入力領域をコピーする
     srcRange.copy Destination:=desRange
@@ -1360,10 +1360,10 @@ Private Sub insertEmptyCellToRight(ByRef tableSheet As ValTableWorksheet, ByVal 
     ' コピー先のRangeオブジェクトを取得する
     Set desRange = tableSheet.sheet _
                      .Range( _
-                        Cells(ConstantsTable.R_RECORD_NUM_ROW _
-                            , recordOffset).Address & ":" & _
-                        Cells(ConstantsTable.R_RECORD_NUM_ROW _
-                            , recordOffset + recordSize - 1).Address)
+                        tableSheet.sheet.Cells(ConstantsTable.R_RECORD_NUM_ROW _
+                                             , recordOffset).Address & ":" & _
+                        tableSheet.sheet.Cells(ConstantsTable.R_RECORD_NUM_ROW _
+                                             , recordOffset + recordSize - 1).Address)
 
     ' レコード番号をコピーする
     srcRange.copy Destination:=desRange
@@ -1405,10 +1405,10 @@ Public Sub deleteCellOfRecord(ByRef tableSheet As ValTableWorksheet, Optional By
         ' 削除対象範囲を取得
         Set targetRange = tableSheet.sheet _
                             .Range( _
-                               Cells(recordOffset _
-                                   , 1).Address & ":" & _
-                               Cells(length _
-                                   , 1).Address)
+                               tableSheet.sheet.Cells(recordOffset _
+                                                    , 1).Address & ":" & _
+                               tableSheet.sheet.Cells(length _
+                                                    , 1).Address)
     
         ' 削除する（行単位で削除）
         targetRange.EntireRow.delete
@@ -1432,10 +1432,10 @@ Public Sub deleteCellOfRecord(ByRef tableSheet As ValTableWorksheet, Optional By
         ' 削除対象範囲を取得
         Set targetRange = tableSheet.sheet _
                             .Range( _
-                               Cells(1 _
-                                   , recordOffset).Address & ":" & _
-                               Cells(1 _
-                                   , length).Address)
+                               tableSheet.sheet.Cells(1 _
+                                                    , recordOffset).Address & ":" & _
+                               tableSheet.sheet.Cells(1 _
+                                                    , length).Address)
     
         ' 削除する（列単位で削除）
         targetRange.EntireColumn.delete

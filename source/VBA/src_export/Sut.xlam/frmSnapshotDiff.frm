@@ -42,7 +42,7 @@ Public Event execDiff(ByRef snapShotList As ValCollection, ByVal srcIndex As Lon
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' ---------------------------------------------------------
 ' レジストリファイルキー
@@ -56,6 +56,14 @@ Private srcSnapshotList     As CntListBox
 ' 比較先スナップショットリスト
 Private desSnapshotList     As CntListBox
 
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -94,6 +102,49 @@ Public Sub HideExt()
 End Sub
 
 ' =========================================================
+' ▽フォーム初期化時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_Initialize()
+
+    On Error GoTo err
+    
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
+    
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽フォーム破棄時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_Terminate()
+
+    On Error GoTo err
+    
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
 ' ▽フォーム閉じるイベントプロシージャ
 '
 ' 概要　　　：
@@ -101,7 +152,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
 
     Main.storeFormPosition Me.name, Me
 End Sub
@@ -122,7 +173,7 @@ Private Sub cmdClose_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     

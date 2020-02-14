@@ -66,12 +66,6 @@ Public lineHeightAutoAdjust      As Boolean
 ' 　Classモジュールでは、Public Constが定義できないのでプロパティで代用する
 ' =========================================================
 ' キー値 レコード処理単位
-Public Property Get REG_SUB_KEY_APPLICATION() As String
-
-    REG_SUB_KEY_APPLICATION = "application_setting"
-End Property
-
-' キー値 レコード処理単位
 Public Property Get KEY_REC_PROCESS_COUNT() As String
 
     KEY_REC_PROCESS_COUNT = "recProcessCount"
@@ -407,20 +401,28 @@ Public Function getDirectInputChar() As String
 End Function
 
 ' =========================================================
-' ▽レジストリから情報を読み込む
+' ▽設定情報の生成
 ' =========================================================
-Public Sub readForRegistry()
+Private Function createApplicationProperties() As ApplicationProperties
+
+    Dim appProp As New ApplicationProperties
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_OPTION & "\" & "appSetting.ini"
+
+    Set createApplicationProperties = appProp
+    
+End Function
+
+' =========================================================
+' ▽情報を読み込む
+' =========================================================
+Public Sub readForData()
 
     On Error GoTo err
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_APPLICATION) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-                
+        
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
+
     ' 一時変数
     Dim varRecProcessCount          As String
     Dim varRecProcessCountCustom    As String
@@ -432,13 +434,6 @@ Public Sub readForRegistry()
     Dim varSchemaUse                As String
     Dim varQueryResultShowWhenNormal As String
     
-    Dim varTableColumnOracle        As String
-    Dim varTableColumnMysql         As String
-    Dim varTableColumnPostgresql    As String
-    Dim varTableColumnSqlserver     As String
-    Dim varTableColumnAccess        As String
-    Dim varTableColumnSymfoware     As String
-    
     Dim varCellFontName             As String
     Dim varCellFontSize             As String
     Dim varCellWordwrap             As String
@@ -446,9 +441,51 @@ Public Sub readForRegistry()
     Dim varCellHeight               As String
     Dim varLineHeightAutoAdjust     As String
     
-    ' レジストリから情報を読み込む
+    Dim varTableColumnOracle        As String
+    Dim varTableColumnMysql         As String
+    Dim varTableColumnPostgresql    As String
+    Dim varTableColumnSqlserver     As String
+    Dim varTableColumnAccess        As String
+    Dim varTableColumnSymfoware     As String
+    
+    ' 情報を読み込む
     ' 読み込んだ情報のチェックを行い不正である場合、デフォルト値に変換する
-    registry.getValue KEY_REC_PROCESS_COUNT, varRecProcessCount
+    
+    Dim values As ValCollection
+    Set values = appProp.getValues(ConstantsApplicationProperties.INI_SECTION_DEFAULT)
+    
+    Dim val As Variant
+    
+    val = values.getItem(KEY_REC_PROCESS_COUNT, vbVariant): If IsArray(val) Then varRecProcessCount = val(2)
+    val = values.getItem(KEY_REC_PROCESS_COUNT, vbVariant): If IsArray(val) Then varRecProcessCount = val(2)
+    val = values.getItem(KEY_REC_PROCESS_COUNT, vbVariant): If IsArray(val) Then varRecProcessCount = val(2)
+    val = values.getItem(KEY_REC_PROCESS_COUNT_CUSTOM, vbVariant): If IsArray(val) Then varRecProcessCountCustom = val(2)
+    val = values.getItem(KEY_COMMIT_CONFIRM, vbVariant): If IsArray(val) Then varCommitConfirm = val(2)
+    val = values.getItem(KEY_SQL_ERROR_HANDLING, vbVariant): If IsArray(val) Then varSqlErrorHandling = val(2)
+    val = values.getItem(KEY_EMPTY_CELL_READING, vbVariant): If IsArray(val) Then varEmptyCellReading = val(2)
+    val = values.getItem(KEY_DIRECT_INPUT_CHAR, vbVariant): If IsArray(val) Then varDirectInputChar = val(2)
+    val = values.getItem(KEY_DIRECT_INPUT_CHAR_CUSTOM, vbVariant): If IsArray(val) Then varDirectInputCharCustom = val(2)
+    val = values.getItem(KEY_QUERY_RESULT_SHOW_WHEN_NORMAL, vbVariant): If IsArray(val) Then varQueryResultShowWhenNormal = val(2)
+    val = values.getItem(KEY_SCHEMA_USE, vbVariant): If IsArray(val) Then varSchemaUse = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_ORACLE, vbVariant): If IsArray(val) Then varTableColumnOracle = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_MYSQL, vbVariant): If IsArray(val) Then varTableColumnMysql = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_POSTGRESQL, vbVariant): If IsArray(val) Then varTableColumnPostgresql = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_SQLSERVER, vbVariant): If IsArray(val) Then varTableColumnSqlserver = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_ACCESS, vbVariant): If IsArray(val) Then varTableColumnAccess = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_SYMFOWARE, vbVariant): If IsArray(val) Then varTableColumnSymfoware = val(2)
+    val = values.getItem(KEY_CELL_FONT_NAME, vbVariant): If IsArray(val) Then varCellFontName = val(2)
+    val = values.getItem(KEY_CELL_FONT_SIZE, vbVariant): If IsArray(val) Then varCellFontSize = val(2)
+    val = values.getItem(KEY_CELL_WORDWRAP, vbVariant): If IsArray(val) Then varCellWordwrap = val(2)
+    val = values.getItem(KEY_CELL_WIDTH, vbVariant): If IsArray(val) Then varCellWidth = val(2)
+    val = values.getItem(KEY_CELL_HEIGHT, vbVariant): If IsArray(val) Then varCellHeight = val(2)
+    val = values.getItem(KEY_LINE_HEIGHT_AUTO_ADJUST, vbVariant): If IsArray(val) Then varLineHeightAutoAdjust = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_ORACLE, vbVariant): If IsArray(val) Then varTableColumnOracle = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_MYSQL, vbVariant): If IsArray(val) Then varTableColumnMysql = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_POSTGRESQL, vbVariant): If IsArray(val) Then varTableColumnPostgresql = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_SQLSERVER, vbVariant): If IsArray(val) Then varTableColumnSqlserver = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_ACCESS, vbVariant): If IsArray(val) Then varTableColumnAccess = val(2)
+    val = values.getItem(KEY_TABLE_COLUMN_ESCAPE_SYMFOWARE, vbVariant): If IsArray(val) Then varTableColumnSymfoware = val(2)
+    
     If validCode(varRecProcessCount _
                 , REC_PROCESS_COUNT_ALL _
                 , REC_PROCESS_COUNT_COSTOM) = False Then
@@ -456,13 +493,11 @@ Public Sub readForRegistry()
         varRecProcessCount = REC_PROCESS_COUNT_ALL
     End If
     
-    registry.getValue KEY_REC_PROCESS_COUNT_CUSTOM, varRecProcessCountCustom
     If validUnsignedInteger(varRecProcessCountCustom) = False Then
     
         varRecProcessCountCustom = REC_PROCESS_COUNT_COSTOM_DEFAULT
     End If
     
-    registry.getValue KEY_COMMIT_CONFIRM, varCommitConfirm
     If validCode(varCommitConfirm _
                 , COMMIT_CONFIRM_NO _
                 , COMMIT_CONFIRM_YES) = False Then
@@ -470,7 +505,6 @@ Public Sub readForRegistry()
         varCommitConfirm = COMMIT_CONFIRM_NO
     End If
     
-    registry.getValue KEY_SQL_ERROR_HANDLING, varSqlErrorHandling
     If validCode(varSqlErrorHandling _
                 , SQL_ERROR_HANDLING_SUSPEND _
                 , SQL_ERROR_HANDLING_RESUME) = False Then
@@ -478,7 +512,6 @@ Public Sub readForRegistry()
         varSqlErrorHandling = SQL_ERROR_HANDLING_SUSPEND
     End If
     
-    registry.getValue KEY_EMPTY_CELL_READING, varEmptyCellReading
     If validCode(varEmptyCellReading _
                 , EMPTY_CELL_READING_DEL _
                 , EMPTY_CELL_READING_NON_DEL) = False Then
@@ -486,7 +519,6 @@ Public Sub readForRegistry()
         varEmptyCellReading = EMPTY_CELL_READING_DEL
     End If
     
-    registry.getValue KEY_DIRECT_INPUT_CHAR, varDirectInputChar
     If validCode(varDirectInputChar _
                 , DIRECT_INPUT_CHAR_DISABLE _
                 , DIRECT_INPUT_CHAR_ENABLE_CUSTOM) = False Then
@@ -494,13 +526,11 @@ Public Sub readForRegistry()
         varDirectInputChar = DIRECT_INPUT_CHAR_DISABLE
     End If
     
-    registry.getValue KEY_DIRECT_INPUT_CHAR_CUSTOM, varDirectInputCharCustom
     If Len(varDirectInputCharCustom) <> 1 Then
     
         varDirectInputCharCustom = DIRECT_INPUT_CHAR_ENABLE_DEFAULT
     End If
  
-    registry.getValue KEY_QUERY_RESULT_SHOW_WHEN_NORMAL, varQueryResultShowWhenNormal
     If validCode(varQueryResultShowWhenNormal _
                , CStr(True) _
                , CStr(False)) = False Then
@@ -508,75 +538,23 @@ Public Sub readForRegistry()
         varQueryResultShowWhenNormal = False
     End If
     
-    registry.getValue KEY_SCHEMA_USE, varSchemaUse
     If validCode(varSchemaUse _
                 , SCHEMA_USE_ONE _
                 , SCHEMA_USE_MULTIPLE) = False Then
     
         varSchemaUse = SCHEMA_USE_ONE
     End If
- 
-    registry.getValue KEY_TABLE_COLUMN_ESCAPE_ORACLE, varTableColumnOracle
-    If validCode(varTableColumnOracle _
-               , CStr(True) _
-               , CStr(False)) = False Then
-               
-        varTableColumnOracle = True
-    End If
-    
-    registry.getValue KEY_TABLE_COLUMN_ESCAPE_MYSQL, varTableColumnMysql
-    If validCode(varTableColumnMysql _
-               , CStr(True) _
-               , CStr(False)) = False Then
-               
-        varTableColumnMysql = True
-    End If
-    
-    registry.getValue KEY_TABLE_COLUMN_ESCAPE_POSTGRESQL, varTableColumnPostgresql
-    If validCode(varTableColumnPostgresql _
-               , CStr(True) _
-               , CStr(False)) = False Then
-               
-        varTableColumnPostgresql = True
-    End If
-    
-    registry.getValue KEY_TABLE_COLUMN_ESCAPE_SQLSERVER, varTableColumnSqlserver
-    If validCode(varTableColumnSqlserver _
-               , CStr(True) _
-               , CStr(False)) = False Then
-               
-        varTableColumnSqlserver = True
-    End If
-    
-    registry.getValue KEY_TABLE_COLUMN_ESCAPE_ACCESS, varTableColumnAccess
-    If validCode(varTableColumnAccess _
-               , CStr(True) _
-               , CStr(False)) = False Then
-               
-        varTableColumnAccess = True
-    End If
-    
-    registry.getValue KEY_TABLE_COLUMN_ESCAPE_SYMFOWARE, varTableColumnSymfoware
-    If validCode(varTableColumnSymfoware _
-               , CStr(True) _
-               , CStr(False)) = False Then
-               
-        varTableColumnSymfoware = True
-    End If
- 
-    registry.getValue KEY_CELL_FONT_NAME, varCellFontName
+  
     If Len(varCellFontName) = 0 Then
     
         varCellFontName = CELL_FONT_NAME_DEFAULT
     End If
  
-    registry.getValue KEY_CELL_FONT_SIZE, varCellFontSize
     If validUnsignedNumeric(varCellFontSize) = False Then
     
         varCellFontSize = CELL_FONT_SIZE_DEFAULT
     End If
     
-    registry.getValue KEY_CELL_WORDWRAP, varCellWordwrap
     If validCode(varCellWordwrap _
                , CStr(True) _
                , CStr(False)) = False Then
@@ -584,24 +562,63 @@ Public Sub readForRegistry()
         varCellWordwrap = CELL_WORDWRAP_DEFAULT
     End If
     
-    registry.getValue KEY_CELL_WIDTH, varCellWidth
     If validUnsignedNumeric(varCellWidth) = False Then
     
         varCellWidth = CELL_WIDTH_DEFAULT
     End If
  
-    registry.getValue KEY_CELL_HEIGHT, varCellHeight
     If validUnsignedNumeric(varCellHeight) = False Then
     
         varCellHeight = CELL_HEIGHT_DEFAULT
     End If
  
-    registry.getValue KEY_LINE_HEIGHT_AUTO_ADJUST, varLineHeightAutoAdjust
     If validCode(varLineHeightAutoAdjust _
                , CStr(True) _
                , CStr(False)) = False Then
                
         varLineHeightAutoAdjust = True
+    End If
+
+    If validCode(varTableColumnOracle _
+               , CStr(True) _
+               , CStr(False)) = False Then
+               
+        varTableColumnOracle = True
+    End If
+    
+    If validCode(varTableColumnMysql _
+               , CStr(True) _
+               , CStr(False)) = False Then
+               
+        varTableColumnMysql = True
+    End If
+    
+    If validCode(varTableColumnPostgresql _
+               , CStr(True) _
+               , CStr(False)) = False Then
+               
+        varTableColumnPostgresql = True
+    End If
+    
+    If validCode(varTableColumnSqlserver _
+               , CStr(True) _
+               , CStr(False)) = False Then
+               
+        varTableColumnSqlserver = True
+    End If
+    
+    If validCode(varTableColumnAccess _
+               , CStr(True) _
+               , CStr(False)) = False Then
+               
+        varTableColumnAccess = True
+    End If
+    
+    If validCode(varTableColumnSymfoware _
+               , CStr(True) _
+               , CStr(False)) = False Then
+               
+        varTableColumnSymfoware = True
     End If
  
     recProcessCount = varRecProcessCount
@@ -619,118 +636,71 @@ Public Sub readForRegistry()
     cellWidth = CDbl(varCellWidth)
     cellHeight = CDbl(varCellHeight)
     lineHeightAutoAdjust = varLineHeightAutoAdjust
- 
-    Set registry = Nothing
+    tableColumnEscapeOracle = varTableColumnOracle
+    tableColumnEscapeMysql = varTableColumnMysql
+    tableColumnEscapePostgresql = varTableColumnPostgresql
+    tableColumnEscapeSqlserver = varTableColumnSqlserver
+    tableColumnEscapeAccess = varTableColumnAccess
+    tableColumnEscapeSymfoware = varTableColumnSymfoware
     
     Exit Sub
     
 err:
-    
-    Set registry = Nothing
 
     Main.ShowErrorMessage
 
 End Sub
 
 ' =========================================================
-' ▽レジストリに情報を書き込む
+' ▽情報を書き込む
 ' =========================================================
-Public Sub writeForRegistry()
+Public Sub writeForData()
 
     On Error GoTo err
     
+    ' アプリケーションプロパティを生成する
+    Dim appProp As ApplicationProperties
+    Set appProp = createApplicationProperties
+    
     ' DB接続情報を格納する配列
-    Dim optionInfoArray(0 To 20 _
-                      , 0 To 1) As Variant
+    Dim values As New ValCollection
     
-    Dim i As Long
-    
-    i = 0
-    
-    optionInfoArray(i, 0) = KEY_REC_PROCESS_COUNT
-    optionInfoArray(i, 1) = recProcessCount: i = i + 1
-    optionInfoArray(i, 0) = KEY_REC_PROCESS_COUNT_CUSTOM
-    optionInfoArray(i, 1) = recProcessCountCustom: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_COMMIT_CONFIRM
-    optionInfoArray(i, 1) = commitConfirm: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_SQL_ERROR_HANDLING
-    optionInfoArray(i, 1) = sqlErrorHandling: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_EMPTY_CELL_READING
-    optionInfoArray(i, 1) = emptyCellReading: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_DIRECT_INPUT_CHAR
-    optionInfoArray(i, 1) = directInputChar: i = i + 1
-    optionInfoArray(i, 0) = KEY_DIRECT_INPUT_CHAR_CUSTOM
-    optionInfoArray(i, 1) = directInputCharCustom: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_QUERY_RESULT_SHOW_WHEN_NORMAL
-    optionInfoArray(i, 1) = queryResultShowWhenNormal: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_SCHEMA_USE
-    optionInfoArray(i, 1) = schemaUse: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_CELL_FONT_NAME
-    optionInfoArray(i, 1) = cellFontName: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_CELL_FONT_SIZE
-    optionInfoArray(i, 1) = cellFontSize: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_CELL_WORDWRAP
-    optionInfoArray(i, 1) = cellWordwrap: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_CELL_WIDTH
-    optionInfoArray(i, 1) = cellWidth: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_CELL_HEIGHT
-    optionInfoArray(i, 1) = cellHeight: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_LINE_HEIGHT_AUTO_ADJUST
-    optionInfoArray(i, 1) = lineHeightAutoAdjust: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_TABLE_COLUMN_ESCAPE_ORACLE
-    optionInfoArray(i, 1) = tableColumnEscapeOracle: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_TABLE_COLUMN_ESCAPE_MYSQL
-    optionInfoArray(i, 1) = tableColumnEscapeMysql: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_TABLE_COLUMN_ESCAPE_POSTGRESQL
-    optionInfoArray(i, 1) = tableColumnEscapePostgresql: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_TABLE_COLUMN_ESCAPE_SQLSERVER
-    optionInfoArray(i, 1) = tableColumnEscapeSqlserver: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_TABLE_COLUMN_ESCAPE_ACCESS
-    optionInfoArray(i, 1) = tableColumnEscapeAccess: i = i + 1
-    
-    optionInfoArray(i, 0) = KEY_TABLE_COLUMN_ESCAPE_SYMFOWARE
-    optionInfoArray(i, 1) = tableColumnEscapeSymfoware: i = i + 1
-    
-    
-    ' レジストリ操作クラス
-    Dim registry As New RegistryManipulator
-    ' レジストリ操作クラスを初期化する
-    registry.init RegKeyConstants.HKEY_CURRENT_USER _
-                , VBUtil.getApplicationRegistryPath(ConstantsCommon.COMPANY_NAME, REG_SUB_KEY_APPLICATION) _
-                , RegAccessConstants.KEY_ALL_ACCESS _
-                , True
-
-    registry.setValues optionInfoArray
-    
-    Set registry = Nothing
+    values.setItem Array(KEY_REC_PROCESS_COUNT, recProcessCount)
+    values.setItem Array(KEY_REC_PROCESS_COUNT_CUSTOM, recProcessCountCustom)
+    values.setItem Array(KEY_COMMIT_CONFIRM, commitConfirm)
+    values.setItem Array(KEY_SQL_ERROR_HANDLING, sqlErrorHandling)
+    values.setItem Array(KEY_EMPTY_CELL_READING, emptyCellReading)
+    values.setItem Array(KEY_DIRECT_INPUT_CHAR, directInputChar)
+    values.setItem Array(KEY_DIRECT_INPUT_CHAR_CUSTOM, directInputCharCustom)
+    values.setItem Array(KEY_QUERY_RESULT_SHOW_WHEN_NORMAL, queryResultShowWhenNormal)
+    values.setItem Array(KEY_SCHEMA_USE, schemaUse)
+    values.setItem Array(KEY_CELL_FONT_NAME, cellFontName)
+    values.setItem Array(KEY_CELL_FONT_SIZE, cellFontSize)
+    values.setItem Array(KEY_CELL_WORDWRAP, cellWordwrap)
+    values.setItem Array(KEY_CELL_WIDTH, cellWidth)
+    values.setItem Array(KEY_CELL_HEIGHT, cellHeight)
+    values.setItem Array(KEY_LINE_HEIGHT_AUTO_ADJUST, lineHeightAutoAdjust)
+    values.setItem Array(KEY_TABLE_COLUMN_ESCAPE_ORACLE, tableColumnEscapeOracle)
+    values.setItem Array(KEY_TABLE_COLUMN_ESCAPE_MYSQL, tableColumnEscapeMysql)
+    values.setItem Array(KEY_TABLE_COLUMN_ESCAPE_POSTGRESQL, tableColumnEscapePostgresql)
+    values.setItem Array(KEY_TABLE_COLUMN_ESCAPE_SQLSERVER, tableColumnEscapeSqlserver)
+    values.setItem Array(KEY_TABLE_COLUMN_ESCAPE_ACCESS, tableColumnEscapeAccess)
+    values.setItem Array(KEY_TABLE_COLUMN_ESCAPE_SYMFOWARE, tableColumnEscapeSymfoware)
+                
+    appProp.setValues ConstantsApplicationProperties.INI_SECTION_DEFAULT, values
+    appProp.writeData
     
     Exit Sub
     
 err:
     
-    Set registry = Nothing
-
     Main.ShowErrorMessage
 
 End Sub
 
+' =========================================================
+' ▽DBに対応するカラムのエスケープ値を取得
+' =========================================================
 Public Function getTableColumnEscapeByDbConn(ByRef dbConn As Object) As Boolean
 
     ' DBMS種類を取得する
@@ -742,6 +712,9 @@ Public Function getTableColumnEscapeByDbConn(ByRef dbConn As Object) As Boolean
     
 End Function
 
+' =========================================================
+' ▽DBに対応するカラムのエスケープ値を取得
+' =========================================================
 Public Function getTableColumnEscape(ByRef dbmsT As DbmsType) As Boolean
 
     ' 戻り値を設定する

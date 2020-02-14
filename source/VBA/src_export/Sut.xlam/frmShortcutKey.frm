@@ -40,7 +40,7 @@ Public Event ok(ByRef applicationSetting As ValApplicationSettingShortcut)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' ショートカットキー設定情報
 Private WithEvents frmShortcutKeySettingVar As frmShortcutKeySetting
@@ -56,6 +56,15 @@ Private appMenuList As CntListBox
 Private appMenuListSelectedIndex As Long
 ' 機能リストでの選択項目オブジェクト
 Private appMenuListSelectedItem As ValShortcutKey
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -103,6 +112,7 @@ End Sub
 ' =========================================================
 Private Sub activate()
 
+    If VBUtil.unloadFormIfChangeActiveBook(frmShortcutKeySetting) Then Unload frmShortcutKeySetting
     Load frmShortcutKeySetting
 
     restoreShortcut
@@ -137,6 +147,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
 
@@ -229,7 +241,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -251,6 +263,7 @@ Private Sub cmdReset_Click()
 
     On Error GoTo err
     
+    restoreShortcut
     
     Exit Sub
     
@@ -268,7 +281,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstAppList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstAppList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
 
     editAppShortcutKey
 End Sub
@@ -400,7 +413,7 @@ Private Sub storeShortcut()
     
     ' ここで設定されたショートカット情報をアプリケーションオブジェクトに設定し、レジストリに登録する
     Set applicationSetting.shortcutAppList = appMenuList.collection
-    applicationSetting.writeForRegistryForShortcut
+    applicationSetting.writeForDataShortcut
     
     ' 新たに設定されたショートカットを登録する
     applicationSetting.updateShortcutKey

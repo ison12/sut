@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBColumnFormat 
    Caption         =   "DBカラム書式設定"
-   ClientHeight    =   8550.001
+   ClientHeight    =   8550
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   15105
@@ -41,7 +41,7 @@ Public Event ok(ByVal dbColumnFormatInfo As ValDbColumnFormatInfo)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' DBカラム書式編集フォーム
 Private WithEvents frmDBColumnFormatSettingVar As frmDBColumnFormatSetting
@@ -57,6 +57,15 @@ Private dbColumnFormatList As CntListBox
 Private dbColumnFormatSelectedIndex As Long
 ' DBカラム書式設定情報リストでの選択項目オブジェクト
 Private dbColumnFormatSelectedItem As ValDbColumnTypeColInfo
+
+' 対象ブック
+Private targetBook As Workbook
+' 対象ブックを取得する
+Public Function getTargetBook() As Workbook
+
+    Set getTargetBook = targetBook
+
+End Function
 
 ' =========================================================
 ' ▽フォーム表示
@@ -198,7 +207,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -264,6 +273,7 @@ Private Sub editDbColumnFormat()
     ' 現在選択されている項目を取得
     Set dbColumnFormatSelectedItem = dbColumnFormatList.getSelectedItem
     
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBColumnFormatSetting) Then Unload frmDBColumnFormatSetting
     Load frmDBColumnFormatSetting
     Set frmDBColumnFormatSettingVar = frmDBColumnFormatSetting
     frmDBColumnFormatSettingVar.ShowExt vbModal, dbColumnFormatSelectedItem
@@ -437,6 +447,8 @@ Private Sub UserForm_Initialize()
 
     On Error GoTo err
     
+    ' ロード時点のアクティブブックを保持しておく
+    Set targetBook = ExcelUtil.getActiveWorkbook
     ' 初期化処理を実行する
     initial
         
@@ -503,7 +515,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
 
     deactivate
 

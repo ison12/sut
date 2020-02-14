@@ -913,18 +913,14 @@ End Function
 ' ▽INIファイルパス取得
 '
 ' 概要　　　：アプリケーションのINIファイルパスを取得する
-' 　　　　　　プロジェクト名＋".ini"
-' 引数　　　：prefix INIファイル名の接頭辞
-' 　　　　　　suffix INIファイル名の接尾辞
+' 引数　　　：fileName ファイル名
 ' 戻り値　　：INIファイルパス
 '
 ' =========================================================
-Public Function getApplicationIniFilePath(Optional ByVal prefix As String = "" _
-                                        , Optional ByVal suffix As String = "") As String
+Public Function getApplicationIniFilePath(Optional ByVal fileName As String = "") As String
 
     ' iniファイルのパスを取得する
-    ' 本ブックのパス＋プロジェクト名＋".ini"
-    getApplicationIniFilePath = ThisWorkbook.path & "\" & prefix & SutWorkbook.VBProject.name & suffix & ".ini"
+    getApplicationIniFilePath = ThisWorkbook.path & "\resource\config\" & fileName
     
 End Function
 
@@ -2185,3 +2181,38 @@ Public Function filterRegExp(ByVal list As ValCollection, _
     Next
 
 End Function
+
+' =========================================================
+' ▽ユーザーフォームをリロードする
+'
+' 概要　　　：ユーザーフォームは起動時のアクティブなブックを保持する性質がある。
+'             ブックが切り替わった場合は一度フォームをアンロードする必要があるため、それらの判定を実施して適切にリロードする。
+' 引数　　　：obj ユーザーフォーム
+' 戻り値　　：
+'
+' 特記事項　：
+'
+' =========================================================
+Public Function unloadFormIfChangeActiveBook(ByRef obj As Variant) As Boolean
+
+    If obj Is Nothing Then
+    
+        unloadFormIfChangeActiveBook = False
+        Exit Function
+    
+    End If
+    
+    Dim book As Workbook
+    Set book = CallByName(obj, "getTargetBook", VbMethod)
+    
+    If ActiveWorkbook Is book Then
+    
+        unloadFormIfChangeActiveBook = False
+        Exit Function
+    
+    End If
+    
+    unloadFormIfChangeActiveBook = True
+        
+End Function
+

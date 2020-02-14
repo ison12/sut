@@ -295,6 +295,7 @@ Private Sub frmSnapShotVar_showSnapshotDiff(ByRef sheet As Worksheet)
     Set ssList = snapshotSet.getItem(ssKey)
     If Not ssList Is Nothing Then
         ' モーダル表示するのでロードを常に実行する
+        If VBUtil.unloadFormIfChangeActiveBook(frmSnapshotDiff) Then Unload frmSnapshotDiff
         Load frmSnapshotDiff
         Set frmSnapshotDiffVar = frmSnapshotDiff
         frmSnapshotDiffVar.ShowExt vbModal, ssList
@@ -560,21 +561,25 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
               , ByRef conn As Object)
 
     ' DB接続フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBConnect) Then Unload frmDBConnect
     Load frmDBConnect
     ' イベント受信用のDB接続フォームを初期化する
     Set frmDBConnectVar = frmDBConnect
     
     ' スナップショットフォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmSnapShot) Then Unload frmSnapShot
     Load frmSnapShot
     ' スナップショットフォームを設定する
     Set frmSnapShotVar = frmSnapShot
 
     ' スナップショット比較フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmSnapshotDiff) Then Unload frmSnapshotDiff
     Load frmSnapshotDiff
     ' スナップショット比較フォームを設定する
     Set frmSnapshotDiffVar = frmSnapshotDiff
 
     ' フォームを設定する
+    If VBUtil.unloadFormIfChangeActiveBook(frmProgress) Then Unload frmProgress
     Load frmProgress
     ' フォームを設定する
     Set frmProgressVar = frmProgress

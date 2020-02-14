@@ -55,7 +55,8 @@ Private Function IDbColumnType_getDefaultColumnFormat() As ValCollection
 
     ' データ型読み込みオブジェクトを生成する
     Dim dataTypeReader As New ExeDataTypeReader
-    Set dataTypeReader.sheet = SutWorkbook.Worksheets("data_type_mysql")
+    Set dataTypeReader.sheet = SutWorkbook.Worksheets("data_type")
+    dataTypeReader.dbName = DBUtil.getDbmsTypeName(DbmsType.MySQL)
     
     ' 戻り値を設定する
     Set IDbColumnType_getDefaultColumnFormat = dataTypeReader.execute

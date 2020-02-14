@@ -139,6 +139,8 @@ Attribute tableSheetReader.VB_VarHelpID = -1
 Private tableSheetCreator As New ExeTableSheetCreator
 ' クエリ変換
 Private DbQueryConverter As New DbQueryConverter
+' クエリパラメータリスト
+Private queryParameterList_ As ValQueryParameterList
 
 ' DBコネクション
 Public conn          As Object
@@ -157,6 +159,30 @@ Private executingSql As Boolean
 Public applicationSetting As ValApplicationSetting
 ' アプリケーション設定（カラム書式情報）
 Public applicationSettingColFmt As ValApplicationSettingColFormat
+
+' =========================================================
+' ▽クエリパラメータリスト取得プロパティ
+' =========================================================
+Public Property Get queryParameterList() As ValQueryParameterList
+
+    If Not queryParameterList_ Is Nothing Then
+        Set queryParameterList = queryParameterList_
+        Exit Property
+    End If
+
+    Set queryParameterList_ = Nothing
+        
+    If sheet Is Nothing Then
+        Exit Property
+    End If
+    
+    Set queryParameterList_ = New ValQueryParameterList
+    queryParameterList_.init sheet.parent
+    queryParameterList_.readForData
+    
+    Set queryParameterList = queryParameterList_
+    
+End Property
 
 ' =========================================================
 ' ▽クラス初期化メソッド
@@ -285,7 +311,7 @@ Private Function execute(ByRef tableSheet As ValTableWorksheet, ByRef sql As Str
     ' SQL実行中フラグをONにする
     executingSql = True
     
-    DbQueryConverter.init Me.conn, Me.sheet
+    DbQueryConverter.init Me.conn, queryParameterList
     sql = DbQueryConverter.convertSql(sql)
     
     ' クエリーを実行する
