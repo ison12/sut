@@ -71,14 +71,39 @@ Public Function parse(ByVal csvStr As String) As ValCollection
         
         ' レコードにフィールドを追加する
         retRec.setItem outFieldStr
+        
         ' インデックスを進める
         i = outNextPos
         
         If outIsNextRec Then
+        
+            ' レコードの終端に達して、且つ終端が区切り文字の場合は、末尾に空文字列を追加する
+            If (Mid$(csvStr, i - 3, 1) = m_separator And (Mid$(csvStr, i - 2, 1) = vbCr And Mid$(csvStr, i - 1, 1) = vbLf)) Or _
+               (Mid$(csvStr, i - 2, 1) = m_separator And (Mid$(csvStr, i - 1, 1) = vbCr Or Mid$(csvStr, i - 1, 1) = vbLf)) Then
+            
+                ' レコードにフィールドを追加する
+                retRec.setItem ""
+                
+            End If
+            
             ' 次の行に移動するのでレコードリストにレコードを追加する
             ret.setItem retRec
             ' レコードを生成する
             Set retRec = New ValCollection
+            
+        Else
+        
+            If i > csvStrLen Then
+                ' レコードの終端に達して、且つ終端が区切り文字の場合は、末尾に空文字列を追加する
+                If Mid$(csvStr, csvStrLen, 1) = m_separator Then
+                
+                    ' レコードにフィールドを追加する
+                    retRec.setItem ""
+                    
+                End If
+            
+            End If
+            
         End If
         
     Loop
@@ -184,7 +209,6 @@ Private Sub parseOneField(ByVal csvStr As String _
                     ' 現在の文字が区切り文字の場合
                     ' フィールド解析終了
                     outFieldStr = Mid$(csvStr, first, i - first)
-                    
                     isNextRec csvStr, i + 1, outNextPos, outIsNextRec
                     
                     Exit Sub
@@ -241,7 +265,6 @@ Private Sub isNextRec(ByVal csvStr As String _
     End If
 
 End Sub
-
 
 Private Function excludeEncloseChar(ByVal field As String) As String
 

@@ -793,11 +793,7 @@ Public Sub showMessageBoxForInformation(ByRef basePrompt As String _
                                       , ByRef title As String _
                                       , Optional ByRef err As ErrObject = Nothing)
 
-    WinAPI_User.MessageBox _
-          ExcelUtil.getApplicationHWnd _
-        , basePrompt _
-        , title _
-        , WinAPI_User.MB_OK Or WinAPI_User.MB_TOPMOST
+    MsgBox basePrompt, vbOKOnly, title
          
 End Sub
 
@@ -814,14 +810,12 @@ Public Sub showMessageBoxForError(ByRef basePrompt As String _
                                 , ByRef title As String _
                                 , ByRef err As ErrObject)
 
-    WinAPI_User.MessageBox _
-          ExcelUtil.getApplicationHWnd _
-        , basePrompt & vbNewLine & vbNewLine & _
+    MsgBox basePrompt & vbNewLine & vbNewLine & _
            err.Description & vbNewLine & _
            "Error no [" & err.Number & "]" & vbNewLine & _
            "Source [" & err.Source & "]" _
-        , title _
-        , WinAPI_User.MB_ICONERROR Or WinAPI_User.MB_TOPMOST
+           , vbOKOnly + vbCritical _
+           , title
 
 End Sub
 
@@ -840,19 +834,16 @@ Public Sub showMessageBoxForWarning(ByVal basePrompt As String _
 
     If err Is Nothing Then
     
-        WinAPI_User.MessageBox _
-              ExcelUtil.getApplicationHWnd _
-            , basePrompt _
-            , title _
-            , WinAPI_User.MB_ICONWARNING Or WinAPI_User.MB_TOPMOST
+        MsgBox basePrompt _
+               , vbOKOnly + vbExclamation _
+               , title
     
     ElseIf err.Number = 0 Then
     
-        WinAPI_User.MessageBox _
-              ExcelUtil.getApplicationHWnd _
-            , basePrompt _
-            , title _
-            , WinAPI_User.MB_ICONWARNING Or WinAPI_User.MB_TOPMOST
+        MsgBox basePrompt _
+               , vbOKOnly + vbExclamation _
+               , title
+               
     Else
     
         If basePrompt <> "" Then
@@ -860,13 +851,11 @@ Public Sub showMessageBoxForWarning(ByVal basePrompt As String _
             basePrompt = basePrompt & vbNewLine & vbNewLine
         End If
         
-        WinAPI_User.MessageBox _
-              ExcelUtil.getApplicationHWnd _
-            , basePrompt & _
+        MsgBox basePrompt & _
                err.Description & vbNewLine & _
                "Error no [" & err.Number & "]" _
-            , title _
-            , WinAPI_User.MB_ICONWARNING Or WinAPI_User.MB_TOPMOST
+               , vbOKOnly + vbExclamation _
+               , title
     End If
          
 End Sub
@@ -881,12 +870,10 @@ End Sub
 ' =========================================================
 Public Function showMessageBoxForYesNoCancel(ByRef basePrompt As String _
                                 , ByRef title As String) As Long
-
-    showMessageBoxForYesNoCancel = WinAPI_User.MessageBox( _
-          ExcelUtil.getApplicationHWnd _
-        , basePrompt _
-        , title _
-        , WinAPI_User.MB_YESNOCANCEL Or MB_DEFBUTTON2 Or WinAPI_User.MB_TOPMOST)
+    
+    showMessageBoxForYesNoCancel = MsgBox(basePrompt _
+           , vbYesNoCancel + vbDefaultButton2 _
+           , title)
 
 End Function
 
@@ -900,12 +887,10 @@ End Function
 ' =========================================================
 Public Function showMessageBoxForYesNo(ByRef basePrompt As String _
                                 , ByRef title As String) As Long
-
-    showMessageBoxForYesNo = WinAPI_User.MessageBox( _
-          ExcelUtil.getApplicationHWnd _
-        , basePrompt _
-        , title _
-        , WinAPI_User.MB_YESNO Or MB_DEFBUTTON2 Or WinAPI_User.MB_TOPMOST)
+    
+    showMessageBoxForYesNo = MsgBox(basePrompt _
+           , vbYesNo + vbDefaultButton2 _
+           , title)
 
 End Function
 
@@ -1491,7 +1476,7 @@ Public Function touch(ByVal folderPath As String) As Boolean
         If Not VBUtil.isExistFile(touchedFilePath) Then
         
             Set fw = New FileWriter
-            fw.init touchedFilePath, "shift_jis", vbNewLine
+            fw.init touchedFilePath, "Shift_JIS", vbNewLine
             fw.writeText "touch"
             fw.destroy
             
@@ -1648,6 +1633,28 @@ Public Function createDir(ByVal filePath As String) As Boolean
     End If
 
     createDir = False
+        
+End Function
+
+' =========================================================
+' ▽ディレクトリを削除する
+'
+' 概要　　　：
+' 引数　　　：filePath ファイルパス
+' 戻り値　　：True ディレクトリ削除時はTrueを返却
+'
+' =========================================================
+Public Function deleteDir(ByVal filePath As String) As Boolean
+
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    If fso.folderexists(filePath) = True Then
+        fso.DeleteFolder filePath
+        deleteDir = True
+    End If
+
+    deleteDir = False
         
 End Function
 
@@ -1905,10 +1912,11 @@ Public Function getEncodeList() As ValCollection
 
     ' 対象とする文字コードリスト
     Dim includeChars As New ValCollection
-    includeChars.setItem "shift_jis", "shift_jis"
-    includeChars.setItem "euc-jp", "euc-jp"
-    includeChars.setItem "utf-8", "utf-8"
-    includeChars.setItem "unicode", "unicode"
+    includeChars.setItem "Shift_JIS", "Shift_JIS"
+    includeChars.setItem "EUC-JP", "EUC-JP"
+    includeChars.setItem "UTF-8", "UTF-8"
+    includeChars.setItem "UTF-8 (with bom)", "UTF-8 (with bom)"
+    includeChars.setItem "UNICODE", "UNICODE"
     
     Set getEncodeList = includeChars
     

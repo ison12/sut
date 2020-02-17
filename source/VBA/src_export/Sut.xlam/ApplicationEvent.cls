@@ -79,7 +79,7 @@ End Sub
 ' 引数　　　：Wb ワークブック
 ' 戻り値　　：無し
 ' =========================================================
-Private Sub myEvent_WorkbookBeforeClose(ByVal wb As Workbook, Cancel As Boolean)
+Private Sub myEvent_WorkbookBeforeClose(ByVal wb As Workbook, cancel As Boolean)
 
     Debug.Print wb.name
     

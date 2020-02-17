@@ -19,6 +19,62 @@ Private Sub assert(ByVal test As Boolean)
 
 End Sub
 
+Private Sub taestByValByRef()
+
+    Dim timeBegin As Long
+    Dim timeEnd   As Long
+
+    Dim obj As Object
+    Set obj = SutWorkbook
+
+    Dim str As String
+    str = "‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±‚ ‚¢‚¤‚¦‚¨‚©‚«‚­‚¯‚±"
+    
+    Dim i As Long
+    Dim count As Long: count = 10000000
+
+    timeBegin = GetTickCount
+    For i = 1 To count
+        taestByValForObjByRef obj
+    Next
+    timeEnd = GetTickCount
+    Debug.Print "ObjŽQÆ“n‚µF" & (timeEnd - timeBegin) & "ƒ~ƒŠ•b"
+    
+    timeBegin = GetTickCount
+    For i = 1 To count
+        taestByValForObjByVal obj
+    Next
+    timeEnd = GetTickCount
+    Debug.Print "Obj@’l“n‚µF" & (timeEnd - timeBegin) & "ƒ~ƒŠ•b"
+
+    timeBegin = GetTickCount
+    For i = 1 To count
+        taestByValForStrByRef str
+    Next
+    timeEnd = GetTickCount
+    Debug.Print "StrŽQÆ“n‚µF" & (timeEnd - timeBegin) & "ƒ~ƒŠ•b"
+    
+    timeBegin = GetTickCount
+    For i = 1 To count
+        taestByValForStrByVal str
+    Next
+    timeEnd = GetTickCount
+    Debug.Print "Str@’l“n‚µF" & (timeEnd - timeBegin) & "ƒ~ƒŠ•b"
+
+End Sub
+
+Private Sub taestByValForObjByVal(ByVal a As Object)
+End Sub
+
+Private Sub taestByValForObjByRef(ByRef a As Object)
+End Sub
+
+Private Sub taestByValForStrByVal(ByVal a As String)
+End Sub
+
+Private Sub taestByValForStrByRef(ByRef a As String)
+End Sub
+
 Private Sub testAll()
 
     testIniFile
@@ -483,7 +539,7 @@ Private Sub testExeDataTypeReader2()
 
 End Sub
 
-Private Sub S()
+Private Sub s()
     
 End Sub
 
@@ -620,104 +676,159 @@ End Sub
 Private Sub testCsvParser()
 
     Dim ret  As ValCollection
+    
     Dim var  As Variant
     Dim var2 As Variant
+    
     Dim varBuff As New StringBuilder
+    
+    Dim testStr As String
     
     Dim csvp As New CsvParser: csvp.init
     
-    Set ret = csvp.parse("a,b,c,d")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    ' ------------------------------------------------------
+    testStr = "a,b,c,d"
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret) = testStr
+    ' ------------------------------------------------------
 
-    Set ret = csvp.parse("a,b,c,d" & vbNewLine & "e,f,g,h")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    ' ------------------------------------------------------
+    testStr = "a,b,c,d" & vbNewLine & "e,f,g,h"
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret) = testStr
+    ' ------------------------------------------------------
 
-    Set ret = csvp.parse("a,,c,d" & vbNewLine & "e,f,,h")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    ' ------------------------------------------------------
+    testStr = "a,b,c,d" & vbCr & "e,f,g,h"
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret, ",", vbCr) = testStr
+    ' ------------------------------------------------------
 
-    Set ret = csvp.parse("a,b,c,d" & vbCr & "e,f,g,h")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    ' ------------------------------------------------------
+    testStr = "a,b,c,d" & vbLf & "e,f,g,h"
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret, ",", vbLf) = testStr
+    ' ------------------------------------------------------
 
-    Set ret = csvp.parse("a,b,c,d" & vbLf & "e,f,g,h")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    ' ------------------------------------------------------
+    testStr = """a"",b,c,d,""e,e"",""""""e,e"""""""
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret) = "a,b,c,d,e,e,""e,e"""
+    ' ------------------------------------------------------
 
-    Set ret = csvp.parse("""a"",b,c,d,""e,e"",""""""e,e""""""")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    ' ------------------------------------------------------
+    testStr = """a"",b,c,d,""e,e"",""""""e,e""""""" & vbNewLine & "‚ ‚¢‚¤‚¦‚¨,‚©‚«‚­‚¯‚±,‚³‚µ‚·‚¹‚»" & vbNewLine & "‚ ""‚¢‚¤‚¦‚¨,‚©""‚«‚­‚¯""‚±,‚³""‚µ‚·‚¹""‚»"
+    Set ret = csvp.parse(testStr)
 
-    Set ret = csvp.parse("""a"",b,c,d,""e,e"",""""""e,e""""""" & vbNewLine & "‚ ‚¢‚¤‚¦‚¨,‚©‚«‚­‚¯‚±,‚³‚µ‚·‚¹‚»" & vbNewLine & "‚ ""‚¢‚¤‚¦‚¨,‚©""‚«‚­‚¯""‚±,‚³""‚µ‚·‚¹""‚»")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    assert testCsvParserToString(ret) = "a,b,c,d,e,e,""e,e""" & vbNewLine & "‚ ‚¢‚¤‚¦‚¨,‚©‚«‚­‚¯‚±,‚³‚µ‚·‚¹‚»" & vbNewLine & "‚ ""‚¢‚¤‚¦‚¨,‚©""‚«‚­‚¯""‚±,‚³""‚µ‚·‚¹""‚»"
+    ' ------------------------------------------------------
 
-    Set ret = csvp.parse("""param 1"",""""")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    ' ------------------------------------------------------
+    testStr = """param 1"","""""
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret) = "param 1,"
+    ' ------------------------------------------------------
 
-    Set ret = csvp.parse(""""",""""")
-    For Each var In ret.col
-        varBuff.clear
-        For Each var2 In var.col
-            varBuff.append var2 & ":"
-        Next
-        Debug.Print varBuff.str
-    Next
-    Debug.Print ""
+    ' ------------------------------------------------------
+    testStr = """"","""""
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret) = ","
+    ' ------------------------------------------------------
 
+    ' ------------------------------------------------------
+    csvp.init vbTab
+    
+    testStr = "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & "orsys" & vbTab
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret, vbTab) = testStr
+    ' ------------------------------------------------------
+
+    ' ------------------------------------------------------
+    csvp.init vbTab
+    
+    testStr = "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & vbTab
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret, vbTab) = testStr
+    ' ------------------------------------------------------
+
+    ' ------------------------------------------------------
+    csvp.init vbTab
+    
+    testStr = "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & vbTab & vbNewLine & _
+              "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & vbTab & vbLf & _
+              "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & vbTab & vbCr & _
+              vbCr & _
+              "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & vbTab
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret, vbTab, vbLf) = replace(replace(testStr, vbNewLine, vbLf), vbCr, vbLf)
+    ' ------------------------------------------------------
+
+    ' ------------------------------------------------------
+    csvp.init vbTab
+    
+    testStr = "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & "‚ ‚¢‚¤‚¦‚¨" & vbTab & vbNewLine & _
+              "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & vbTab & vbLf & _
+              "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & vbTab & vbCr & _
+              vbCr & _
+              "a" & vbTab & "Microsoft OLE DB for SQL Server" & vbTab & "" & vbTab & "10.12.3.176" & vbTab & "" & vbTab & "ORSYS_DATA" & vbTab & "sa" & vbTab & vbTab
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret, vbTab, vbLf) = replace(replace(testStr, vbNewLine, vbLf), vbCr, vbLf)
+    ' ------------------------------------------------------
+
+    ' ------------------------------------------------------
+    csvp.init vbTab
+    
+    testStr = "abc‚ ‚¢‚¤‚¦‚¨" & vbTab & """‚ ‚¢" & vbTab & vbNewLine & "‚¤‚¦‚¨""" & vbNewLine & _
+              "abc‚ ‚¢‚¤‚¦‚¨" & vbTab & """‚ ‚¢" & vbTab & "‚¤‚¦‚¨"""
+    Set ret = csvp.parse(testStr)
+    
+    assert testCsvParserToString(ret, vbTab, vbNewLine) = "abc‚ ‚¢‚¤‚¦‚¨" & vbTab & "‚ ‚¢" & vbTab & vbNewLine & "‚¤‚¦‚¨" & vbNewLine & _
+                                                          "abc‚ ‚¢‚¤‚¦‚¨" & vbTab & "‚ ‚¢" & vbTab & "‚¤‚¦‚¨"
+    ' ------------------------------------------------------
 
 End Sub
+
+Private Function testCsvParserToString(ByVal list As ValCollection, Optional ByVal s As String = ",", Optional ByVal n As String = vbNewLine) As String
+
+    Dim buff       As New StringBuilder
+    
+    Dim recOfList  As ValCollection
+    Dim rec        As Variant
+    
+    Dim i As Long: i = 0
+    
+    For Each recOfList In list.col
+        
+        If i > 0 Then
+            buff.append n
+        End If
+    
+        For Each rec In recOfList.col
+            buff.append rec & s
+        Next
+        
+        If recOfList.count > 0 Then
+        
+            buff.remove buff.length, 1
+        End If
+        
+        i = i + 1
+    Next
+    
+    testCsvParserToString = buff.str
+
+End Function
 
 Public Sub testValCollection()
 

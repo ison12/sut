@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmTableSheetCreator
    ClientHeight    =   8790
    ClientLeft      =   45
    ClientTop       =   330
-   ClientWidth     =   8505
+   ClientWidth     =   8535
    OleObjectBlob   =   "frmTableSheetCreator.frx":0000
 End
 Attribute VB_Name = "frmTableSheetCreator"
@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -40,7 +42,7 @@ Public Event complete(ByRef createTargetTable As ValCollection)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 Private Const MULTIPAGE_MIN_PAGE As Long = 0
 Private Const MULTIPAGE_MAX_PAGE As Long = 4
@@ -186,24 +188,6 @@ End Sub
 ' =========================================================
 Private Sub deactivate()
 
-    ' アプリケーション設定情報を破棄
-    Set applicationSetting = Nothing
-    
-    ' DBコネクションを破棄
-    Set dbConn = Nothing
-
-    ' スキーマ情報リストを破棄
-    Set schemaInfoList = Nothing
-    
-    ' テーブル情報リストを破棄
-    Set tableInfoList = Nothing
-
-    ' テーブル行フォーマットリストを破棄
-    Set tableInfoListRowFormat = Nothing
-    
-    ' 選択されたテーブルリスト
-    Set selectedTableList = Nothing
-
 End Sub
 
 ' =========================================================
@@ -257,21 +241,15 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
-
-    ' Xボタン押下時
-    If CloseMode = 0 Then
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
     
-        ' キャンセルボタンを押下した場合と同じ動作
-        If checkCancel = True Then
-        
-            HideExt
-        Else
-            ' 終了しない場合、本イベントをキャンセルする
-            Cancel = True
-        End If
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        btnCancel_Click
     End If
-
+    
 End Sub
 
 ' =========================================================
@@ -411,7 +389,7 @@ Private Sub btnCancel_Click()
         HideExt
     
         ' イベントを発行する
-        RaiseEvent Cancel
+        RaiseEvent cancel
     End If
     
     
@@ -422,7 +400,7 @@ err:
     Main.ShowErrorMessage
     
     ' フォームを非表示にする
-    Me.Hide
+    HideExt
     
 End Sub
 
@@ -477,8 +455,8 @@ Private Sub btnFinish_Click()
 err:
 
     Main.ShowErrorMessage
-    
-    Me.Hide
+        
+    HideExt
     
 End Sub
 
@@ -765,7 +743,7 @@ End Sub
 Private Sub validPageChoiceSchema()
 
     Dim cnt As Long
-    cnt = schemaInfoList.selectedList().count
+    cnt = schemaInfoList.getSelectedList().count
     
     ' スキーマリストでの選択件数を確認する
     If cnt <= 0 Then
@@ -783,7 +761,7 @@ End Sub
 Private Sub validPageChoiceTable()
 
     Dim cnt As Long
-    cnt = tableInfoList.selectedList().count
+    cnt = tableInfoList.getSelectedList().count
     
     ' テーブルリストでの選択件数を確認する
     If cnt <= 0 Then
@@ -825,7 +803,7 @@ Private Sub activatePageChoiceTable()
     Dim var  As ValCollection
     
     Dim selectedSchema As ValCollection
-    Set selectedSchema = schemaInfoList.selectedList(vbObject)
+    Set selectedSchema = schemaInfoList.getSelectedList(vbObject)
     
     Dim dbObjFactory As New DbObjectFactory
     
@@ -860,7 +838,7 @@ Private Sub activatePageSettingRowFormat()
     Dim selectedTable     As ValDbDefineTable
     
     ' 選択済みテーブルリストを取得する
-    Set selectedTableList = tableInfoList.selectedList
+    Set selectedTableList = tableInfoList.getSelectedList
     
     ' テーブルリストボックスにリストを追加する
     If applicationSetting.schemaUse = applicationSetting.SCHEMA_USE_ONE Then

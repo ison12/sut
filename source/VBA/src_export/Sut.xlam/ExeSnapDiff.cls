@@ -184,7 +184,7 @@ Private Function diffRecordsSet(ByRef sheet As Worksheet, ByRef diff1 As ValSnap
     setModifyCell sheet, ConstantsSnapDiff.MODIFY_ALL_ROW, ConstantsSnapDiff.MODIFY_ALL_COL, False ' 全体
 
     recordSetIndex = 0
-    For Each diff1Rec In diff1.list
+    For Each diff1Rec In diff1.list.col
     
         ' キャンセルフラグをチェックする
         checkCancel

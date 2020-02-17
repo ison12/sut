@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -40,7 +42,7 @@ Public Event ok(ByVal queryParameter As ValQueryParameter)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' クエリパラメータ情報（フォーム表示時点での情報）
 Private queryParameterParam As ValQueryParameter
@@ -181,6 +183,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽OKボタンクリック時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -227,7 +248,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     

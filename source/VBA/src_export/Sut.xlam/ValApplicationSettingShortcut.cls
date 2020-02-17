@@ -367,7 +367,7 @@ Public Sub readForDataPopupMenu()
     Dim i As Long: i = 1
     Do While True
     
-        val = values.getItem(i & "_" & "name", vbVariant)
+        val = values.getItem(i & "_" & "popupMenuName", vbVariant)
         If Not IsArray(val) Then
             Exit Do
         End If
@@ -413,20 +413,10 @@ Public Sub readForDataPopupMenuSub(ByRef popupMenu As ValPopupmenu)
     Dim itemList As ValCollection
     Set itemList = popupMenu.itemList
     
-
-    Dim i As Long
-    i = 1
-    Do While True
+    For Each val In values.col
     
-        val = values.getItem(i & "_" & "item", vbVariant)
-        If Not IsArray(val) Then
-            Exit Do
-        End If
-        
-        val = values.getItem(i & "_" & "item", vbVariant): If IsArray(val) Then itemList.setItem val, val
-    
-        i = i + 1
-    Loop
+        itemList.setItem val(1), val(1)
+    Next
                 
     Exit Sub
     
@@ -996,7 +986,7 @@ Private Sub setShortcutTextForCommandBar(ByRef shortcutInfo As ValShortcutKey _
 
 End Sub
 
-Public Function CloneShortcutAppList() As ValCollection
+Public Function cloneShortcutAppList() As ValCollection
 
     Dim ret As ValCollection
     Set ret = New ValCollection
@@ -1011,11 +1001,11 @@ Public Function CloneShortcutAppList() As ValCollection
         ret.setItem tmp2, tmp2.commandBarControl.Tag
     Next
     
-    Set CloneShortcutAppList = ret
+    Set cloneShortcutAppList = ret
 
 End Function
 
-Public Function CloneRClickMenuList() As ValCollection
+Public Function cloneRClickMenuList() As ValCollection
 
     Dim ret As ValCollection
     Set ret = New ValCollection
@@ -1027,11 +1017,11 @@ Public Function CloneRClickMenuList() As ValCollection
         ret.setItem tmp, tmp
     Next
     
-    Set CloneRClickMenuList = ret
+    Set cloneRClickMenuList = ret
 
 End Function
 
-Public Function ClonePopupMenuList() As ValCollection
+Public Function clonePopupMenuList() As ValCollection
 
     Dim ret As ValCollection
     Set ret = New ValCollection
@@ -1045,6 +1035,6 @@ Public Function ClonePopupMenuList() As ValCollection
         ret.setItem tmp2, tmp2.popupMenuName
     Next
     
-    Set ClonePopupMenuList = ret
+    Set clonePopupMenuList = ret
 
 End Function

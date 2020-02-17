@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -40,7 +42,7 @@ Public Event ok()
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' クエリパラメータの新規作成最大数
 Private Const QUERY_PARAMETER_NEW_CREATED_OVER_SIZE As String = "クエリパラメータは最大${count}まで登録可能です。"
@@ -172,7 +174,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -190,7 +192,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstQueryParameterList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub lstQueryParameterList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
     editQueryParameter
 End Sub
 
@@ -600,6 +602,25 @@ End Sub
 ' =========================================================
 Private Sub UserForm_Activate()
 
+End Sub
+
+' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
 End Sub
 
 ' =========================================================

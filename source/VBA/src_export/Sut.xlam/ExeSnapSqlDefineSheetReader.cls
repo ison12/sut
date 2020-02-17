@@ -123,7 +123,7 @@ End Sub
 Public Function isSqlDefineSheet() As Boolean
 
     ' テーブルシート判定用のオートシェイプ
-    Dim S As Shape
+    Dim s As Shape
 
     ' 戻り値を初期化する
     isSqlDefineSheet = False
@@ -132,10 +132,10 @@ Public Function isSqlDefineSheet() As Boolean
     ' エラーが発生しても継続する
     On Error Resume Next
 
-    Set S = sheet.Shapes(ConstantsSnapSqlDefine.SHEET_CHECK_IMAGE)
+    Set s = sheet.Shapes(ConstantsSnapSqlDefine.SHEET_CHECK_IMAGE)
     
     ' 取得できた場合
-    If Not S Is Nothing Then
+    If Not s Is Nothing Then
     
         isSqlDefineSheet = True
         Exit Function
@@ -187,7 +187,7 @@ Public Function readSqlDefineInfo() As ValSnapSqlDefineWorkSheet
     Dim sqlDefineSheet As ValSnapSqlDefineWorkSheet
     ' SQL定義シート情報を生成する
     Set sqlDefineSheet = New ValSnapSqlDefineWorkSheet
-    sqlDefineSheet.snapSqlDefine = sqlDefine
+    Set sqlDefineSheet.snapSqlDefine = sqlDefine
     
     ' 名前
     Dim name As String
@@ -203,7 +203,7 @@ Public Function readSqlDefineInfo() As ValSnapSqlDefineWorkSheet
         sqlDefine.name = name
         
         ' テーブル情報取得元シートを設定する
-        sqlDefineSheet.sheet = sheet
+        Set sqlDefineSheet.sheet = sheet
         sqlDefineSheet.sheetName = sheet.name
         
         readSqlDefineParamsInfo sqlDefineSheet

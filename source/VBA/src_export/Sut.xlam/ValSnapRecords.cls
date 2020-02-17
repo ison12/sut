@@ -62,7 +62,7 @@ Public Function convertPkListToArray() As Variant
     Dim i As Variant: i = 1
     Dim pk As Variant
     
-    For Each pk In pkList
+    For Each pk In pkList.col
         ret(i) = pk.pk
         i = i + 1
     Next

@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSnapshotDiff
    ClientHeight    =   8025
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   11265
+   ClientWidth     =   11295
    OleObjectBlob   =   "frmSnapshotDiff.frx":0000
 End
 Attribute VB_Name = "frmSnapshotDiff"
@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -42,12 +44,7 @@ Public Event execDiff(ByRef snapShotList As ValCollection, ByVal srcIndex As Lon
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
-
-' ---------------------------------------------------------
-' レジストリファイルキー
-' ---------------------------------------------------------
-Private Const REG_SUB_KEY_SNAPSHOT_DIFF As String = "snapshotDiff"
+Public Event cancel()
 
 ' スナップショットリスト
 Private snapShotList        As ValCollection
@@ -145,16 +142,22 @@ err:
 End Sub
 
 ' =========================================================
-' ▽フォーム閉じるイベントプロシージャ
+' ▽フォームの閉じる時のイベントプロシージャ
 '
 ' 概要　　　：
 ' 引数　　　：
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
-
-    Main.storeFormPosition Me.name, Me
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdClose_Click
+    End If
+    
 End Sub
 
 ' =========================================================
@@ -173,7 +176,7 @@ Private Sub cmdClose_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -268,7 +271,7 @@ Private Sub refreshLstSnapshotSrc()
         srcSnapshotList.init lstSnapshotSrc
     End If
     
-    For Each snapshot In snapShotList
+    For Each snapshot In snapShotList.col
     
         srcSnapshotList.addItem Format(snapshot.getDate, "yyyy/mm/dd hh:nn:ss") & " - " & snapshot.recordCount & "件", Empty
     Next
@@ -302,7 +305,7 @@ Private Sub refreshLstSnapshotDes(ByVal lstSnapshotSrcListIndex As Long)
     Dim i As Long
     
     i = 0
-    For Each snapshot In snapShotList
+    For Each snapshot In snapShotList.col
     
         If i < lstSnapshotSrcListIndex Then
             desSnapshotList.addItem Format(snapshot.getDate, "yyyy/mm/dd hh:nn:ss") & " - " & snapshot.recordCount & "件", Empty

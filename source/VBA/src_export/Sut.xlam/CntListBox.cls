@@ -385,13 +385,30 @@ Public Sub swapItem(ByVal index1 As Long, _
     
         var1 = m_control.list(indexMax, 0)
         var2 = m_control.list(indexMin, 0)
-        m_control.list(indexMax, 0) = var2
-        m_control.list(indexMin, 0) = var1
+        
+        If isNull(var2) Then
+            m_control.list(indexMax, 0) = ""
+        Else
+            m_control.list(indexMax, 0) = var2
+        End If
+        If isNull(var1) Then
+            m_control.list(indexMin, 0) = ""
+        Else
+            m_control.list(indexMin, 0) = var1
+        End If
     
         var1 = m_control.list(indexMax, 1)
         var2 = m_control.list(indexMin, 1)
-        m_control.list(indexMax, 1) = var2
-        m_control.list(indexMin, 1) = var1
+        If isNull(var2) Then
+            m_control.list(indexMax, 1) = ""
+        Else
+            m_control.list(indexMax, 1) = var2
+        End If
+        If isNull(var1) Then
+            m_control.list(indexMin, 1) = ""
+        Else
+            m_control.list(indexMin, 1) = var1
+        End If
     
     End If
 
@@ -614,7 +631,7 @@ End Sub
 ' 引数　　　：無し
 ' 戻り値　　：無し
 ' =========================================================
-Public Function selectedList(Optional ByVal t As VbVarType = vbObject) As ValCollection
+Public Function getSelectedList(Optional ByVal t As VbVarType = vbObject) As ValCollection
 
     ' 戻り値
     Dim result As ValCollection
@@ -638,7 +655,7 @@ Public Function selectedList(Optional ByVal t As VbVarType = vbObject) As ValCol
     Next
     
     ' 戻り値を設定する
-    Set selectedList = result
+    Set getSelectedList = result
 
 End Function
 
@@ -713,6 +730,34 @@ Public Sub setSelectedAll(ByVal isSelected As Boolean)
 
 End Sub
 
+' =========================================================
+' ▽任意の項目が存在するかを判定する。
+'
+' 概要　　　：
+'
+' 引数　　　：value 値
+' 戻り値　　：True 項目が存在する、False 項目が存在しない
+' =========================================================
+Public Function exist(ByVal value As String) As Boolean
+
+    Dim i As Long
+
+    ' リストコントロールをループさせる
+    For i = 0 To m_control.ListCount - 1
+    
+        ' リストコントロールにて選択されているかを判定する
+        If m_control.list(i) = value Then
+        
+            exist = True
+            Exit Function
+        
+        End If
+        
+    Next
+
+    exist = False
+
+End Function
 
 ' =========================================================
 ' ▽件数取得。

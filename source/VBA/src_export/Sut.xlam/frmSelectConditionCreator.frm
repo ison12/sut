@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -40,13 +42,7 @@ Public Event ok(ByVal sql As String, ByVal append As Boolean)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
-
-' ---------------------------------------------------------
-' INIファイル関連定数
-' ---------------------------------------------------------
-' ▼最後に操作された情報
-Private Const REG_SUB_KEY_SELECT_CONDITION As String = "select_condition"
+Public Event cancel()
 
 ' 簡易設定ページ
 Private Const PAGE_SIMPLE_SETTING As Long = 0
@@ -239,6 +235,25 @@ End Sub
 ' =========================================================
 Private Sub UserForm_Activate()
 
+End Sub
+
+' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
 End Sub
 
 ' =========================================================
@@ -649,7 +664,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecRangeStart_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub txtRecRangeStart_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -664,7 +679,7 @@ Private Sub txtRecRangeStart_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
     ElseIf validInteger(txtRecRangeStart.text) = False Then
     
         ' 更新をキャンセルする
-        Cancel = True
+        cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
@@ -675,7 +690,7 @@ Private Sub txtRecRangeStart_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtRecRangeStart.text) < 1 Then
     
         ' 更新をキャンセルする
-        Cancel = True
+        cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         
@@ -706,7 +721,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecRangeEnd_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub txtRecRangeEnd_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -721,7 +736,7 @@ Private Sub txtRecRangeEnd_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
     ElseIf validInteger(txtRecRangeEnd.text) = False Then
     
         ' 更新をキャンセルする
-        Cancel = True
+        cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
@@ -732,7 +747,7 @@ Private Sub txtRecRangeEnd_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtRecRangeEnd.text) < 1 Then
     
         ' 更新をキャンセルする
-        Cancel = True
+        cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         
@@ -1034,7 +1049,7 @@ Private Sub cmdCancel_Click()
     On Error GoTo err:
     
     Me.HideExt
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
 
@@ -1243,15 +1258,15 @@ Private Sub restoreSelectCondition()
     ' コントロール配列を1件ずつ処理する
     For i = COLUMN_COND_MIN To COLUMN_COND_MAX
     
-        val = values.getItem(columnCondList(i).control.name, vbVariant): If IsArray(val) Then columnCondList(i).control.value = val(2)
-        val = values.getItem(valueCondList(i).name, vbVariant): If IsArray(val) Then valueCondList(i).value = val(2)
-        val = values.getItem(orderCondList(i).name, vbVariant): If IsArray(val) Then orderCondList(i).value = val(2)
+        val = values.getItem(columnCondList(i).control.name, vbVariant): If IsArray(val) Then columnCondList(i).control.value = val(2) Else columnCondList(i).control.value = ""
+        val = values.getItem(valueCondList(i).name, vbVariant): If IsArray(val) Then valueCondList(i).value = val(2) Else valueCondList(i).value = ""
+        val = values.getItem(orderCondList(i).name, vbVariant): If IsArray(val) Then orderCondList(i).value = val(2) Else orderCondList(i).value = ""
         
     Next
 
-    val = values.getItem(txtRecRangeStart.name, vbVariant): If IsArray(val) Then txtRecRangeStart.value = val(2)
-    val = values.getItem(txtRecRangeEnd.name, vbVariant): If IsArray(val) Then txtRecRangeEnd.value = val(2)
-    val = values.getItem(txtSqlEditor.name, vbVariant): If IsArray(val) Then txtSqlEditor.value = val(2)
+    val = values.getItem(txtRecRangeStart.name, vbVariant): If IsArray(val) Then txtRecRangeStart.value = val(2) Else txtRecRangeStart.value = ""
+    val = values.getItem(txtRecRangeEnd.name, vbVariant): If IsArray(val) Then txtRecRangeEnd.value = val(2) Else txtRecRangeEnd.value = ""
+    val = values.getItem(txtSqlEditor.name, vbVariant): If IsArray(val) Then txtSqlEditor.value = val(2) Else txtSqlEditor.value = ""
     
     Exit Sub
     

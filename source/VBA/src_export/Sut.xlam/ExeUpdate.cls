@@ -376,7 +376,7 @@ err:
     ' ファイルの出力をキャンセルする
     If Not writer Is Nothing Then
     
-        writer.Cancel
+        writer.cancel
         Set writer = Nothing
     End If
     
@@ -469,7 +469,7 @@ err:
     ' ファイルの出力をキャンセルする
     If Not writer Is Nothing Then
         
-        writer.Cancel
+        writer.cancel
         Set writer = Nothing
     End If
     

@@ -179,7 +179,7 @@ Public Function execute(ByRef sqlDefineWorkSheet As ValSnapSqlDefineWorkSheet) A
     
     Dim snapRecords As ValSnapRecords
     
-    For Each varOfSqlList In sqlDefineWorkSheet.snapSqlDefine.sqlList
+    For Each varOfSqlList In sqlDefineWorkSheet.snapSqlDefine.sqlList.col
     
         ' キャンセルフラグをチェックする
         checkCancel
@@ -192,7 +192,7 @@ Public Function execute(ByRef sqlDefineWorkSheet As ValSnapSqlDefineWorkSheet) A
         sqlTemplate = sqlDefineSql.sql
         sql = sqlTemplate
         
-        For Each varOfParamList In sqlDefineWorkSheet.snapSqlDefine.paramList
+        For Each varOfParamList In sqlDefineWorkSheet.snapSqlDefine.paramList.col
         
             Set sqlDefineParam = varOfParamList
             sql = replace$(sql, sqlDefineParam.name, DBUtil.convertQueryLiteral(ADOUtil.getDBMSType(dbConn), String_, sqlDefineParam.value))

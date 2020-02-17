@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmShortcutKey
    ClientHeight    =   5775
    ClientLeft      =   45
    ClientTop       =   360
-   ClientWidth     =   6390
+   ClientWidth     =   6435
    OleObjectBlob   =   "frmShortcutKey.frx":0000
 End
 Attribute VB_Name = "frmShortcutKey"
@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -40,7 +42,7 @@ Public Event ok(ByRef applicationSetting As ValApplicationSettingShortcut)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' ショートカットキー設定情報
 Private WithEvents frmShortcutKeySettingVar As frmShortcutKeySetting
@@ -131,8 +133,6 @@ Private Sub deactivate()
     ' フォームクローズ後にイベントを受信しないようにフォーム変数をクリアしておく
     Set frmShortcutKeySettingVar = Nothing
     
-    Set appMenuList = Nothing
-    
 End Sub
 
 ' =========================================================
@@ -196,6 +196,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽OKボタンクリック時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -241,7 +260,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -263,7 +282,7 @@ Private Sub cmdReset_Click()
 
     On Error GoTo err
     
-    restoreShortcut
+    resetShortcut
     
     Exit Sub
     
@@ -281,7 +300,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstAppList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub lstAppList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
 
     editAppShortcutKey
 End Sub
@@ -411,13 +430,64 @@ Private Sub storeShortcut()
     ' 既存のショートカットを削除する
     applicationSetting.clearShortcutKey
     
-    ' ここで設定されたショートカット情報をアプリケーションオブジェクトに設定し、レジストリに登録する
-    Set applicationSetting.shortcutAppList = appMenuList.collection
+    ' ここで設定されたショートカット情報をアプリケーションオブジェクトに設定
+    Dim shortCut     As ValShortcutKey
+    Dim shortCutList As ValCollection
+    Set shortCutList = appMenuList.collection
+
+    Dim shortCutApp  As ValShortcutKey
+
+    For Each shortCut In shortCutList.col
+        
+        Set shortCutApp = applicationSetting.shortcutAppList.getItem(shortCut.commandBarControl.Tag)
+        If Not shortCutApp Is Nothing Then
+            shortCutApp.shortcutKeyCode = shortCut.shortcutKeyCode
+            shortCutApp.shortcutKeyLabel = shortCut.shortcutKeyLabel
+        End If
+    Next
+    
+    ' 登録する
     applicationSetting.writeForDataShortcut
     
     ' 新たに設定されたショートカットを登録する
     applicationSetting.updateShortcutKey
     
+End Sub
+
+' =========================================================
+' ▽オプション情報を読み込む
+'
+' 概要　　　：
+' 引数　　　：isResetShortcutKey ショートカットキーのリセットを実施するかのフラグ
+' 戻り値　　：
+'
+' =========================================================
+Private Sub loadShortcut(ByVal isResetShortcutKey As Boolean)
+
+    ' 機能リストをリセットする
+    lstAppList.clear
+    
+    ' 機能リストの初期化
+    Set appMenuList = New CntListBox: appMenuList.init lstAppList
+    
+    ' ショートカットリストを取得する
+    ' ※Cloneメソッドを使用して情報をコピーする。
+    ' 　ここでは、ApplicationSetting#ShortcutAppListに格納されているValShortCut要素を直接変更せずに
+    ' 　クローンを生成し編集を行う。
+    Dim shortCut     As ValShortcutKey
+    Dim shortCutList As ValCollection
+    Set shortCutList = applicationSetting.cloneShortcutAppList
+    
+    If isResetShortcutKey Then
+        For Each shortCut In shortCutList.col
+            shortCut.shortcutKeyCode = ""
+            shortCut.shortcutKeyLabel = ""
+        Next
+    End If
+
+    ' 機能リストに反映する
+    appMenuList.addAll shortCutList, "commandName", "shortcutKeyLabel"
+
 End Sub
 
 ' =========================================================
@@ -430,20 +500,19 @@ End Sub
 ' =========================================================
 Private Sub restoreShortcut()
 
-    ' 機能リストをリセットする
-    lstAppList.clear
-    
-    ' 機能リストの初期化
-    Set appMenuList = New CntListBox: appMenuList.init lstAppList
-    
-    ' ショートカットリストを取得する
-    ' ※Cloneメソッドを使用して情報をコピーする。
-    ' 　ここでは、ApplicationSetting#ShortcutAppListに格納されているValShortCut要素を直接変更せずに
-    ' 　クローンを生成し編集を行う。
-    Dim shortCutList As ValCollection
-    Set shortCutList = applicationSetting.CloneShortcutAppList
-    
-    ' 機能リストに反映する
-    appMenuList.addAll shortCutList, "commandName", "shortcutKeyLabel"
-
+    loadShortcut False
 End Sub
+
+' =========================================================
+' ▽オプション情報のリセット
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub resetShortcut()
+
+    loadShortcut True
+End Sub
+

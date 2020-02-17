@@ -38,8 +38,8 @@ Private Sub Class_Terminate()
     Set paramList = Nothing
 End Sub
 
-Public Sub addSql(ByVal val As ValSnapSqlDefine)
-    sqlList.setItem val, val.name
+Public Sub addSql(ByVal val As ValSnapSqlDefineSql)
+    sqlList.setItem val
 End Sub
 
 Public Sub addParam(ByVal val As ValSnapSqlDefineParam)

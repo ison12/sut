@@ -40,29 +40,7 @@ End Sub
 ' =========================================================
 Private Sub Class_Terminate()
 
-    If stream Is Nothing Then
-    
-        Exit Sub
-    End If
-    
-    ' ストリームが閉じていない場合
-    If stream.state <> 0 Then
-    
-        ' http://msdn.microsoft.com/ja-jp/library/cc389870.aspx
-        ' SaveOptionsEnum
-        '
-        ' Stream オブジェクトからファイルを保存するときにファイルを作成するか、上書きするかを表します。これらの値は AND 演算子で結合することができます。
-        '
-        ' 定数  値  説明
-        ' adSaveCreateNotExist  1   既定値です。FileName パラメータで指定したファイルがない場合は新しいファイルが作成されます。
-        ' adSaveCreateOverWrite 2   FileName パラメータで指定したファイルがある場合は、現在開かれている Stream オブジェクトのデータでファイルが上書きされます。
-        stream.SaveToFile filePath, 2
-    
-        ' ストリームを閉じる
-        stream.Close
-        
-    End If
-    
+    destroy
 End Sub
 
 ' =========================================================
@@ -87,6 +65,48 @@ Public Sub init(ByVal f As String _
     charSet = c
     ' 改行コードを設定
     newline = n
+
+End Sub
+
+' =========================================================
+' ▽破棄処理
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Public Sub destroy()
+
+    On Error GoTo err
+
+    If stream Is Nothing Then
+    
+        Exit Sub
+    End If
+    
+    ' ストリームが閉じていない場合
+    If stream.state <> 0 Then
+    
+        ' ストリームを閉じる
+        stream.Close
+        
+    End If
+    
+    Exit Sub
+    
+err:
+
+    Dim errT As errInfo
+    errT = VBUtil.swapErr
+        
+    If Not stream Is Nothing Then
+        ' ストリームを閉じる
+        stream.Close
+        Set stream = Nothing
+    End If
+
+    err.Raise errT.Number, errT.Source, errT.Description, errT.HelpFile, errT.HelpContext
 
 End Sub
 
@@ -124,6 +144,7 @@ Public Function readText() As String
     
     ' ストリームを閉じる
     stream.Close
+    Set stream = Nothing
 
 End Function
 
@@ -135,8 +156,13 @@ End Function
 ' 戻り値　　：
 '
 ' =========================================================
-Public Sub Cancel()
+Public Sub cancel()
 
+    If stream Is Nothing Then
+    
+        Exit Sub
+    End If
+    
     ' ストリームが閉じていない場合
     If stream.state <> 0 Then
     

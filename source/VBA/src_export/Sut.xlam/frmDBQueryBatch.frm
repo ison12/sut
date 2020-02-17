@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBQueryBatch
    ClientHeight    =   9705
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   13905
+   ClientWidth     =   13935
    OleObjectBlob   =   "frmDBQueryBatch.frx":0000
 End
 Attribute VB_Name = "frmDBQueryBatch"
@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -44,7 +46,7 @@ Public Event ok(ByVal dbQueryBatchMode As DB_QUERY_BATCH_MODE _
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' DBクエリバッチモード
 Public Enum DB_QUERY_BATCH_MODE
@@ -55,8 +57,6 @@ Public Enum DB_QUERY_BATCH_MODE
     QueryExecute
 
 End Enum
-
-Private Const REG_SUB_KEY_DB_QUERY_BATCH_OPTION As String = "db_query_batch"
 
 ' DBクエリバッチのクエリ種類の一件毎の編集（子画面）
 Private WithEvents frmDBQueryBatchTypeSettingVar As frmDBQueryBatchTypeSetting
@@ -243,6 +243,8 @@ Private Sub cmbDbQueryBatchTypeChange_Click()
                         , dbQueryBatchTypeChangeAll.collection
     
     Set frmDBQueryBatchTypeSettingVar = Nothing
+    
+    tableSheetList.control.SetFocus
 
 End Sub
 
@@ -335,6 +337,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽ファイル選択ボタンクリック時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -402,7 +423,7 @@ Private Sub cmdOk_Click()
     Dim isSuccessCreateDir As Boolean
     
     Dim tableSelectedList As ValCollection
-    Set tableSelectedList = tableSheetList.selectedList
+    Set tableSelectedList = tableSheetList.getSelectedList
     
     If tableSelectedList.count <= 0 Then
         err.Raise ERR_NUMBER_NOT_SELECTED_TABLE_SHEET _
@@ -422,7 +443,7 @@ Private Sub cmdOk_Click()
         newline = cboChoiceNewLine.text
         
         ' ファイルパスの親ディレクトリを取得する
-        dirPath = VBUtil.extractDirPathFromFilePath(filePath)
+        dirPath = filePath
         
         ' --------------------------------------
         ' 親フォルダを作成する
@@ -485,7 +506,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -522,7 +543,7 @@ Private Sub initial()
         cboChoiceNewLine.addItem var
     Next
     
-    cboChoiceCharacterCode.value = "shift_jis"
+    cboChoiceCharacterCode.value = "Shift_JIS"
     cboChoiceNewLine.ListIndex = 0
     
 End Sub
@@ -602,6 +623,11 @@ Private Sub activate()
     
     ' ファイル出力オプションを読み込む
     restoreFileOutputOption
+    
+    ' ファイルパスにデフォルトのファイル名を設定する
+    If txtFilePath.value = "" Then
+        txtFilePath.value = VBUtil.extractDirPathFromFilePath(targetBook.path)
+    End If
     
     ' テーブルシートを読み込む
     readTableSheet

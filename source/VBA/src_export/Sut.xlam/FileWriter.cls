@@ -24,6 +24,8 @@ Private stream As Object
 Private filePath As String
 ' 文字コード
 Private charSet As String
+' BOM付き
+Private isWithBom As Boolean
 ' 改行コード
 Private newline As String
 
@@ -43,6 +45,44 @@ Private Sub Class_Terminate()
 End Sub
 
 ' =========================================================
+' ▽文字コード取得処理
+'
+' 概要　　　：
+' 引数　　　：c            文字コード
+' 　　　　　　outChar      戻り値…変換後の文字コード
+' 　　　　　　outIsWithBom 戻り値…文字コードがBOM有りかどうか
+'
+' 戻り値　　：
+'
+' =========================================================
+Private Function getCharSet(ByVal c As String _
+                        , ByRef outChar As String _
+                        , ByRef outIsWithBom As Boolean)
+
+    If InStr(UCase$(c), "UTF-8") > 0 Then
+        ' UTF-8
+        
+        outChar = "UTF-8"
+        
+        If InStr(UCase$(c), "BOM") > 0 Then
+            ' BOMあり
+            outIsWithBom = True
+        Else
+            ' BOMなし
+            outIsWithBom = False
+        End If
+        
+    Else
+        ' 上記以外
+        
+        outChar = c
+        outIsWithBom = False
+        
+    End If
+
+End Function
+
+' =========================================================
 ' ▽初期化処理
 '
 ' 概要　　　：初期化処理を実行する。
@@ -58,11 +98,11 @@ Public Sub init(ByVal f As String _
               , ByVal c As String _
               , ByVal n As String _
               , Optional ByVal append = False)
-
+              
     ' ファイルパスを設定
     filePath = f
     ' 文字コードを設定
-    charSet = c
+    getCharSet c, charSet, isWithBom
     ' 改行コードを設定
     newline = n
 
@@ -117,6 +157,29 @@ Public Sub destroy()
     
     ' ストリームが閉じていない場合
     If stream.state <> 0 Then
+    
+        If UCase$(charSet) = "UTF-8" And isWithBom = False Then
+            ' UTF-8 BOMなし
+            
+            ' バイト位置を先頭に戻す
+            stream.position = 0
+            stream.Type = 1 ' adTypeBinary
+            
+            ' BOMの3Byteをスキップ
+            If stream.size >= 3 Then
+                stream.position = 3
+            End If
+            
+            ' BOMを抜いたバイトデータを書き込む
+            Dim buf As Variant: buf = stream.read
+            ' 空ファイルの場合は、nullが返却されるのでチェックする
+            If isNull(buf) = False Then
+                stream.position = 0
+                stream.Write buf
+                stream.SetEOS
+            End If
+            
+        End If
     
         ' http://msdn.microsoft.com/ja-jp/library/cc389870.aspx
         ' SaveOptionsEnum
@@ -176,7 +239,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Public Sub Cancel()
+Public Sub cancel()
 
     ' ストリームが閉じていない場合
     If stream.state <> 0 Then

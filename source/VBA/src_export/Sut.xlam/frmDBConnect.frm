@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -40,7 +42,7 @@ Public Event ok(ByVal connStr As String, ByVal connSimpleStr As String, ByVal co
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' 接続文字列 配列インデックス最小値
 Private Const CONNECT_STR_MIN As Long = 1
@@ -300,7 +302,7 @@ Private Sub cmdFavoriteSave_Click()
     
     connectInfo.name = inputedName
     
-    ' DB接続情報をレジストリに登録する
+    ' DB接続情報を登録する
     frmDBConnectFavorite.registDbConnectInfo connectInfo
     
 End Sub
@@ -362,6 +364,25 @@ End Sub
 '
 ' =========================================================
 Private Sub UserForm_Activate()
+
+End Sub
+
+' =========================================================
+' ▽フォーム閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下の処理経由で閉じる
+        cmdCancel_Click
+    End If
 
 End Sub
 
@@ -694,10 +715,10 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' DB接続キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
     ' リスナーにもイベントを通知する
     If Not dbConnectListener Is Nothing Then
-        dbConnectListener.Cancel
+        dbConnectListener.cancel
     End If
 
     Exit Sub

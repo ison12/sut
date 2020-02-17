@@ -25,7 +25,7 @@ Attribute frmProgressVar.VB_VarHelpID = -1
 Private WithEvents frmDBConnectVar              As frmDBConnect
 Attribute frmDBConnectVar.VB_VarHelpID = -1
 ' スナップショット取得フォーム
-Private WithEvents frmSnapShotVar               As frmSnapShot
+Private WithEvents frmSnapShotVar               As frmSnapshot
 Attribute frmSnapShotVar.VB_VarHelpID = -1
 ' スナップショット取得フォーム（比較）
 Private WithEvents frmSnapshotDiffVar           As frmSnapshotDiff
@@ -191,12 +191,20 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
     Set longTimeProcessing = Nothing
 
     frmProgressVar.HideExt
+    frmSnapShotVar.Show vbModeless ' アクティブにするために表示メソッドを呼び出す
     
     Exit Sub
 err:
+
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
     
     frmProgressVar.HideExt
-    
+    frmSnapShotVar.Show vbModeless ' アクティブにするために表示メソッドを呼び出す
+
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
+
     ' エラー発生
     Main.ShowErrorMessage
     
@@ -235,7 +243,7 @@ Private Sub frmSnapShotVar_changeSql(sheet As Worksheet)
     
         frmSnapShotVar.clearSnapshot
         
-        For Each ss In ssList
+        For Each ss In ssList.col
             frmSnapShotVar.addSnapshot Format(ss.getDate, "yyyy/mm/dd hh:nn:ss") & " - " & ss.recordCount & "件", Empty
         Next
     
@@ -323,6 +331,9 @@ End Sub
 Private Sub frmSnapshotDiffVar_execDiff(ByRef snapShotList As ValCollection, ByVal srcIndex As Long, ByVal desIndex As Long)
 
     On Error GoTo err
+    
+    ' モーダルフォームを非表示にする
+    frmSnapshotDiffVar.Hide
 
     ' プログレスウィンドウを表示する
     frmProgressVar.ShowExt vbModeless, False
@@ -342,13 +353,25 @@ Private Sub frmSnapshotDiffVar_execDiff(ByRef snapShotList As ValCollection, ByV
     
     frmProgressVar.HideExt
     
+    ' モーダルフォームを元に戻す
+    frmSnapshotDiffVar.Show vbModal
+
     Exit Sub
 err:
     
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
+    
     frmProgressVar.HideExt
+    
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
     
     ' エラー発生
     Main.ShowErrorMessage
+    
+    ' モーダルフォームを元に戻す
+    frmSnapshotDiffVar.Show
 
 End Sub
 
@@ -567,10 +590,10 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
     Set frmDBConnectVar = frmDBConnect
     
     ' スナップショットフォームをロードする
-    If VBUtil.unloadFormIfChangeActiveBook(frmSnapShot) Then Unload frmSnapShot
-    Load frmSnapShot
+    If VBUtil.unloadFormIfChangeActiveBook(frmSnapshot) Then Unload frmSnapshot
+    Load frmSnapshot
     ' スナップショットフォームを設定する
-    Set frmSnapShotVar = frmSnapShot
+    Set frmSnapShotVar = frmSnapshot
 
     ' スナップショット比較フォームをロードする
     If VBUtil.unloadFormIfChangeActiveBook(frmSnapshotDiff) Then Unload frmSnapshotDiff

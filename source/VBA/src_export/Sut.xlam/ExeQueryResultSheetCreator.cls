@@ -71,7 +71,7 @@ End Sub
 Public Function isQueryResultSheet(ByRef sheet As Worksheet) As Boolean
 
     ' テーブルシート判定用のオートシェイプ
-    Dim S As Shape
+    Dim s As Shape
 
     ' 戻り値を初期化する
     isQueryResultSheet = False
@@ -80,10 +80,10 @@ Public Function isQueryResultSheet(ByRef sheet As Worksheet) As Boolean
     ' エラーが発生しても継続する
     On Error Resume Next
 
-    Set S = sheet.Shapes(ConstantsTable.QUERY_RESULT_SHEET_CHECK_IMAGE)
+    Set s = sheet.Shapes(ConstantsTable.QUERY_RESULT_SHEET_CHECK_IMAGE)
     
     ' 取得できた場合
-    If Not S Is Nothing Then
+    If Not s Is Nothing Then
     
         isQueryResultSheet = True
         Exit Function

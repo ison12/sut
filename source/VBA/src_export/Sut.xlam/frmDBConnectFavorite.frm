@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBConnectFavorite
    ClientHeight    =   8670
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   12630
+   ClientWidth     =   12675
    OleObjectBlob   =   "frmDBConnectFavorite.frx":0000
 End
 Attribute VB_Name = "frmDBConnectFavorite"
@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -42,7 +44,7 @@ Public Event ok()
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' B接続のお気に入り情報の新規作成最大数
 Private Const DB_CONNECT_FAVORITE_NEW_CREATED_OVER_SIZE As String = "DB接続のお気に入り情報は最大${count}まで登録可能です。"
@@ -172,7 +174,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -190,7 +192,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstDbConnectFavoriteList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub lstDbConnectFavoriteList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
     editFavorite
 End Sub
 
@@ -559,7 +561,9 @@ End Function
 ' =========================================================
 Private Sub cmddbConnectFavoritePaste_Click()
 
-    Dim var As Variant
+    Dim i As Long
+    
+    Dim var As ValCollection
     Dim dbConnectFavoriteRawList As ValCollection
     
     Dim dbConnectFavoriteObj As ValDBConnectInfo
@@ -574,6 +578,11 @@ Private Sub cmddbConnectFavoritePaste_Click()
     For Each var In dbConnectFavoriteRawList.col
         
         Set dbConnectFavoriteObj = New ValDBConnectInfo
+    
+        ' 不足分を補完する（最終列が未入力の場合など、一列不足することがあるため）
+        For i = 1 To 9 - var.count
+            var.setItem ""
+        Next
     
         If var.count >= 9 Then
             dbConnectFavoriteObj.name = var.getItemByIndex(1, vbVariant)
@@ -678,9 +687,14 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
-
-    deactivate
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
 
 End Sub
 

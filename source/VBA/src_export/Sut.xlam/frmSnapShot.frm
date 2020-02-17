@@ -4,14 +4,16 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSnapshot
    ClientHeight    =   8265
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   8385
-   OleObjectBlob   =   "frmSnapShot.frx":0000
+   ClientWidth     =   8415
+   OleObjectBlob   =   "frmSnapshot.frx":0000
 End
-Attribute VB_Name = "frmSnapShot"
+Attribute VB_Name = "frmSnapshot"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -40,7 +42,7 @@ Public Event execSnapshot(ByRef sheet As Worksheet)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' =========================================================
 ' ▽DB変更イベント
@@ -77,11 +79,6 @@ Public Event clearSnapshot(ByRef sheet As Worksheet)
 '
 ' =========================================================
 Public Event showSnapshotDiff(ByRef sheet As Worksheet)
-
-' ---------------------------------------------------------
-' レジストリファイルキー
-' ---------------------------------------------------------
-Private Const REG_SUB_KEY_SNAPSHOT As String = "snapshot"
 
 ' アプリケーション設定情報
 Private applicationSetting As ValApplicationSetting
@@ -198,17 +195,22 @@ err:
 End Sub
 
 ' =========================================================
-' ▽フォーム閉じるイベントプロシージャ
+' ▽フォームの閉じる時のイベントプロシージャ
 '
 ' 概要　　　：
 ' 引数　　　：
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
-
-    Main.storeFormPosition Me.name, Me
-
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdClose_Click
+    End If
+    
 End Sub
 
 ' =========================================================
@@ -437,7 +439,7 @@ Private Sub cmdClose_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -460,6 +462,9 @@ Private Sub initial()
     Set executeSqltList = New CntListBox
     Set snapShotList = New CntListBox
     snapShotList.init lstSnapshot
+
+    ' 閉じるボタンを非表示にする
+    cmdClose.Width = 0
 
 End Sub
 

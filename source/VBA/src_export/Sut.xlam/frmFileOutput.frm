@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -42,9 +44,7 @@ Public Event ok(ByVal filePath As String _
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
-
-Private Const REG_SUB_KEY_FILE_OUTPUT_OPTION As String = "file_output_option"
+Public Event cancel()
 
 ' 文字コードリスト
 Private charcterList As CntListBox
@@ -162,6 +162,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽ファイル選択ボタンクリック時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -267,7 +286,7 @@ Private Sub cmdOk_Click()
     ' フォルダへのテスト出力に失敗した場合
     If isSuccessCreateDir = False Or VBUtil.touch(dirPath) = False Then
     
-        VBUtil.showMessageBoxForWarning "指定されたファイルパスにファイルが出力できません。" & vbNewLine & "不正なパス、または権限が不足している可能性があります。" _
+        VBUtil.showMessageBoxForWarning "指定されたファイルパスにファイルが出力できません。" & vbNewLine & "未入力、不正なパス、または権限が不足している可能性があります。" _
                                       , ConstantsCommon.APPLICATION_NAME _
                                       , Nothing
         
@@ -308,7 +327,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -345,7 +364,7 @@ Private Sub initial()
         cboChoiceNewLine.addItem var
     Next
     
-    cboChoiceCharacterCode.value = "shift_jis"
+    cboChoiceCharacterCode.value = "Shift_JIS"
     cboChoiceNewLine.ListIndex = 0
     
 End Sub
@@ -376,9 +395,15 @@ Private Sub activate()
     restoreFileOutputOption
     
     ' ファイルパスにデフォルトのファイル名を設定する
-    txtFilePath.value = VBUtil.concatFilePath( _
-                                    VBUtil.extractDirPathFromFilePath(txtFilePath.value) _
-                                  , defaultFileName)
+    If txtFilePath.value = "" Then
+        txtFilePath.value = VBUtil.concatFilePath( _
+                                        VBUtil.extractDirPathFromFilePath(targetBook.path) _
+                                      , defaultFileName)
+    Else
+        txtFilePath.value = VBUtil.concatFilePath( _
+                                        VBUtil.extractDirPathFromFilePath(txtFilePath.value) _
+                                      , defaultFileName)
+    End If
     
 End Sub
 
@@ -475,3 +500,44 @@ err:
     Main.ShowErrorMessage
 
 End Sub
+
+' =========================================================
+' ▽テキストボックスチェック成功時のコントロール変更処理
+'
+' 概要　　　：
+' 引数　　　：cnt コントロール
+' 戻り値　　：
+'
+' =========================================================
+Private Sub changeControlPropertyByValidTrue(ByRef cnt As MSForms.control)
+
+    With cnt
+        .BackColor = &H80000005
+        .ForeColor = &H80000012
+    
+    End With
+
+End Sub
+
+' =========================================================
+' ▽テキストボックスチェック失敗時のコントロール変更処理
+'
+' 概要　　　：
+' 引数　　　：cnt コントロール
+' 戻り値　　：
+'
+' =========================================================
+Private Sub changeControlPropertyByValidFalse(ByRef cnt As MSForms.control)
+
+    With cnt
+        ' テキスト全体を選択する
+        .SelStart = 0
+        .SelLength = Len(.text)
+        
+        .BackColor = RGB(&HFF, &HFF, &HCC)
+        .ForeColor = reverseRGB(&HFF, &HFF, &HCC)
+        
+    End With
+
+End Sub
+

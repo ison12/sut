@@ -14,6 +14,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -33,7 +35,7 @@ Option Explicit
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' セカンダリプログレスの表示有無
 Private enableSecProgressParam As Boolean
@@ -415,18 +417,18 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
 
     If CloseMode = 0 Then
     
         If showCancelConfDialog = 6 Then
         
             ' キャンセルイベントを送信する
-            RaiseEvent Cancel
+            RaiseEvent cancel
             
         End If
         
-        Cancel = True
+        cancel = True
         
     End If
     

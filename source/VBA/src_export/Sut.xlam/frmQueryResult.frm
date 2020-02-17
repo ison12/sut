@@ -6,13 +6,14 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmQueryResult
    ClientTop       =   390
    ClientWidth     =   15900
    OleObjectBlob   =   "frmQueryResult.frx":0000
-   StartUpPosition =   1  'オーナー フォームの中央
 End
 Attribute VB_Name = "frmQueryResult"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -161,6 +162,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdClose_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽テーブルシートリスト　選択肢変更時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -208,6 +228,9 @@ End Sub
 '
 ' =========================================================
 Private Sub initial()
+
+    ' 閉じるボタンを非表示にする
+    cmdClose.Width = 0
     
 End Sub
 
@@ -306,7 +329,7 @@ Private Sub selectedTable()
     Dim queryResultInfo As ValQueryResultInfo
     Dim tableSheet      As ValTableWorksheet
 
-    Set selectedList = tableSheetList.selectedList
+    Set selectedList = tableSheetList.getSelectedList
 
     If selectedList.count >= 1 Then
     

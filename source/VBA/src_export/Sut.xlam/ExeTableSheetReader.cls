@@ -141,7 +141,7 @@ End Sub
 Public Function isTableSheet() As Boolean
 
     ' テーブルシート判定用のオートシェイプ
-    Dim S As Shape
+    Dim s As Shape
 
     ' 戻り値を初期化する
     isTableSheet = False
@@ -150,19 +150,19 @@ Public Function isTableSheet() As Boolean
     ' エラーが発生しても継続する
     On Error Resume Next
 
-    Set S = sheet.Shapes(ConstantsTable.U_SHEET_CHECK_IMAGE)
+    Set s = sheet.Shapes(ConstantsTable.U_SHEET_CHECK_IMAGE)
     
     ' 取得できた場合
-    If Not S Is Nothing Then
+    If Not s Is Nothing Then
     
         isTableSheet = True
         Exit Function
     End If
     
-    Set S = sheet.Shapes(ConstantsTable.R_SHEET_CHECK_IMAGE)
+    Set s = sheet.Shapes(ConstantsTable.R_SHEET_CHECK_IMAGE)
     
     ' 取得できた場合
-    If Not S Is Nothing Then
+    If Not s Is Nothing Then
     
         isTableSheet = True
         Exit Function
@@ -210,7 +210,7 @@ Public Function getRowFormat() As REC_FORMAT
     Dim ret As REC_FORMAT
     
     ' テーブルシート判定用のオートシェイプ
-    Dim S As Shape
+    Dim s As Shape
 
     ' 戻り値を初期化する
     ret = -1
@@ -219,10 +219,10 @@ Public Function getRowFormat() As REC_FORMAT
     ' エラーが発生しても継続する
     On Error Resume Next
 
-    Set S = sheet.Shapes("SUT_WORKSHEET_MARK_TO_UNDER")
+    Set s = sheet.Shapes("SUT_WORKSHEET_MARK_TO_UNDER")
     
     ' 取得できた場合
-    If Not S Is Nothing Then
+    If Not s Is Nothing Then
     
         ' 戻り値変数に行フォーマットを設定する
         ret = REC_FORMAT.recFormatToUnder
@@ -233,10 +233,10 @@ Public Function getRowFormat() As REC_FORMAT
         Exit Function
     End If
     
-    Set S = sheet.Shapes("SUT_WORKSHEET_MARK_TO_RIGHT")
+    Set s = sheet.Shapes("SUT_WORKSHEET_MARK_TO_RIGHT")
     
     ' 取得できた場合
-    If Not S Is Nothing Then
+    If Not s Is Nothing Then
     
         ' 戻り値変数に行フォーマットを設定する
         ret = REC_FORMAT.recFormatToRight

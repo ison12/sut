@@ -125,7 +125,7 @@ End Sub
 '
 ' =========================================================
 Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingShortcut _
-                                  , ByRef Cancel As Boolean)
+                                  , ByRef cancel As Boolean)
 
     Dim result As Long
     result = VBUtil.showMessageBoxForYesNo("右クリックメニューが初期状態にリセットされます。" & vbNewLine & _
@@ -134,7 +134,7 @@ Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingS
     
     If result = WinAPI_User.IDNO Then
     
-        Cancel = True
+        cancel = True
         Exit Sub
     End If
     
@@ -251,7 +251,7 @@ Public Sub settingRClickMenu()
     frmMenuSettingVar.ShowExt Nothing _
                             , vbModal _
                             , appSettingShortcut _
-                            , appSettingShortcut.CloneRClickMenuList _
+                            , appSettingShortcut.cloneRClickMenuList _
                             , "右クリックメニューの設定" _
                             , "シート上で右クリックした際に表示されるポップアップをカスタマイズします。" _
                             , "右クリックメニュー" _

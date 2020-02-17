@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -49,7 +51,7 @@ Public Event ok(ByRef appSettingShortcut As ValApplicationSettingShortcut _
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' =========================================================
 ' ▽リセットされた場合に呼び出されるイベント
@@ -60,10 +62,7 @@ Public Event Cancel()
 '
 ' =========================================================
 Public Event reset(ByRef appSettingShortcut As ValApplicationSettingShortcut _
-                 , ByRef Cancel As Boolean)
-
-' 親フォーム
-Private ownerForm As Object
+                 , ByRef cancel As Boolean)
 
 ' アイコン画像
 Private iconImage As IPictureDisp
@@ -96,7 +95,8 @@ End Function
 ' ▽フォーム表示
 '
 ' 概要　　　：
-' 引数　　　：modal            モーダルまたはモードレス表示指定
+' 引数　　　：icon             アイコン
+' 　　　　　　modal            モーダルまたはモードレス表示指定
 ' 　　　　　　var              アプリケーション設定情報
 '             var2             選択済み項目リスト
 ' 　　　　　　title            フォームタイトル
@@ -104,7 +104,7 @@ End Function
 ' 戻り値　　：
 '
 ' =========================================================
-Public Sub ShowExt(ByRef parent As Object _
+Public Sub ShowExt(ByRef icon As Object _
                  , ByVal modal As FormShowConstants _
                  , ByRef var As ValApplicationSettingShortcut _
                  , ByRef var2 As ValCollection _
@@ -113,18 +113,11 @@ Public Sub ShowExt(ByRef parent As Object _
                  , ByVal menuName As String _
                  , Optional ByVal menuNameDisable As Boolean = False)
 
-    ' 親フォーム
-    Set ownerForm = parent
-    
-    ' フォームの上にフォームを重ねて表示すると
-    ' 以後、Excel本体のIMEモードが無効になり操作不能になってしまうという現象に遭遇
-    ' これを防ぐために、一旦親フォームを隠して、本フォームを閉じるときに再表示することで、この現象を防ぐ
-    If Not ownerForm Is Nothing Then
-        ownerForm.Hide
+    If Not icon Is Nothing Then
         ' 自身のアイコンを退避させる
-        Set iconImage = Me.imgIcon.Picture
+        'Set iconImage = Me.imgIcon.Picture
         ' アイコンを親フォームの画像で置き換える
-        Me.imgIcon.Picture = ownerForm.imgIcon.Picture
+        'Me.imgIcon.Picture = icon
     End If
     
     ' メンバ変数にアプリケーション設定情報を設定する
@@ -168,13 +161,9 @@ Public Sub HideExt()
     Main.storeFormPosition Me.name, Me
     Me.Hide
     
-    ' フォームの上にフォームを重ねて表示すると
-    ' 以後、Excel本体のIMEモードが無効になり操作不能になってしまうという現象に遭遇
-    ' これを防ぐために、一旦親フォームを隠して、本フォームを閉じるときに再表示することで、この現象を防ぐ
-    If Not ownerForm Is Nothing Then
+    If Not iconImage Is Nothing Then
         ' アイコン画像を設定する
         Me.imgIcon.Picture = iconImage
-        ownerForm.Show
     End If
 
 End Sub
@@ -202,12 +191,6 @@ End Sub
 ' =========================================================
 Private Sub deactivate()
 
-    Set menuList = Nothing
-    Set appMenuList = Nothing
-    Set applicationSetting = Nothing
-    Set selectedItemList = Nothing
-    
-    
 End Sub
 
 ' =========================================================
@@ -271,6 +254,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽OKボタンクリック時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -293,14 +295,15 @@ Private Sub cmdOk_Click()
     
         storedList.setItem control.Tag, control.Tag
     Next
+    
+    ' フォームを閉じる
+    HideExt
+    
     ' OKイベントを送信する
     RaiseEvent ok(applicationSetting _
                 , storedList _
                 , txtMenuName.value)
     
-    
-    ' フォームを閉じる
-    HideExt
     
     Exit Sub
     
@@ -322,12 +325,12 @@ End Sub
 Private Sub cmdCancel_Click()
 
     On Error GoTo err
-    
-    ' キャンセルイベントを送信する
-    RaiseEvent Cancel
 
     ' フォームを閉じる
     HideExt
+    
+    ' キャンセルイベントを送信する
+    RaiseEvent cancel
     
     Exit Sub
     

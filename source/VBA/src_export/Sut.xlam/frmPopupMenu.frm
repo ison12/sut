@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmPopupMenu 
    Caption         =   "ポップアップメニューの設定"
-   ClientHeight    =   5880
+   ClientHeight    =   5775
    ClientLeft      =   45
    ClientTop       =   360
-   ClientWidth     =   6390
+   ClientWidth     =   6435
    OleObjectBlob   =   "frmPopupMenu.frx":0000
 End
 Attribute VB_Name = "frmPopupMenu"
@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -42,7 +44,7 @@ Public Event ok(ByRef applicationSetting As ValApplicationSettingShortcut)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' ポップアップメニューの新規作成時のデフォルト文字列
 Private Const POPUP_MENU_NEW_CREATED_STR As String = "Popup Menu"
@@ -142,8 +144,6 @@ End Sub
 ' =========================================================
 Private Sub deactivate()
 
-    Set popupMenuList = Nothing
-    
     ' Nothingを設定することでイベントを受信しないようにする
     Set frmMenuSettingVar = Nothing
     Set frmShortcutKeySettingVar = Nothing
@@ -213,6 +213,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽ポップアップメニューリストボックスダブルクリック時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -220,7 +239,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstPopupMenu_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub lstPopupMenu_DblClick(ByVal cancel As MSForms.ReturnBoolean)
 
     editPopup
 End Sub
@@ -271,7 +290,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -350,14 +369,16 @@ Private Sub editPopup()
     Set popupMenuListSelectedItem = popupMenuList.getItem(popupMenuListSelectedIndex)
     
     Set frmMenuSettingVar = frmMenuSetting
-    frmMenuSettingVar.ShowExt Me _
+    frmMenuSettingVar.ShowExt Me.imgIcon.Picture _
                             , vbModal _
                             , applicationSetting _
                             , popupMenuListSelectedItem.itemList _
-                            , "" _
-                            , "ポップアップメニューの設定をします。" _
+                            , "ポップアップメニュー設定" _
+                            , "ポップアップメニューに割り当てる機能を設定します。" _
                             , popupMenuListSelectedItem.popupMenuName
     Set frmMenuSettingVar = Nothing
+
+    lstPopupMenu.SetFocus
 
 End Sub
 
@@ -391,7 +412,6 @@ End Sub
 ' =========================================================
 Private Sub frmMenuSettingVar_cancel()
 
-    lstPopupMenu.SetFocus
 End Sub
 
 ' =========================================================
@@ -403,7 +423,7 @@ End Sub
 '
 ' =========================================================
 Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingShortcut _
-                                  , ByRef Cancel As Boolean)
+                                  , ByRef cancel As Boolean)
 
 End Sub
 
@@ -493,6 +513,98 @@ Private Sub frmShortcutKeySettingVar_cancel()
 End Sub
 
 ' =========================================================
+' ▽上へボタン押下時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub cmdUp_Click()
+
+    On Error GoTo err
+    
+    ' 選択済みインデックス
+    Dim selectedIndex As Long
+    
+    ' 現在リストで選択されているインデックスを取得する
+    selectedIndex = popupMenuList.getSelectedIndex
+    
+    ' 未選択の場合
+    If selectedIndex = -1 Then
+        ' 終了する
+        Exit Sub
+    End If
+
+    If selectedIndex > 0 Then
+    
+        popupMenuList.swapItem _
+                          selectedIndex _
+                        , selectedIndex - 1 _
+                        , vbObject _
+                        , 2
+                              
+        popupMenuList.setSelectedIndex selectedIndex - 1
+            
+    End If
+    
+    popupMenuList.control.SetFocus
+        
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽下へボタン押下時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub cmdDown_Click()
+
+    On Error GoTo err
+    
+    ' 選択済みインデックス
+    Dim selectedIndex As Long
+    
+    ' 現在リストで選択されているインデックスを取得する
+    selectedIndex = popupMenuList.getSelectedIndex
+    
+        ' 未選択の場合
+    If selectedIndex = -1 Then
+        ' 終了する
+        Exit Sub
+    End If
+
+    If selectedIndex < popupMenuList.count - 1 Then
+    
+        popupMenuList.swapItem _
+                          selectedIndex _
+                        , selectedIndex + 1 _
+                        , vbObject _
+                        , 2
+                              
+        popupMenuList.setSelectedIndex selectedIndex + 1
+            
+    End If
+    
+    popupMenuList.control.SetFocus
+        
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
 ' ▽初期化処理
 '
 ' 概要　　　：
@@ -547,7 +659,7 @@ Private Sub restoreShortcut()
 
     Set popupMenuList = New CntListBox: popupMenuList.init lstPopupMenu
     
-    popupMenuList.addAll applicationSetting.ClonePopupMenuList _
+    popupMenuList.addAll applicationSetting.clonePopupMenuList _
                        , "popupMenuName" _
                        , "shortcutKeyLabel"
     

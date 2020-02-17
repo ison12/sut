@@ -4,15 +4,16 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBColumnFormat
    ClientHeight    =   8550
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   15105
+   ClientWidth     =   15135
    OleObjectBlob   =   "frmDBColumnFormat.frx":0000
-   StartUpPosition =   1  'オーナー フォームの中央
 End
 Attribute VB_Name = "frmDBColumnFormat"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -41,7 +42,7 @@ Public Event ok(ByVal dbColumnFormatInfo As ValDbColumnFormatInfo)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' DBカラム書式編集フォーム
 Private WithEvents frmDBColumnFormatSettingVar As frmDBColumnFormatSetting
@@ -207,7 +208,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -279,6 +280,8 @@ Private Sub editDbColumnFormat()
     frmDBColumnFormatSettingVar.ShowExt vbModal, dbColumnFormatSelectedItem
                             
     Set frmDBColumnFormatSettingVar = Nothing
+    
+    dbColumnFormatList.control.SetFocus
 
 End Sub
 
@@ -515,9 +518,14 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
-
-    deactivate
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下の処理経由で閉じる
+        HideExt
+    End If
 
 End Sub
 

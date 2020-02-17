@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmTableSheetList 
    Caption         =   "テーブルシート一覧"
-   ClientHeight    =   8415
+   ClientHeight    =   8085
    ClientLeft      =   45
    ClientTop       =   360
-   ClientWidth     =   10905
+   ClientWidth     =   10935
    OleObjectBlob   =   "frmTableSheetList.frx":0000
 End
 Attribute VB_Name = "frmTableSheetList"
@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -155,6 +157,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        btnClose_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽初期化処理
 '
 ' 概要　　　：
@@ -166,6 +187,9 @@ Private Sub initial()
 
     ' テーブルシートリストを初期化する
     Set tableSheetList = New CntListBox: tableSheetList.init lstTableSheet
+
+    ' 閉じるボタンを非表示にする
+    btnClose.Width = 0
     
 End Sub
 
@@ -248,6 +272,10 @@ Private Sub activate()
         tableSheetList.setSelectedIndex selectedIndex
     End If
     
+    ' フィルタ条件を適用する
+    cboFilter.text = ""
+    applyFilterCondition
+    
 End Sub
 
 ' =========================================================
@@ -327,175 +355,13 @@ Private Sub cboFilter_Change()
     
         currentFilterText = cboFilter.text
         
-        filterTableSheetList "*" & currentFilterText & "*"
+        'filterTableSheetList currentFilterText ' 完全一致
+        filterTableSheetList "*" & currentFilterText & "*" ' 中間一致
         
         clearFilterCondition True
     
         inFilterProcess = False
 
-    End If
-    
-    Exit Sub
-    
-err:
-    
-    inFilterProcess = False
-    
-    err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
-    
-End Sub
-
-' =========================================================
-' ▽フィルタトグル全般の変更時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub tglFilterA_Click()
-    filterToggle tglFilterA, "A"
-End Sub
-Private Sub tglFilterB_Click()
-    filterToggle tglFilterB, "B"
-End Sub
-Private Sub tglFilterC_Click()
-    filterToggle tglFilterC, "C"
-End Sub
-Private Sub tglFilterD_Click()
-    filterToggle tglFilterD, "D"
-End Sub
-Private Sub tglFilterE_Click()
-    filterToggle tglFilterE, "E"
-End Sub
-Private Sub tglFilterF_Click()
-    filterToggle tglFilterF, "F"
-End Sub
-Private Sub tglFilterG_Click()
-    filterToggle tglFilterG, "G"
-End Sub
-Private Sub tglFilterH_Click()
-    filterToggle tglFilterH, "H"
-End Sub
-Private Sub tglFilterI_Click()
-    filterToggle tglFilterI, "I"
-End Sub
-Private Sub tglFilterJ_Click()
-    filterToggle tglFilterJ, "J"
-End Sub
-Private Sub tglFilterK_Click()
-    filterToggle tglFilterK, "K"
-End Sub
-Private Sub tglFilterL_Click()
-    filterToggle tglFilterL, "L"
-End Sub
-Private Sub tglFilterM_Click()
-    filterToggle tglFilterM, "M"
-End Sub
-Private Sub tglFilterN_Click()
-    filterToggle tglFilterN, "N"
-End Sub
-Private Sub tglFilterO_Click()
-    filterToggle tglFilterO, "O"
-End Sub
-Private Sub tglFilterP_Click()
-    filterToggle tglFilterP, "P"
-End Sub
-Private Sub tglFilterQ_Click()
-    filterToggle tglFilterQ, "Q"
-End Sub
-Private Sub tglFilterR_Click()
-    filterToggle tglFilterR, "R"
-End Sub
-Private Sub tglFilterS_Click()
-    filterToggle tglFilterS, "S"
-End Sub
-Private Sub tglFilterT_Click()
-    filterToggle tglFilterT, "T"
-End Sub
-Private Sub tglFilterU_Click()
-    filterToggle tglFilterU, "U"
-End Sub
-Private Sub tglFilterV_Click()
-    filterToggle tglFilterV, "V"
-End Sub
-Private Sub tglFilterW_Click()
-    filterToggle tglFilterW, "W"
-End Sub
-Private Sub tglFilterX_Click()
-    filterToggle tglFilterX, "X"
-End Sub
-Private Sub tglFilterY_Click()
-    filterToggle tglFilterY, "Y"
-End Sub
-Private Sub tglFilterZ_Click()
-    filterToggle tglFilterZ, "Z"
-End Sub
-Private Sub tglFilterOther_Click()
-    
-    ' Otherの処理だけ「～以外」という検索なので別の処理として定義
-    
-    On Error GoTo err
-
-    ' 本イベントプロシージャ内部で、同コントロールを変更することによる変更イベントが
-    ' 再帰的に発生しても良いように
-    ' フラグを参照して再実行されないようにする判定を実施
-    If inFilterProcess = False Then
-
-        inFilterProcess = True
-        
-        If tglFilterOther.value = True Then
-            ' アルファベット以外の文字で始まる情報で検索
-            filterTableSheetListForRegExp "[^a-zA-Z]*"
-            
-            clearFilterCondition
-            tglFilterOther.value = True
-        Else
-            filterTableSheetListForRegExp ""
-        End If
-        
-        inFilterProcess = False
-        
-    End If
-    
-    Exit Sub
-    
-err:
-    
-    inFilterProcess = False
-    
-    err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
-    
-End Sub
-
-' =========================================================
-' ▽トグル系フィルタ条件の共通処理
-'
-' 概要　　　：
-' 引数　　　：state   トグルボタン
-'     　　　  keyword キーワード
-' 戻り値　　：
-'
-' =========================================================
-Private Sub filterToggle(ByVal state As ToggleButton, ByVal keyword As String)
-
-    On Error GoTo err
-
-    If inFilterProcess = False Then
-
-        inFilterProcess = True
-        
-        If state.value = True Then
-            filterTableSheetList keyword & "*"
-            
-            clearFilterCondition
-            state.value = True
-        Else
-            filterTableSheetList ""
-        End If
-        
-        inFilterProcess = False
-        
     End If
     
     Exit Sub
@@ -518,36 +384,25 @@ End Sub
 ' =========================================================
 Private Sub clearFilterCondition(Optional ByVal isNotClearComboFilter As Boolean = False)
 
-    tglFilterA.value = False
-    tglFilterB.value = False
-    tglFilterC.value = False
-    tglFilterD.value = False
-    tglFilterE.value = False
-    tglFilterF.value = False
-    tglFilterG.value = False
-    tglFilterH.value = False
-    tglFilterI.value = False
-    tglFilterJ.value = False
-    tglFilterK.value = False
-    tglFilterL.value = False
-    tglFilterM.value = False
-    tglFilterN.value = False
-    tglFilterO.value = False
-    tglFilterP.value = False
-    tglFilterQ.value = False
-    tglFilterR.value = False
-    tglFilterS.value = False
-    tglFilterT.value = False
-    tglFilterU.value = False
-    tglFilterV.value = False
-    tglFilterW.value = False
-    tglFilterX.value = False
-    tglFilterY.value = False
-    tglFilterZ.value = False
-    tglFilterOther.value = False
-    
     If isNotClearComboFilter = False Then
         cboFilter.text = ""
+    End If
+    
+End Sub
+
+' =========================================================
+' ▽フィルタ条件の適用処理
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub applyFilterCondition()
+
+    If cboFilter.text <> "" Then
+        cboFilter_Change
+        Exit Sub
     End If
     
 End Sub
@@ -566,7 +421,7 @@ Private Sub selectedTable()
     
     Dim tableSheet As ValTableWorksheet
 
-    Set selectedList = tableSheetList.selectedList
+    Set selectedList = tableSheetList.getSelectedList
 
     If selectedList.count >= 1 Then
     

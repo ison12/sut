@@ -4,15 +4,16 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBConnectSelector
    ClientHeight    =   8670
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   12630
+   ClientWidth     =   12675
    OleObjectBlob   =   "frmDBConnectSelector.frx":0000
-   StartUpPosition =   1  'オーナー フォームの中央
 End
 Attribute VB_Name = "frmDBConnectSelector"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -41,7 +42,7 @@ Public Event ok(ByVal connectInfo As ValDBConnectInfo)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' フォームモード
 Private formMode As DB_CONNECT_INFO_TYPE
@@ -122,6 +123,10 @@ Private Sub activate()
 
     restoreDbConnectInfo formMode
     
+    ' フィルタ条件を適用する
+    cboFilter.text = ""
+    applyFilterCondition
+
 End Sub
 
 ' =========================================================
@@ -159,7 +164,8 @@ Private Sub cboFilter_Change()
     
         currentFilterText = cboFilter.text
         
-        filterConnectList "*" & currentFilterText & "*"
+        'filterConnectList currentFilterText ' 完全一致
+        filterConnectList "*" & currentFilterText & "*" ' 中間一致
     
         inFilterProcess = False
 
@@ -172,6 +178,23 @@ err:
     inFilterProcess = False
     
     err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
+    
+End Sub
+
+' =========================================================
+' ▽フィルタ条件の適用処理
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub applyFilterCondition()
+
+    If cboFilter.text <> "" Then
+        cboFilter_Change
+        Exit Sub
+    End If
     
 End Sub
 
@@ -234,7 +257,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent Cancel
+    RaiseEvent cancel
 
     Exit Sub
     
@@ -252,7 +275,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstDbConnectList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+Private Sub lstDbConnectList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
     cmdOk_Click
 End Sub
 
@@ -333,6 +356,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽初期化処理
 '
 ' 概要　　　：
@@ -359,7 +401,7 @@ End Sub
 ' =========================================================
 ' ▽設定情報の生成
 ' =========================================================
-Private Function createApplicationProperties() As ApplicationProperties
+Private Function createApplicationProperties(ByVal formMode As DB_CONNECT_INFO_TYPE) As ApplicationProperties
     
     ' フォーム名を取得する
     Dim subName As String
@@ -391,7 +433,7 @@ Private Sub storeDBConnectInfo(ByVal formMode As DB_CONNECT_INFO_TYPE)
     
     ' アプリケーションプロパティを生成する
     Dim appProp As ApplicationProperties
-    Set appProp = createApplicationProperties
+    Set appProp = createApplicationProperties(formMode)
     
     
     ' 書き込みデータ
@@ -442,7 +484,7 @@ Private Sub restoreDbConnectInfo(ByVal formMode As DB_CONNECT_INFO_TYPE)
         
     ' アプリケーションプロパティを生成する
     Dim appProp As ApplicationProperties
-    Set appProp = createApplicationProperties
+    Set appProp = createApplicationProperties(formMode)
     
     ' 接続情報
     Dim connectInfoList As ValCollection

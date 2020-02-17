@@ -12,6 +12,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -40,7 +42,7 @@ Public Event ok(ByVal recFormat As REC_FORMAT)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event Cancel()
+Public Event cancel()
 
 ' 対象ブック
 Private targetBook As Workbook
@@ -142,6 +144,26 @@ End Sub
 Private Sub UserForm_Activate()
 
 End Sub
+
+' =========================================================
+' ▽フォームクローズ時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdCancel_Click
+    End If
+    
+End Sub
+
 
 ' =========================================================
 ' ▽初期化処理
@@ -257,6 +279,6 @@ End Sub
 ' =========================================================
 Private Sub cmdCancel_Click()
 
-    RaiseEvent Cancel
+    RaiseEvent cancel
     HideExt
 End Sub

@@ -165,7 +165,7 @@ Public Function SutRelease()
     Unload frmSelectConditionCreator
     Unload frmShortcutKey
     Unload frmShortcutKeySetting
-    Unload frmSnapShot
+    Unload frmSnapshot
     Unload frmSnapshotDiff
     Unload frmSplash
     Unload frmTableSheetCreator
@@ -1768,6 +1768,15 @@ Public Function validWorkbook()
         err.Raise ERR_NUMBER_NON_ACTIVE_BOOK _
                 , _
                 , ERR_DESC_NON_ACTIVE_BOOK
+            
+    End If
+    
+    ' ブックオブジェクトが本アドイン自体の場合
+    If book Is SutWorkbook Then
+    
+        err.Raise ERR_NUMBER_ACTIVE_ADDIN_BOOK _
+                , _
+                , ERR_DESC_ACTIVE_ADDIN_BOOK
             
     End If
 

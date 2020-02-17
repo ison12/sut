@@ -1,18 +1,19 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBExplorer 
    Caption         =   "DBエクスプローラ"
-   ClientHeight    =   10080
+   ClientHeight    =   9420
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   7950
+   ClientWidth     =   7995
    OleObjectBlob   =   "frmDBExplorer.frx":0000
-   StartUpPosition =   1  'オーナー フォームの中央
 End
 Attribute VB_Name = "frmDBExplorer"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
+
 Option Explicit
 
 ' *********************************************************
@@ -43,8 +44,6 @@ Public Event export(ByVal tableList As ValCollection _
 '
 ' =========================================================
 Public Event closed()
-
-Private Const REG_SUB_KEY_DB_EXPLORER_OPTION As String = "db_explorer"
 
 ' DBコネクションオブジェクト
 Private dbConn As Object
@@ -184,6 +183,25 @@ Private Sub UserForm_Activate()
 End Sub
 
 ' =========================================================
+' ▽フォームの閉じる時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+    
+    If CloseMode = 0 Then
+        ' 本処理では処理自体をキャンセルする
+        cancel = True
+        ' 以下のイベント経由で閉じる
+        cmdClose_Click
+    End If
+    
+End Sub
+
+' =========================================================
 ' ▽スキーマコンボボックス変更時のイベントプロシージャ
 '
 ' 概要　　　：
@@ -235,176 +253,13 @@ Private Sub cboFilter_Change()
     
         currentFilterText = cboFilter.text
         
-        filterTableInfoList "*" & currentFilterText & "*"
+        'filterTableInfoList currentFilterText ' 完全一致
+        filterTableInfoList "*" & currentFilterText & "*" ' 中間一致
         
         clearFilterCondition True
     
         inFilterProcess = False
 
-    End If
-    
-    Exit Sub
-    
-err:
-    
-    inFilterProcess = False
-    
-    err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
-    
-End Sub
-
-
-' =========================================================
-' ▽フィルタトグル全般の変更時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub tglFilterA_Click()
-    filterToggle tglFilterA, "A"
-End Sub
-Private Sub tglFilterB_Click()
-    filterToggle tglFilterB, "B"
-End Sub
-Private Sub tglFilterC_Click()
-    filterToggle tglFilterC, "C"
-End Sub
-Private Sub tglFilterD_Click()
-    filterToggle tglFilterD, "D"
-End Sub
-Private Sub tglFilterE_Click()
-    filterToggle tglFilterE, "E"
-End Sub
-Private Sub tglFilterF_Click()
-    filterToggle tglFilterF, "F"
-End Sub
-Private Sub tglFilterG_Click()
-    filterToggle tglFilterG, "G"
-End Sub
-Private Sub tglFilterH_Click()
-    filterToggle tglFilterH, "H"
-End Sub
-Private Sub tglFilterI_Click()
-    filterToggle tglFilterI, "I"
-End Sub
-Private Sub tglFilterJ_Click()
-    filterToggle tglFilterJ, "J"
-End Sub
-Private Sub tglFilterK_Click()
-    filterToggle tglFilterK, "K"
-End Sub
-Private Sub tglFilterL_Click()
-    filterToggle tglFilterL, "L"
-End Sub
-Private Sub tglFilterM_Click()
-    filterToggle tglFilterM, "M"
-End Sub
-Private Sub tglFilterN_Click()
-    filterToggle tglFilterN, "N"
-End Sub
-Private Sub tglFilterO_Click()
-    filterToggle tglFilterO, "O"
-End Sub
-Private Sub tglFilterP_Click()
-    filterToggle tglFilterP, "P"
-End Sub
-Private Sub tglFilterQ_Click()
-    filterToggle tglFilterQ, "Q"
-End Sub
-Private Sub tglFilterR_Click()
-    filterToggle tglFilterR, "R"
-End Sub
-Private Sub tglFilterS_Click()
-    filterToggle tglFilterS, "S"
-End Sub
-Private Sub tglFilterT_Click()
-    filterToggle tglFilterT, "T"
-End Sub
-Private Sub tglFilterU_Click()
-    filterToggle tglFilterU, "U"
-End Sub
-Private Sub tglFilterV_Click()
-    filterToggle tglFilterV, "V"
-End Sub
-Private Sub tglFilterW_Click()
-    filterToggle tglFilterW, "W"
-End Sub
-Private Sub tglFilterX_Click()
-    filterToggle tglFilterX, "X"
-End Sub
-Private Sub tglFilterY_Click()
-    filterToggle tglFilterY, "Y"
-End Sub
-Private Sub tglFilterZ_Click()
-    filterToggle tglFilterZ, "Z"
-End Sub
-Private Sub tglFilterOther_Click()
-    
-    ' Otherの処理だけ「～以外」という検索なので別の処理として定義
-    
-    On Error GoTo err
-
-    ' 本イベントプロシージャ内部で、同コントロールを変更することによる変更イベントが
-    ' 再帰的に発生しても良いように
-    ' フラグを参照して再実行されないようにする判定を実施
-    If inFilterProcess = False Then
-
-        inFilterProcess = True
-        
-        If tglFilterOther.value = True Then
-            ' アルファベット以外の文字で始まる情報で検索
-            filterTableInfoListForRegExp "[^a-zA-Z]*"
-            
-            clearFilterCondition
-            tglFilterOther.value = True
-        Else
-            filterTableInfoListForRegExp ""
-        End If
-        
-        inFilterProcess = False
-        
-    End If
-    
-    Exit Sub
-    
-err:
-    
-    inFilterProcess = False
-    
-    err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
-    
-End Sub
-
-' =========================================================
-' ▽トグル系フィルタ条件の共通処理
-'
-' 概要　　　：
-' 引数　　　：state   トグルボタン
-'     　　　  keyword キーワード
-' 戻り値　　：
-'
-' =========================================================
-Private Sub filterToggle(ByVal state As ToggleButton, ByVal keyword As String)
-
-    On Error GoTo err
-
-    If inFilterProcess = False Then
-
-        inFilterProcess = True
-        
-        If state.value = True Then
-            filterTableInfoList keyword & "*"
-            
-            clearFilterCondition
-            state.value = True
-        Else
-            filterTableInfoList ""
-        End If
-        
-        inFilterProcess = False
-        
     End If
     
     Exit Sub
@@ -427,34 +282,6 @@ End Sub
 ' =========================================================
 Private Sub clearFilterCondition(Optional ByVal isNotClearComboFilter As Boolean = False)
 
-    tglFilterA.value = False
-    tglFilterB.value = False
-    tglFilterC.value = False
-    tglFilterD.value = False
-    tglFilterE.value = False
-    tglFilterF.value = False
-    tglFilterG.value = False
-    tglFilterH.value = False
-    tglFilterI.value = False
-    tglFilterJ.value = False
-    tglFilterK.value = False
-    tglFilterL.value = False
-    tglFilterM.value = False
-    tglFilterN.value = False
-    tglFilterO.value = False
-    tglFilterP.value = False
-    tglFilterQ.value = False
-    tglFilterR.value = False
-    tglFilterS.value = False
-    tglFilterT.value = False
-    tglFilterU.value = False
-    tglFilterV.value = False
-    tglFilterW.value = False
-    tglFilterX.value = False
-    tglFilterY.value = False
-    tglFilterZ.value = False
-    tglFilterOther.value = False
-    
     If isNotClearComboFilter = False Then
         cboFilter.text = ""
     End If
@@ -474,62 +301,6 @@ Private Sub applyFilterCondition()
     If cboFilter.text <> "" Then
         cboFilter_Change
         Exit Sub
-    End If
-    
-    If tglFilterA.value = True Then
-        tglFilterA_Click
-    ElseIf tglFilterB.value = True Then
-        tglFilterB_Click
-    ElseIf tglFilterC.value = True Then
-        tglFilterC_Click
-    ElseIf tglFilterD.value = True Then
-        tglFilterD_Click
-    ElseIf tglFilterE.value = True Then
-        tglFilterE_Click
-    ElseIf tglFilterF.value = True Then
-        tglFilterF_Click
-    ElseIf tglFilterG.value = True Then
-        tglFilterG_Click
-    ElseIf tglFilterH.value = True Then
-        tglFilterH_Click
-    ElseIf tglFilterI.value = True Then
-        tglFilterI_Click
-    ElseIf tglFilterJ.value = True Then
-        tglFilterJ_Click
-    ElseIf tglFilterK.value = True Then
-        tglFilterK_Click
-    ElseIf tglFilterL.value = True Then
-        tglFilterL_Click
-    ElseIf tglFilterM.value = True Then
-        tglFilterM_Click
-    ElseIf tglFilterN.value = True Then
-        tglFilterN_Click
-    ElseIf tglFilterO.value = True Then
-        tglFilterO_Click
-    ElseIf tglFilterP.value = True Then
-        tglFilterP_Click
-    ElseIf tglFilterQ.value = True Then
-        tglFilterQ_Click
-    ElseIf tglFilterR.value = True Then
-        tglFilterR_Click
-    ElseIf tglFilterS.value = True Then
-        tglFilterS_Click
-    ElseIf tglFilterT.value = True Then
-        tglFilterT_Click
-    ElseIf tglFilterU.value = True Then
-        tglFilterU_Click
-    ElseIf tglFilterV.value = True Then
-        tglFilterV_Click
-    ElseIf tglFilterW.value = True Then
-        tglFilterW_Click
-    ElseIf tglFilterX.value = True Then
-        tglFilterX_Click
-    ElseIf tglFilterY.value = True Then
-        tglFilterY_Click
-    ElseIf tglFilterZ.value = True Then
-        tglFilterZ_Click
-    ElseIf tglFilterOther.value = True Then
-        tglFilterOther_Click
     End If
     
 End Sub
@@ -563,29 +334,21 @@ Private Sub cmdUnselectedAll_Click()
 End Sub
 
 ' =========================================================
-' ▽エクスポート（↓）ボタンのイベントプロシージャ
+' ▽エクスポートボタンのイベントプロシージャ
 '
 ' 概要　　　：
 ' 引数　　　：
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub cmdExportToUnder_Click()
-    
-    exportProcess recFormatToUnder
-End Sub
+Private Sub cmdExport_Click()
 
-' =========================================================
-' ▽エクスポート（→）ボタンのイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub cmdExportToRight_Click()
+    If optRowFormatToUnder.value = True Then
+        exportProcess recFormatToUnder
+    Else
+        exportProcess recFormatToRight
+    End If
 
-    exportProcess recFormatToRight
 End Sub
 
 ' =========================================================
@@ -601,7 +364,7 @@ Private Sub exportProcess(ByVal recFormat As REC_FORMAT)
     On Error GoTo err
     
     Dim exportTargets As ValCollection
-    Set exportTargets = tableInfoList.selectedList
+    Set exportTargets = tableInfoList.getSelectedList
     
     If exportTargets.count <= 0 Then
         err.Raise ERR_NUMBER_NOT_SELECTED_TABLE _
@@ -661,6 +424,9 @@ Private Sub initial()
     ' リスト系コントロールの初期化
     Set schemaInfoList = New CntListBox: schemaInfoList.init cboSchema
     Set tableInfoList = New CntListBox: tableInfoList.init lstTable
+    
+    ' 閉じるボタンを非表示にする
+    cmdClose.Width = 0
 
 End Sub
 
@@ -688,13 +454,22 @@ Private Sub activate()
 
     ' DBエクスプローラオプションを読み込む
     restoreDBExplorerOption
+    
+    ' コンボボックスの対象スキーマ値（直前に読み込んだ設定情報値）を保存する
+    Dim schema As String: schema = cboSchema.value
 
     ' スキーマシートを読み込む
     readSchemaInfo
     ' テーブルシートを読み込む
     readTableInfo
     
+    ' コンボボックスに対象スキーマが存在しない場合に設定時にエラーになるため、エラーを無視して設定を試みる
+    On Error Resume Next
+    cboSchema.value = schema
+    On Error GoTo 0
+    
     ' フィルタ条件を適用する
+    cboFilter.text = ""
     applyFilterCondition
     
 End Sub
@@ -708,6 +483,9 @@ End Sub
 '
 ' =========================================================
 Private Sub deactivate()
+
+    ' DBエクスプローラオプションを書き込む
+    storeDBExplorerOption
 
 End Sub
 
@@ -744,7 +522,11 @@ Private Sub storeDBExplorerOption()
     Dim values As New ValCollection
     
     values.setItem Array(cboSchema.name, cboSchema.value)
-    values.setItem Array(cboFilter.name, cboFilter.value)
+    If optRowFormatToUnder.value = True Then
+        values.setItem Array("optRowFormat", REC_FORMAT.recFormatToUnder)
+    Else
+        values.setItem Array("optRowFormat", REC_FORMAT.recFormatToRight)
+    End If
 
     ' データを書き込む
     appProp.delete ConstantsApplicationProperties.INI_SECTION_DEFAULT
@@ -782,9 +564,22 @@ Private Sub restoreDBExplorerOption()
             
     inFilterProcess = True
         
+    ' コンボボックスに対象スキーマが存在しない場合に設定時にエラーになるため、エラーを無視する
+    On Error Resume Next
     val = values.getItem(cboSchema.name, vbVariant): If IsArray(val) Then cboSchema.value = val(2)
-    val = values.getItem(cboFilter.name, vbVariant): If IsArray(val) Then cboFilter.value = val(2)
-
+    On Error GoTo err
+    
+    val = values.getItem("optRowFormat", vbVariant)
+    If IsArray(val) Then
+        If val(2) = REC_FORMAT.recFormatToUnder Then
+            optRowFormatToUnder.value = True
+        Else
+            optRowFormatToRight.value = True
+        End If
+    Else
+        optRowFormatToUnder.value = True
+    End If
+    
     inFilterProcess = False
     
     Exit Sub

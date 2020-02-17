@@ -1,26 +1,3 @@
-・utf8出力時はbomなしにする
-・ショートカットキーのリセットが機能しない
-・ポップアップ設定に上下移動がない
-・Class_Terminateでエラーが発生した場合は、通常とは異なるエラーになるので回避したい。単一ファイル出力時に、FileWriterでファイルエラーになった場合に、おかしな挙動になる模様
-・各フォームに以下を追加
-' =========================================================
-' ▽フォームの閉じる時のイベントプロシージャ
-'
-' 概要　　　：
-' 引数　　　：
-' 戻り値　　：
-'
-' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
-    
-    If CloseMode = 0 Then
-        ' 本処理では処理自体をキャンセルする
-        cancel = True
-        ' 以下のイベント経由で閉じる
-        cmdClose_Click
-    End If
-    
-End Sub
 ・データ更新・参照系のテストを実施する
 ・ファイル出力系のテストを実施する
 ・DBエクスプローラのテストを実施する
@@ -28,12 +5,71 @@ End Sub
 
 ◆B
 ・DBの読み込み対応としてAccessに対応する
+・Class_Terminateでエラーが発生した場合は、通常とは異なるエラーになるので回避したい。単一ファイル出力時に、FileWriterでファイルエラーになった場合に、おかしな挙動になる模様
 
 ◆C
 ・オンラインマニュアルを作成する
 ・自動アップデート機能の実装
 ・Sutインストーラーを作成
 
+◆D
+・編集系からさらに小編集画面を呼び出す際に、右クリックで呼び出せるようにしたい
+
+■バグ？
+・右クリックメニューで何かしらの項目を設定後に再度画面を表示すると右側のリストに何も表示されない
+・ByValとByRefの使い分け。オブジェクト系はByRefにしないほうが良い
+
 ※注意
 ・Main#doAfterProcessの一文をコメントアウト
 ・Main#Auto_Closeを削除
+
+
+initLoadingToolbar
+initToolbar
+
+    ' 閉じるボタンを非表示にする
+    cmdClose.Width = 0
+
+
+frmShortcutKey	storeShortcut
+
+ownerForm.imgIcon.Picture
+
+Name	Type	DataSource	Host	Port	DB	User	Password	Option
+wac_localhost	汎用ODBC	wac_localhost						
+localhost ORSYS_DATA	Microsoft OLE DB for SQL Server		localhost		ORSYS_DATA	sa	Passw0rd1234	
+localhost ORSYS_HIST	Microsoft OLE DB for SQL Server		localhost		ORSYS_HIST	sa	Passw0rd1234	
+localhost ORSYS_GWAY	Microsoft OLE DB for SQL Server		localhost		ORSYS_GWAY	sa	Passw0rd1234	
+localhost ORSYS_HIST Windows Auth	Microsoft OLE DB for SQL Server		localhost		ORSYS_HIST			Integrated Security=SSPI
+a	Microsoft OLE DB for SQL Server		10.12.3.176		ORSYS_DATA	sa	orsys	
+b	Microsoft OLE DB for SQL Server		10.12.3.176		ORSYS_HIST	sa	orsys	
+c	Microsoft OLE DB for SQL Server		10.12.3.176		ORSYS_GWAY	sa	orsys	
+
+"Name"	"Type"	"DataSource"	"Host"	"Port"	"DB"	"User"	"Password"	"Option"
+"localhost ORSYS_GWAY"	"Microsoft OLE DB for SQL Server"	""	"localhost"	""	"ORSYS_GWAY"	"sa"	"Passw0rd1234"	""
+
+"Name"	"Type"	"DataSource"	"Host"	"Port"	"DB"	"User"	"Password"	"Option"
+"wac_localhost"	"汎用ODBC"	"wac_localhost"	""	""	""	""	""	""
+"localhost ORSYS_DATA"	"Microsoft OLE DB for SQL Server"	""	"localhost"	""	"ORSYS_DATA"	"sa"	"Passw0rd1234"	""
+"localhost ORSYS_HIST"	"Microsoft OLE DB for SQL Server"	""	"localhost"	""	"ORSYS_HIST"	"sa"	"Passw0rd1234"	""
+"localhost ORSYS_GWAY"	"Microsoft OLE DB for SQL Server"	""	"localhost"	""	"ORSYS_GWAY"	"sa"	"Passw0rd1234"	""
+
+
+
+        ' 不足分を補完する（最終列が未入力の場合など、一列不足することがあるため）
+        For i = 1 To 9 - var.count
+            var.setItem ""
+        Next
+    
+
+        ' 不足分を補完する（最終列が未入力の場合など、一列不足することがあるため）
+        For i = 1 To 9 - var.count
+            var.setItem ""
+        Next
+    
+
+    
+    
+    ' フィルタ条件を適用する
+    cboFilter.text = ""
+    applyFilterCondition
