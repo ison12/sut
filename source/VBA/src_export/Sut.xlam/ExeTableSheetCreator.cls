@@ -74,6 +74,8 @@ Private m_book               As Workbook
 Private m_namingList         As ValCollection
 ' キャンセルフラグ
 Private m_canceled           As Boolean
+' 更新フラグ
+Private m_update             As Boolean
 
 Public Property Let applicationSetting(ByVal vNewValue As Variant)
 
@@ -95,6 +97,12 @@ End Property
 Public Property Let canceled(ByVal vNewValue As Variant)
 
     m_canceled = vNewValue
+    
+End Property
+
+Public Property Let update(ByVal vNewValue As Variant)
+
+    m_update = vNewValue
     
 End Property
 
@@ -235,41 +243,51 @@ Public Sub createSheetHeader(ByRef tableSheet As ValTableWorksheet)
         tableName = tableSheet.table.schemaTableName
     End If
     
-    ' テーブル情報の取得元シート名をチェックする
-    If tableSheet.sheetName = "" Then
-    
-        ' 取得元シート名が設定されていない場合
-        ' 新規に生成するワークシートの名前をテーブル名とする
-        sheetName = tableName
-        
-        ' ワークシートの名前に禁則文字が使用されているかチェックする
-        If ExcelUtil.checkProhibitionCharOfSheetName(sheetName) = False Then
-        
-            ' 禁則文字を変換する
-            sheetName = ExcelUtil.convertProhibitionCharOfSheetName(sheetName)
-        
-        End If
-        
-        ' ワークシートの最大サイズをチェックする
-        If ExcelUtil.checkMaxLengthOfSheetName(sheetName) = False Then
-        
-            ' 規定サイズを超えている場合、ワークシート名を変換する
-            sheetName = truncateExceededSheetName(sheetName)
-        
-            ' ワークシートが既に存在している場合
-            If ExcelUtil.existSheet(m_book, sheetName) = True Then
-            
-                ' ワークシートの名称を一意な名称に変換する
-                sheetName = ExcelUtil.convertUniqSheetName(m_book, sheetName)
-                
-            End If
-        
-        End If
-        
-    Else
+    If m_update Then
+        ' 更新処理（シートが既にある場合）
     
         ' 取得元シート名が設定されている場合
-        sheetName = tableSheet.sheetName
+        sheetName = tableSheet.sheet.name
+    Else
+        ' 新規作成処理
+    
+        ' テーブル情報の取得元シート名をチェックする
+        If tableSheet.sheetName = "" Then
+        
+            ' 取得元シート名が設定されていない場合
+            ' 新規に生成するワークシートの名前をテーブル名とする
+            sheetName = tableName
+            
+            ' ワークシートの名前に禁則文字が使用されているかチェックする
+            If ExcelUtil.checkProhibitionCharOfSheetName(sheetName) = False Then
+            
+                ' 禁則文字を変換する
+                sheetName = ExcelUtil.convertProhibitionCharOfSheetName(sheetName)
+            
+            End If
+            
+            ' ワークシートの最大サイズをチェックする
+            If ExcelUtil.checkMaxLengthOfSheetName(sheetName) = False Then
+            
+                ' 規定サイズを超えている場合、ワークシート名を変換する
+                sheetName = truncateExceededSheetName(sheetName)
+            
+                ' ワークシートが既に存在している場合
+                If ExcelUtil.existSheet(m_book, sheetName) = True Then
+                
+                    ' ワークシートの名称を一意な名称に変換する
+                    sheetName = ExcelUtil.convertUniqSheetName(m_book, sheetName)
+                    
+                End If
+            
+            End If
+            
+        Else
+        
+            ' 取得元シート名が設定されている場合
+            sheetName = tableSheet.sheetName
+        End If
+    
     End If
     
     ' シートの削除（存在していたら）と挿入を実行する

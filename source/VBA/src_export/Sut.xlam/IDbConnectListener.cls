@@ -47,7 +47,7 @@ End Sub
 '
 '
 ' =========================================================
-Public Sub cancel()
+Public Sub Cancel()
 
 End Sub
 

@@ -42,7 +42,7 @@ Public Event ok(ByVal recFormat As REC_FORMAT)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' 対象ブック
 Private targetBook As Workbook
@@ -153,11 +153,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If
@@ -279,6 +279,6 @@ End Sub
 ' =========================================================
 Private Sub cmdCancel_Click()
 
-    RaiseEvent cancel
+    RaiseEvent Cancel
     HideExt
 End Sub

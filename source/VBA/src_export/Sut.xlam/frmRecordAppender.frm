@@ -42,7 +42,7 @@ Public Event ok(ByVal recCount As Long)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' 処理対象ワークシート
 Public sheet As Worksheet
@@ -166,11 +166,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If
@@ -262,7 +262,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -362,7 +362,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecCount_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtRecCount_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -370,7 +370,7 @@ Private Sub txtRecCount_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If txtRecCount.text = "" Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_REQUIRED
@@ -381,7 +381,7 @@ Private Sub txtRecCount_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf validInteger(txtRecCount.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
@@ -392,7 +392,7 @@ Private Sub txtRecCount_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtRecCount.text) < 1 Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         

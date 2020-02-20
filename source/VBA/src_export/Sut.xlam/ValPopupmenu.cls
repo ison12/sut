@@ -212,7 +212,7 @@ End Function
 ' 戻り値　　：ValPopupMenu
 '
 ' =========================================================
-Public Function Clone() As ValPopupmenu
+Public Function clone() As ValPopupmenu
 
     Dim ret As ValPopupmenu
     
@@ -233,6 +233,6 @@ Public Function Clone() As ValPopupmenu
     
     ret.itemList = newItemList
     
-    Set Clone = ret
+    Set clone = ret
 
 End Function

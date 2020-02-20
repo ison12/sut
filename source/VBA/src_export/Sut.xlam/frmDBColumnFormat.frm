@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBColumnFormat 
    Caption         =   "DBカラム書式設定"
-   ClientHeight    =   8550
+   ClientHeight    =   8550.001
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   15135
@@ -42,7 +42,7 @@ Public Event ok(ByVal dbColumnFormatInfo As ValDbColumnFormatInfo)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' DBカラム書式編集フォーム
 Private WithEvents frmDBColumnFormatSettingVar As frmDBColumnFormatSetting
@@ -208,7 +208,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -518,11 +518,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下の処理経由で閉じる
         HideExt
     End If

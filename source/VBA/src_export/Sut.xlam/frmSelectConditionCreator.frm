@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSelectConditionCreator 
    Caption         =   "SELECT"
-   ClientHeight    =   9405
+   ClientHeight    =   9405.001
    ClientLeft      =   45
    ClientTop       =   360
    ClientWidth     =   7935
@@ -42,7 +42,7 @@ Public Event ok(ByVal sql As String, ByVal append As Boolean)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' 簡易設定ページ
 Private Const PAGE_SIMPLE_SETTING As Long = 0
@@ -245,11 +245,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If
@@ -664,7 +664,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecRangeStart_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtRecRangeStart_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -679,7 +679,7 @@ Private Sub txtRecRangeStart_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf validInteger(txtRecRangeStart.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
@@ -690,7 +690,7 @@ Private Sub txtRecRangeStart_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtRecRangeStart.text) < 1 Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         
@@ -721,7 +721,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecRangeEnd_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtRecRangeEnd_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -736,7 +736,7 @@ Private Sub txtRecRangeEnd_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf validInteger(txtRecRangeEnd.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         ' アラートを表示する
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
@@ -747,7 +747,7 @@ Private Sub txtRecRangeEnd_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     ElseIf CDbl(txtRecRangeEnd.text) < 1 Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         
@@ -1049,7 +1049,7 @@ Private Sub cmdCancel_Click()
     On Error GoTo err:
     
     Me.HideExt
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
 
@@ -1177,7 +1177,7 @@ End Function
 Private Function createApplicationProperties() As ApplicationProperties
 
     Dim appProp As New ApplicationProperties
-    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & "\" & tableSheet.sheetName & ".ini"
     appProp.initWorksheet targetBook, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & "\" & tableSheet.sheetName & ".ini"
 
     Set createApplicationProperties = appProp

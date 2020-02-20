@@ -133,7 +133,7 @@ Public queryType     As Long
 ' クエリー生成オブジェクト
 Private queryCreator As IDbQueryCreator
 ' クエリ変換
-Private DbQueryConverter As New DbQueryConverter
+Private queryConverter As New DbQueryConverter
 ' クエリパラメータリスト
 Private queryParameterList_ As ValQueryParameterList
 
@@ -376,7 +376,7 @@ err:
     ' ファイルの出力をキャンセルする
     If Not writer Is Nothing Then
     
-        writer.cancel
+        writer.Cancel
         Set writer = Nothing
     End If
     
@@ -469,7 +469,7 @@ err:
     ' ファイルの出力をキャンセルする
     If Not writer Is Nothing Then
         
-        writer.cancel
+        writer.Cancel
         Set writer = Nothing
     End If
     
@@ -926,6 +926,14 @@ End Function
 ' =========================================================
 Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Variant) As String
 
+    ' クエリ変換オブジェクトを初期化する
+    queryConverter.initIfFirst Me.conn, Me.queryParameterList
+    ' クエリパラメータでレコードの内容を変換する
+    ' ---recordの内容を変換する方式も考えたが、SELECTに関してはクエリ全体を変換する方式を採用しているため
+    ' -- 更新系も同じようにクエリ全体を変換する方式を採用する
+    ' -- 仮にテーブル名やカラム名にクエリパラメータと同じ変数名がある場合にはクエリがおかしなことになるが、そのようなケースはほとんどないと考え考慮しない
+    'convertRecordValueByQueryParameter record
+
     Select Case queryType
     
         Case QUERY_TYPE_INSERT_UPDATE
@@ -996,9 +1004,7 @@ Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Varia
             
             Dim selectSql As String
             selectSql = queryCreator.createSelect(table, condition)
-            
-            DbQueryConverter.init Me.conn, queryParameterList
-            selectSql = DbQueryConverter.convertSql(selectSql)
+            selectSql = queryConverter.convertSql(selectSql)
             
             Set recordSet = ADOUtil.querySelect(conn, selectSql)
 
@@ -1017,7 +1023,7 @@ Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Varia
             ' レコードセットを解放する
             ADOUtil.closeRecordSet recordSet: Set recordSet = Nothing
 
-            Exit Function
+            GoTo exitInsertUpdate
             
 errExecuteSelect:
 
@@ -1025,6 +1031,8 @@ errExecuteSelect:
             ADOUtil.closeRecordSet recordSet: Set recordSet = Nothing
             
             createSql = queryCreator.createInsert(table, record)
+    
+exitInsertUpdate:
     
         Case QUERY_TYPE_INSERT
         
@@ -1043,9 +1051,11 @@ errExecuteSelect:
             createSql = queryCreator.createDeleteOfAllTable(table)
     
     End Select
-    
-    DbQueryConverter.init Me.conn, queryParameterList
-    createSql = DbQueryConverter.convertSql(createSql)
+
+    If queryParameterList.list.count > 0 Then
+        ' クエリパラメータがある場合に変換する
+        createSql = queryConverter.convertSql(createSql)
+    End If
 
 End Function
 
@@ -1067,6 +1077,30 @@ Private Sub checkCancel()
                 , err.Source _
                 , ConstantsError.ERR_DESC_PROC_CANCEL
     End If
+
+End Sub
+
+' =========================================================
+' ▽レコードの値をクエリパラメータによって変換する処理
+'
+' 概要　　　：
+' 引数　　　：record レコード
+' 戻り値　　：
+'
+' =========================================================
+Private Sub convertRecordValueByQueryParameter(ByRef record As Variant)
+
+    If queryParameterList.list.count <= 0 Then
+        ' クエリパラメータがない場合は、何もしない
+        Exit Sub
+    End If
+
+    Dim i As Long
+    
+    For i = LBound(record) To UBound(record)
+    
+        record(i) = queryConverter.convertSql(CStr(record(i)))
+    Next
 
 End Sub
 

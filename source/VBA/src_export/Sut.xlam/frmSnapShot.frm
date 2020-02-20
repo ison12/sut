@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSnapshot 
    Caption         =   "スナップショット取得"
-   ClientHeight    =   8265
+   ClientHeight    =   8265.001
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   8415
+   ClientWidth     =   8415.001
    OleObjectBlob   =   "frmSnapshot.frx":0000
 End
 Attribute VB_Name = "frmSnapshot"
@@ -42,7 +42,7 @@ Public Event execSnapshot(ByRef sheet As Worksheet)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' =========================================================
 ' ▽DB変更イベント
@@ -202,11 +202,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdClose_Click
     End If
@@ -439,7 +439,7 @@ Private Sub cmdClose_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     

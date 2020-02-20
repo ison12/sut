@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBConnectSelector 
    Caption         =   "接続情報の選択"
-   ClientHeight    =   8670
+   ClientHeight    =   8670.001
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   12675
@@ -42,7 +42,7 @@ Public Event ok(ByVal connectInfo As ValDBConnectInfo)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' フォームモード
 Private formMode As DB_CONNECT_INFO_TYPE
@@ -257,7 +257,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -275,7 +275,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstDbConnectList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstDbConnectList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     cmdOk_Click
 End Sub
 
@@ -363,11 +363,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If

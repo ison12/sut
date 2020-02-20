@@ -34,3 +34,51 @@ End Sub
 ' =========================================================
 Private Sub Class_Terminate()
 End Sub
+
+Public Property Get messageWithSqlState() As String
+
+    If sqlState = "" Then
+        messageWithSqlState = message
+    Else
+        messageWithSqlState = sqlState & " - " & message
+    End If
+    
+    messageWithSqlState = replace(messageWithSqlState, vbNewLine, " ")
+    messageWithSqlState = replace(messageWithSqlState, vbCr, " ")
+    messageWithSqlState = replace(messageWithSqlState, vbLf, " ")
+    
+End Property
+
+Public Property Get queryWithoutNewLine() As String
+
+    queryWithoutNewLine = query
+    queryWithoutNewLine = replace(queryWithoutNewLine, vbNewLine, " ")
+    queryWithoutNewLine = replace(queryWithoutNewLine, vbCr, " ")
+    queryWithoutNewLine = replace(queryWithoutNewLine, vbLf, " ")
+    
+End Property
+
+' =========================================================
+' ▽タブ区切りでのヘッダ情報の取得
+' =========================================================
+Public Property Get tabbedInfoHeader() As String
+
+    tabbedInfoHeader = _
+        """" & "Cell" & """" & vbTab & _
+        """" & "Message" & """" & vbTab & _
+        """" & "Query" & """"
+
+End Property
+
+' =========================================================
+' ▽タブ区切りでの情報の取得
+' =========================================================
+Public Property Get tabbedInfo() As String
+
+    tabbedInfo = _
+        """" & replace(cell, """", """""") & """" & vbTab & _
+        """" & replace(messageWithSqlState, """", """""") & """" & vbTab & _
+        """" & replace(query, """", """""") & """"
+
+End Property
+

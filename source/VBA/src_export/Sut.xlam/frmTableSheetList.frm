@@ -164,11 +164,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         btnClose_Click
     End If
@@ -449,25 +449,7 @@ Private Sub filterTableSheetList(ByVal filterKeyword As String)
     End If
 
     Dim filterTableSheetList As ValCollection
-    Set filterTableSheetList = VBUtil.filterWildcard(tableSheetWithoutFilterList, "table.tableName", filterKeyword)
-    
-    addTableSheetList filterTableSheetList, False
-
-End Sub
-
-
-' =========================================================
-' ▽テーブルシートリストをフィルタする処理（正規表現版）
-'
-' 概要　　　：テーブルシートリストをフィルタする処理
-' 引数　　　：filterKeyword         フィルタキーワード
-' 戻り値　　：
-'
-' =========================================================
-Private Sub filterTableSheetListForRegExp(ByVal filterKeyword As String)
-
-    Dim filterTableSheetList As ValCollection
-    Set filterTableSheetList = VBUtil.filterRegExp(tableSheetWithoutFilterList, "table.tableName", filterKeyword)
+    Set filterTableSheetList = VBUtil.filterWildcard(tableSheetWithoutFilterList, "sheetNameOrSheetTableName", filterKeyword)
     
     addTableSheetList filterTableSheetList, False
 

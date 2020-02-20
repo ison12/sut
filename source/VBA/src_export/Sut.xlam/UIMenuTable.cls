@@ -257,6 +257,7 @@ Private Sub frmTableSheetUpdateVar_ok(ByVal recFormat As REC_FORMAT)
     Set tsCreator = New ExeTableSheetCreator
     tsCreator.applicationSetting = applicationSetting
     tsCreator.book = ActiveWorkbook
+    tsCreator.update = True
     tsCreator.createSheet desTableSheet
     ' ----------------------------------------------
     

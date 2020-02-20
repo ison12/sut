@@ -57,6 +57,9 @@ Attribute frmDbQueryBatchVar.VB_VarHelpID = -1
 ' クエリ結果フォーム
 Private WithEvents frmQueryResultVar            As frmQueryResult
 Attribute frmQueryResultVar.VB_VarHelpID = -1
+' クエリパラメータフォーム
+Private WithEvents frmQueryParameterVar         As frmQueryParameter
+Attribute frmQueryParameterVar.VB_VarHelpID = -1
 
 ' クエリ結果セット情報
 Private queryResultSetInfo As ValQueryResultSetInfo
@@ -2522,181 +2525,6 @@ err:
 End Sub
 
 ' =========================================================
-' ▽行の追加
-'
-' 概要　　　：
-' 引数　　　：
-'
-' =========================================================
-Public Sub recordAdd()
-
-    On Error GoTo err
-
-    frmRecAppender.ShowExt vbModal, ActiveSheet, applicationSetting
-    
-    Exit Sub
-    
-err:
-
-    ' エラー発生
-    Main.ShowErrorMessage
-    
-End Sub
-
-' =========================================================
-' ▽クエリエディタ（ !!! 未実装 !!! ）
-'
-' 概要　　　：
-' 引数　　　：
-'
-' =========================================================
-Public Sub queryEditor()
-
-    On Error GoTo err
-
-    ' クエリエディタを表示する（ !!! 未実装 !!! ）
-    'frmQueryEditorVar.ShowExt vbModeless
-    
-    Exit Sub
-    
-err:
-
-    ' エラー発生
-    Main.ShowErrorMessage
-    
-End Sub
-
-' =========================================================
-' ▽一括クエリ
-'
-' 概要　　　：
-' 引数　　　：
-'
-' =========================================================
-Public Sub queryBatch()
-
-    On Error GoTo err
-        
-    ' ブック
-    Dim book  As Workbook
-    
-    ' アクティブブックをbook変数に格納する
-    Set book = ActiveWorkbook
-    
-    ' フォームを設定する
-    If VBUtil.unloadFormIfChangeActiveBook(frmDBQueryBatch) Then Unload frmDBQueryBatch
-    Load frmDBQueryBatch
-    Set frmDbQueryBatchVar = frmDBQueryBatch
-    
-    frmDbQueryBatchVar.ShowExt vbModal, DB_QUERY_BATCH_MODE.QueryExecute, DB_QUERY_BATCH_TYPE.none, book
-    
-    Set frmDbQueryBatchVar = Nothing
-    
-    Exit Sub
-    
-err:
-
-    ' エラー発生
-    Main.ShowErrorMessage
-    
-End Sub
-
-' =========================================================
-' ▽クエリ結果にエラーがあるかどうかを調査する。
-'
-' 概要　　　：
-' 戻り値　　：true エラー発生
-'
-' =========================================================
-Public Function isErrorQueryResult() As Boolean
-
-    ' クエリ結果を取得する
-    Dim i As Long
-    Dim queryResultCount As Long
-    Dim queryResultObj As ValQueryResultInfo
-    
-    queryResultCount = queryResultSetInfo.getInfoCount
-    
-    For i = 1 To queryResultCount
-    
-        Set queryResultObj = queryResultSetInfo.getInfo(i)
-        
-        If Not queryResultObj Is Nothing Then
-        
-            If queryResultObj.errorCount > 0 Then
-            
-                isErrorQueryResult = True
-                Exit Function
-            End If
-            
-        End If
-    Next
-
-    isErrorQueryResult = False
-    
-End Function
-
-' =========================================================
-' ▽クエリ結果表示
-'
-' 概要　　　：
-'
-' =========================================================
-Public Sub showQueryResult()
-
-    On Error GoTo err
-    
-    ' クエリ結果フォームを表示する
-    frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
-
-    Exit Sub
-    
-err:
-    
-    Main.ShowErrorMessage
-    
-End Sub
-
-' =========================================================
-' ▽クエリ結果表示
-'
-' 概要　　　：
-'
-' =========================================================
-Public Sub showQueryResultWhenSettingResult()
-
-    On Error GoTo err
-    
-    
-    If applicationSetting.queryResultShowWhenNormal = False Then
-    
-        If isErrorQueryResult Then
-        
-            ' クエリ結果が設定済みの場合、表示する
-            If queryResultSetInfo.getInfoCount > 0 Then
-                ' クエリ結果フォームを表示する
-                frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
-            End If
-        End If
-        
-    Else
-    
-        ' クエリ結果が設定済みの場合、表示する
-        If queryResultSetInfo.getInfoCount > 0 Then
-            ' クエリ結果フォームを表示する
-            frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
-        End If
-    End If
-
-    Exit Sub
-    
-err:
-    
-    Main.ShowErrorMessage
-    
-End Sub
-
-' =========================================================
 ' ▽SELECT条件生成フォーム呼び出し後のイベント
 '
 ' 概要　　　：
@@ -2917,6 +2745,267 @@ err:
 End Sub
 
 ' =========================================================
+' ▽行の追加
+'
+' 概要　　　：
+' 引数　　　：
+'
+' =========================================================
+Public Sub recordAdd()
+
+    On Error GoTo err
+
+    frmRecAppender.ShowExt vbModal, ActiveSheet, applicationSetting
+    
+    Exit Sub
+    
+err:
+
+    ' エラー発生
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽クエリエディタ（ !!! 未実装 !!! ）
+'
+' 概要　　　：
+' 引数　　　：
+'
+' =========================================================
+Public Sub queryEditor()
+
+    On Error GoTo err
+
+    ' クエリエディタを表示する（ !!! 未実装 !!! ）
+    'frmQueryEditorVar.ShowExt vbModeless
+    
+    Exit Sub
+    
+err:
+
+    ' エラー発生
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽一括クエリ
+'
+' 概要　　　：
+' 引数　　　：
+'
+' =========================================================
+Public Sub queryBatch()
+
+    On Error GoTo err
+        
+    ' ブック
+    Dim book  As Workbook
+    
+    ' アクティブブックをbook変数に格納する
+    Set book = ActiveWorkbook
+    
+    ' フォームを設定する
+    If VBUtil.unloadFormIfChangeActiveBook(frmDBQueryBatch) Then Unload frmDBQueryBatch
+    Load frmDBQueryBatch
+    Set frmDbQueryBatchVar = frmDBQueryBatch
+    
+    frmDbQueryBatchVar.ShowExt vbModal, DB_QUERY_BATCH_MODE.QueryExecute, DB_QUERY_BATCH_TYPE.none, book
+    
+    Set frmDbQueryBatchVar = Nothing
+    
+    Exit Sub
+    
+err:
+
+    ' エラー発生
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽クエリ結果にエラーがあるかどうかを調査する。
+'
+' 概要　　　：
+' 戻り値　　：true エラー発生
+'
+' =========================================================
+Public Function isErrorQueryResult() As Boolean
+
+    ' クエリ結果を取得する
+    Dim i As Long
+    Dim queryResultCount As Long
+    Dim queryResultObj As ValQueryResultInfo
+    
+    queryResultCount = queryResultSetInfo.getInfoCount
+    
+    For i = 1 To queryResultCount
+    
+        Set queryResultObj = queryResultSetInfo.getInfo(i)
+        
+        If Not queryResultObj Is Nothing Then
+        
+            If queryResultObj.errorCount > 0 Then
+            
+                isErrorQueryResult = True
+                Exit Function
+            End If
+            
+        End If
+    Next
+
+    isErrorQueryResult = False
+    
+End Function
+
+' =========================================================
+' ▽クエリ結果表示
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub showQueryResult()
+
+    On Error GoTo err
+    
+    ' クエリ結果フォームを表示する
+    frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
+
+    Exit Sub
+    
+err:
+    
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽クエリ結果表示
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub showQueryResultWhenSettingResult()
+
+    On Error GoTo err
+    
+    
+    If applicationSetting.queryResultShowWhenNormal = False Then
+    
+        If isErrorQueryResult Then
+        
+            ' クエリ結果が設定済みの場合、表示する
+            If queryResultSetInfo.getInfoCount > 0 Then
+                ' クエリ結果フォームを表示する
+                frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
+            End If
+        End If
+        
+    Else
+    
+        ' クエリ結果が設定済みの場合、表示する
+        If queryResultSetInfo.getInfoCount > 0 Then
+            ' クエリ結果フォームを表示する
+            frmQueryResultVar.ShowExt vbModeless, queryResultSetInfo
+        End If
+    End If
+
+    Exit Sub
+    
+err:
+    
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▼クエリ結果フォーム - シート選択時に呼び出されるイベント
+' =========================================================
+Private Sub frmQueryResultVar_selected(tableSheet As ValTableWorksheet)
+
+    On Error GoTo err
+
+    tableSheet.sheet.activate
+
+    Exit Sub
+
+err:
+
+End Sub
+
+' =========================================================
+' ▼クエリ結果フォーム - 詳細セル選択時に呼び出されるイベント
+' =========================================================
+Private Sub frmQueryResultVar_selectedDetail(tableSheet As ValTableWorksheet, ByVal cell As String)
+
+    On Error GoTo err
+
+    tableSheet.sheet.activate
+    tableSheet.sheet.Range(cell).activate
+
+    Exit Sub
+
+err:
+
+End Sub
+
+' =========================================================
+' ▽クエリパラメータ設定
+'
+' 概要　　　：クエリパラメータ 押下時の処理
+'
+' =========================================================
+Public Sub settingQueryParameter()
+
+    On Error GoTo err
+
+    ' フォームをロードする
+    If VBUtil.unloadFormIfChangeActiveBook(frmQueryParameter) Then Unload frmQueryParameter
+    Load frmQueryParameter
+    ' イベント受信用のフォームを初期化する
+    Set frmQueryParameterVar = frmQueryParameter
+    
+    ' オプションフォームを表示する
+    frmQueryParameterVar.ShowExt vbModal
+
+    ' イベント受信用のオプションフォームを破棄する
+    Set frmQueryParameterVar = Nothing
+    
+    Exit Sub
+
+err:
+
+    Main.ShowErrorMessage
+
+    ' イベント受信用のオプションフォームを破棄する
+    Set frmQueryParameterVar = Nothing
+    
+End Sub
+
+' =========================================================
+' ▽クエリパラメータフォームでOKボタンが押下された場合に発生するイベント
+'
+' 概要　　　：
+' 引数　　　：
+'
+' =========================================================
+Private Sub frmQueryParameterVar_ok()
+
+End Sub
+
+' =========================================================
+' ▽クエリパラメータフォームでキャンセルボタンが押下された場合に発生するイベント
+'
+' 概要　　　：
+' 引数　　　：
+'
+' =========================================================
+Private Sub frmQueryParameterVar_Cancel()
+
+End Sub
+
+' =========================================================
 ' ▽削除実行確認
 '
 ' 概要　　　：DELETEを実行してもいいかどうかを確認する。
@@ -2963,21 +3052,6 @@ Private Function createProgressTitleOptionalMessage() As String
     End If
 
 End Function
-
-' =========================================================
-' ▼クエリ結果フォーム - シート選択時に呼び出されるイベント
-' =========================================================
-Private Sub frmQueryResultVar_selected(tableSheet As ValTableWorksheet)
-
-    On Error GoTo err
-
-    tableSheet.sheet.activate
-
-    Exit Sub
-
-err:
-
-End Sub
 
 ' =========================================================
 ' ▽設定情報の生成

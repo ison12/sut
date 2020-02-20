@@ -21,9 +21,6 @@ Option Explicit
 ' ________________________________________________________
 ' メンバ変数
 ' ________________________________________________________
-' ■クエリパラメータフォーム（イベント受信用に定義）
-Private WithEvents frmQueryParameterVar As frmQueryParameter
-Attribute frmQueryParameterVar.VB_VarHelpID = -1
 ' ■オプションフォーム（イベント受信用に定義）
 Private WithEvents frmOptionVar As frmOption
 Attribute frmOptionVar.VB_VarHelpID = -1
@@ -40,28 +37,6 @@ Attribute frmPopupMenuVar.VB_VarHelpID = -1
 ' ________________________________________________________
 ' イベント
 ' ________________________________________________________
-' =========================================================
-' ▽クエリパラメータフォームでOKボタンが押下された場合に発生するイベント
-'
-' 概要　　　：
-' 引数　　　：
-'
-' =========================================================
-Private Sub frmQueryParameterVar_ok()
-
-End Sub
-
-' =========================================================
-' ▽クエリパラメータフォームでキャンセルボタンが押下された場合に発生するイベント
-'
-' 概要　　　：
-' 引数　　　：
-'
-' =========================================================
-Private Sub frmQueryParameterVar_Cancel()
-
-End Sub
-
 ' =========================================================
 ' ▽オプションフォームでOKボタンが押下された場合に発生するイベント
 '
@@ -125,7 +100,7 @@ End Sub
 '
 ' =========================================================
 Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingShortcut _
-                                  , ByRef cancel As Boolean)
+                                  , ByRef Cancel As Boolean)
 
     Dim result As Long
     result = VBUtil.showMessageBoxForYesNo("右クリックメニューが初期状態にリセットされます。" & vbNewLine & _
@@ -134,7 +109,7 @@ Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingS
     
     If result = WinAPI_User.IDNO Then
     
-        cancel = True
+        Cancel = True
         Exit Sub
     End If
     
@@ -160,39 +135,6 @@ End Sub
 ' =========================================================
 Private Sub Class_Terminate()
 
-End Sub
-
-' =========================================================
-' ▽クエリパラメータ設定
-'
-' 概要　　　：クエリパラメータ 押下時の処理
-'
-' =========================================================
-Public Sub settingQueryParameter()
-
-    On Error GoTo err
-
-    ' フォームをロードする
-    If VBUtil.unloadFormIfChangeActiveBook(frmQueryParameter) Then Unload frmQueryParameter
-    Load frmQueryParameter
-    ' イベント受信用のフォームを初期化する
-    Set frmQueryParameterVar = frmQueryParameter
-    
-    ' オプションフォームを表示する
-    frmQueryParameterVar.ShowExt vbModal
-
-    ' イベント受信用のオプションフォームを破棄する
-    Set frmQueryParameterVar = Nothing
-    
-    Exit Sub
-
-err:
-
-    Main.ShowErrorMessage
-
-    ' イベント受信用のオプションフォームを破棄する
-    Set frmQueryParameterVar = Nothing
-    
 End Sub
 
 ' =========================================================

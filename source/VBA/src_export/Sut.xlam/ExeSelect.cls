@@ -138,7 +138,7 @@ Attribute tableSheetReader.VB_VarHelpID = -1
 ' テーブルシート生成
 Private tableSheetCreator As New ExeTableSheetCreator
 ' クエリ変換
-Private DbQueryConverter As New DbQueryConverter
+Private queryConverter As New DbQueryConverter
 ' クエリパラメータリスト
 Private queryParameterList_ As ValQueryParameterList
 
@@ -311,8 +311,8 @@ Private Function execute(ByRef tableSheet As ValTableWorksheet, ByRef sql As Str
     ' SQL実行中フラグをONにする
     executingSql = True
     
-    DbQueryConverter.init Me.conn, queryParameterList
-    sql = DbQueryConverter.convertSql(sql)
+    queryConverter.initIfFirst Me.conn, queryParameterList
+    sql = queryConverter.convertSql(sql)
     
     ' クエリーを実行する
     Set recordSet = ADOUtil.querySelect(conn, sql, 0)
@@ -465,7 +465,7 @@ err:
             sqlState = error.sqlState
         End If
 
-        RaiseEvent ExecuteSqlError(sql, sqlState, err.Description)
+        RaiseEvent ExecuteSqlError(sql, sqlState, CStr(errT.Description))
 
     End If
 

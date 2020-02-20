@@ -31,6 +31,16 @@ Option Explicit
 '
 ' 概要　　　：
 ' 引数　　　：tableSheet テーブルシート
+'           : row        行番号
+'
+' =========================================================
+Public Event selectedDetail(ByRef tableSheet As ValTableWorksheet, ByVal cell As String)
+
+' =========================================================
+' ▽テーブルを選択した場合に呼び出されるイベント
+'
+' 概要　　　：
+' 引数　　　：tableSheet テーブルシート
 '
 ' =========================================================
 Public Event selected(ByRef tableSheet As ValTableWorksheet)
@@ -43,6 +53,10 @@ Public Event selected(ByRef tableSheet As ValTableWorksheet)
 '
 ' =========================================================
 Public Event closed()
+
+' クエリ結果詳細情報の一件毎の表示（子画面）
+Private WithEvents frmQueryResultDetailVar As frmQueryResultDetail
+Attribute frmQueryResultDetailVar.VB_VarHelpID = -1
 
 ' テーブルリストでの選択項目インデックス
 Private tableSheetSelectedIndex As Long
@@ -169,11 +183,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdClose_Click
     End If
@@ -191,6 +205,38 @@ End Sub
 Private Sub lstTableSheet_Change()
 
     selectedTable
+End Sub
+
+' =========================================================
+' ▽詳細ボタンクリック時のイベントプロシージャ
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub cmdDetail_Click()
+
+
+    Dim selectedList As ValCollection
+    Set selectedList = tableSheetList.getSelectedList
+    
+    If selectedList.count <= 0 Then
+    
+        ' 終了する
+        Exit Sub
+    End If
+
+    Dim queryResultInfo As ValQueryResultInfo
+    Set queryResultInfo = selectedList.getItemByIndex(1)
+
+    If VBUtil.unloadFormIfChangeActiveBook(frmQueryResultDetail) Then Unload frmQueryResultDetail
+    Load frmQueryResultDetail
+    Set frmQueryResultDetailVar = frmQueryResultDetail
+    frmQueryResultDetail.ShowExt vbModal, queryResultInfo
+                            
+    Set frmQueryResultDetailVar = Nothing
+    
 End Sub
 
 ' =========================================================
@@ -217,6 +263,31 @@ err:
 
     Main.ShowErrorMessage
     
+End Sub
+
+' =========================================================
+' ▽クエリ結果詳細の選択時のイベント処理
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub frmQueryResultDetailVar_selected(tableSheet As ValTableWorksheet, ByVal cell As String)
+
+    RaiseEvent selectedDetail(tableSheet, cell)
+End Sub
+
+' =========================================================
+' ▽クエリ結果詳細の閉じる処理
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub frmQueryResultDetailVar_closed()
+
 End Sub
 
 ' =========================================================
@@ -297,7 +368,7 @@ Private Sub activate()
     If erroredResultInfoCount > 0 Then
     
         lblErrorMessage.visible = True
-        lblErrorMessage.Caption = "処理結果にエラーが" & erroredResultInfoCount & "件あります。対象のシートを選択してエラー内容を確認してください。"
+        lblErrorMessage.Caption = "処理結果にエラーがあります。対象のシートを選択してエラー内容を確認してください。"
     End If
 
 End Sub

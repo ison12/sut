@@ -2224,3 +2224,42 @@ Public Function unloadFormIfChangeActiveBook(ByRef obj As Variant) As Boolean
         
 End Function
 
+' =========================================================
+' ▽チェック成功時のコントロール変更処理
+'
+' 概要　　　：
+' 引数　　　：cnt コントロール
+' 戻り値　　：
+'
+' =========================================================
+Public Sub changeControlPropertyByValidTrue(ByRef cnt As MSForms.control)
+
+    With cnt
+        .BackColor = &H80000005
+        .ForeColor = &H80000012
+    
+    End With
+
+End Sub
+
+' =========================================================
+' ▽チェック失敗時のコントロール変更処理
+'
+' 概要　　　：
+' 引数　　　：cnt コントロール
+' 戻り値　　：
+'
+' =========================================================
+Public Sub changeControlPropertyByValidFalse(ByRef cnt As MSForms.control)
+
+    With cnt
+        ' テキスト全体を選択する
+        .SelStart = 0
+        .SelLength = Len(.text)
+        
+        .BackColor = RGB(&HFF, &HFF, &HCC)
+        .ForeColor = reverseRGB(&HFF, &HFF, &HCC)
+        
+    End With
+
+End Sub

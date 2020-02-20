@@ -73,8 +73,18 @@ End Sub
 ' =========================================================
 Public Function setDbColFormatInfo(ByRef dbColumnFmtInfo As ValDbColumnFormatInfo)
 
+    ' 設定情報（引数の情報をクローンする）
+    Dim setInfo As New ValDbColumnFormatInfo
+    setInfo.dbName = dbColumnFmtInfo.dbName
+
+    ' カラムリストを生成しなおす（カラム名をキーにしたいので）
+    Dim v As ValDbColumnTypeColInfo
+    For Each v In dbColumnFmtInfo.columnList.col
+        setInfo.columnList.setItem v, v.columnName
+    Next
+
     ' DBリストに再設定する
-    dbList.setItem dbColumnFmtInfo, dbColumnFmtInfo.dbName
+    dbList.setItem setInfo, setInfo.dbName
 
 End Function
 

@@ -5,6 +5,6 @@ HelpFile=
 HelpContextID=0
 [Reference]
 {00020430-0000-0000-C000-000000000046} 2 0=OLE Automation
-{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52} 2 7=Microsoft Office 15.0 Object Library
+{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52} 2 5=Microsoft Office 14.0 Object Library
 {0D452EE1-E08F-101A-852E-02608C4D0BB4} 2 0=Microsoft Forms 2.0 Object Library
 {000204EF-0000-0000-C000-000000000046} 6 0=Visual Basic For Applications

@@ -996,7 +996,7 @@ Public Function cloneShortcutAppList() As ValCollection
     
     For Each tmp In shortcutAppList.col
     
-        Set tmp2 = tmp.Clone
+        Set tmp2 = tmp.clone
         
         ret.setItem tmp2, tmp2.commandBarControl.Tag
     Next
@@ -1031,7 +1031,7 @@ Public Function clonePopupMenuList() As ValCollection
     
     For Each tmp In popupMenuList.col
     
-        Set tmp2 = tmp.Clone
+        Set tmp2 = tmp.clone
         ret.setItem tmp2, tmp2.popupMenuName
     Next
     

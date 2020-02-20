@@ -44,7 +44,7 @@ Public Event ok(ByRef applicationSetting As ValApplicationSettingShortcut)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' ポップアップメニューの新規作成時のデフォルト文字列
 Private Const POPUP_MENU_NEW_CREATED_STR As String = "Popup Menu"
@@ -220,11 +220,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If
@@ -239,7 +239,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstPopupMenu_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstPopupMenu_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
 
     editPopup
 End Sub
@@ -290,7 +290,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -423,7 +423,7 @@ End Sub
 '
 ' =========================================================
 Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingShortcut _
-                                  , ByRef cancel As Boolean)
+                                  , ByRef Cancel As Boolean)
 
 End Sub
 

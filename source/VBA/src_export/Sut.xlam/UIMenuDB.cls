@@ -134,9 +134,78 @@ End Sub
 ' 概要　　　：DB切断 押下時の処理
 '
 ' =========================================================
-Public Sub disconnectDb()
+Public Sub disconnectDB()
 
     ' 切断する
     Main.SutUpdateDbConn Nothing, Empty, Empty
     
 End Sub
+
+' =========================================================
+' ▽DB接続情報表示
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub showDBConnectInfo(ByVal dbConn As Object)
+
+    Const MSG_TITLE As String = "DB接続情報"
+
+    If dbConn Is Nothing Then
+        ' 切断状態
+        VBUtil.showMessageBoxForInformation "DBに接続されていません", MSG_TITLE
+    
+    ElseIf ADOUtil.getConnectionStatus(dbConn) = adStateClosed Then
+        ' 切断状態
+        VBUtil.showMessageBoxForInformation dbConn.ConnectionString & vbNewLine & "DBとの接続が切れています", MSG_TITLE
+    Else
+        ' 接続状態
+        
+        ' ------------------------------------------------------
+        ' 接続文字列を分解してタブ区切り・改行ごとに分割する
+        Dim connStrArr     As Variant
+        Dim connStrInfo    As Variant
+        Dim connStrInfoArr As Variant
+        
+        Dim connStrBuf As New StringBuilder
+        
+        Dim i As Long
+        
+        connStrArr = Split(dbConn.ConnectionString, ";")
+        
+        For i = LBound(connStrArr) To UBound(connStrArr)
+        
+            connStrInfo = Trim$(connStrArr(i))
+            If connStrInfo <> Empty Then
+            
+                connStrInfoArr = Split(connStrInfo, "=")
+                
+                If VBUtil.arraySize(connStrInfoArr) >= 2 Then
+                    connStrBuf.append "  " & Trim$(connStrInfoArr(0)) & "=" & Trim$(connStrInfoArr(1))
+                Else
+                    connStrBuf.append "  " & Trim$(connStrInfoArr(0)) & "="
+                End If
+            
+                connStrBuf.append vbLf
+            End If
+        
+        Next
+        
+        If connStrBuf.length > 0 Then
+            connStrBuf.remove connStrBuf.length, 1
+        End If
+        ' ------------------------------------------------------
+        
+        VBUtil.showMessageBoxForInformation _
+            "接続文字列" & vbTab & ": " & vbLf & _
+            connStrBuf.str & vbLf & _
+            "接続タイムアウト" & vbTab & ": " & dbConn.ConnectionTimeout & vbLf & _
+            "コマンドタイムアウト" & vbTab & ": " & dbConn.CommandTimeout & vbLf & _
+            "分離レベル" & vbTab & ": " & dbConn.IsolationLevel & vbLf & _
+            "デフォルトDB" & vbTab & ": " & dbConn.defaultdatabase & vbLf & _
+            "ADOバージョン" & vbTab & ": " & dbConn.version & _
+            "", MSG_TITLE
+    End If
+
+End Sub
+

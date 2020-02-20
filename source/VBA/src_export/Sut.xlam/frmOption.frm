@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmOption
    ClientHeight    =   7425
    ClientLeft      =   45
    ClientTop       =   360
-   ClientWidth     =   8655
+   ClientWidth     =   8655.001
    OleObjectBlob   =   "frmOption.frx":0000
    WhatsThisHelp   =   -1  'True
 End
@@ -43,7 +43,7 @@ Public Event ok(ByRef applicationSetting As ValApplicationSetting)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' カラム書式設定
 Private WithEvents frmDBColumnFormatVar As frmDBColumnFormat
@@ -207,11 +207,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If
@@ -264,7 +264,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -576,7 +576,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtRecProcessCountUserInput_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtRecProcessCountUserInput_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -584,23 +584,23 @@ Private Sub txtRecProcessCountUserInput_BeforeUpdate(ByVal cancel As MSForms.Ret
     If validInteger(txtRecProcessCountUserInput.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_INTEGER
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse txtRecProcessCountUserInput
+        VBUtil.changeControlPropertyByValidFalse txtRecProcessCountUserInput
     
     ' 数値範囲チェック
     ElseIf CDbl(txtRecProcessCountUserInput.text) < 1 Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", 1)
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse txtRecProcessCountUserInput
+        VBUtil.changeControlPropertyByValidFalse txtRecProcessCountUserInput
 
     ' 正常な場合
     Else
@@ -608,7 +608,7 @@ Private Sub txtRecProcessCountUserInput_BeforeUpdate(ByVal cancel As MSForms.Ret
         lblErrorMessage.Caption = ""
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidTrue txtRecProcessCountUserInput
+        VBUtil.changeControlPropertyByValidTrue txtRecProcessCountUserInput
     End If
     
     Exit Sub
@@ -627,7 +627,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtDirectInputCharEnableCustom_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtDirectInputCharEnableCustom_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -635,12 +635,12 @@ Private Sub txtDirectInputCharEnableCustom_BeforeUpdate(ByVal cancel As MSForms.
     If txtDirectInputCharEnableCustom.text = "" Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_REQUIRED
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse txtDirectInputCharEnableCustom
+        VBUtil.changeControlPropertyByValidFalse txtDirectInputCharEnableCustom
     
     ' 正常な場合
     Else
@@ -648,7 +648,7 @@ Private Sub txtDirectInputCharEnableCustom_BeforeUpdate(ByVal cancel As MSForms.
         lblErrorMessage.Caption = ""
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidTrue txtDirectInputCharEnableCustom
+        VBUtil.changeControlPropertyByValidTrue txtDirectInputCharEnableCustom
     End If
     
     Exit Sub
@@ -667,7 +667,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtCellWidth_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtCellWidth_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -675,23 +675,23 @@ Private Sub txtCellWidth_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If validUnsignedNumeric(txtCellWidth.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_NUMERIC
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse txtCellWidth
+        VBUtil.changeControlPropertyByValidFalse txtCellWidth
     
     ' 数値範囲チェック
     ElseIf CDbl(txtCellWidth.text) < applicationSetting.CELL_WIDTH_DEFAULT Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", applicationSetting.CELL_WIDTH_DEFAULT)
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse txtCellWidth
+        VBUtil.changeControlPropertyByValidFalse txtCellWidth
     
     ' 正常な場合
     Else
@@ -699,7 +699,7 @@ Private Sub txtCellWidth_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
         lblErrorMessage.Caption = ""
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidTrue txtCellWidth
+        VBUtil.changeControlPropertyByValidTrue txtCellWidth
     End If
     
     Exit Sub
@@ -718,7 +718,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub txtCellHeight_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub txtCellHeight_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -726,23 +726,23 @@ Private Sub txtCellHeight_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If validUnsignedNumeric(txtCellHeight.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_NUMERIC
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse txtCellHeight
+        VBUtil.changeControlPropertyByValidFalse txtCellHeight
     
     ' 数値範囲チェック
     ElseIf CDbl(txtCellHeight.text) < applicationSetting.CELL_HEIGHT_DEFAULT Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = replace(ConstantsError.VALID_ERR_AND_OVER, "{1}", applicationSetting.CELL_HEIGHT_DEFAULT)
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse txtCellHeight
+        VBUtil.changeControlPropertyByValidFalse txtCellHeight
     
     ' 正常な場合
     Else
@@ -750,7 +750,7 @@ Private Sub txtCellHeight_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
         lblErrorMessage.Caption = ""
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidTrue txtCellHeight
+        VBUtil.changeControlPropertyByValidTrue txtCellHeight
     End If
     
     Exit Sub
@@ -769,7 +769,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub cboFontList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub cboFontList_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
 
@@ -777,12 +777,12 @@ Private Sub cboFontList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If fontList.exist(cboFontList.text) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_NO_LIST_ITEM
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse cboFontList
+        VBUtil.changeControlPropertyByValidFalse cboFontList
     
     ' 正常な場合
     Else
@@ -790,7 +790,7 @@ Private Sub cboFontList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
         lblErrorMessage.Caption = ""
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidTrue cboFontList
+        VBUtil.changeControlPropertyByValidTrue cboFontList
     End If
     
     Exit Sub
@@ -810,7 +810,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub cboFontSizeList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub cboFontSizeList_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
 
     On Error GoTo err:
     
@@ -818,12 +818,12 @@ Private Sub cboFontSizeList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
     If validUnsignedNumeric(cboFontSizeList.value) = False Then
     
         ' 更新をキャンセルする
-        cancel = True
+        Cancel = True
     
         lblErrorMessage.Caption = ConstantsError.VALID_ERR_NUMERIC
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidFalse cboFontSizeList
+        VBUtil.changeControlPropertyByValidFalse cboFontSizeList
     
     ' 正常な場合
     Else
@@ -831,7 +831,7 @@ Private Sub cboFontSizeList_BeforeUpdate(ByVal cancel As MSForms.ReturnBoolean)
         lblErrorMessage.Caption = ""
         
         ' コントロールのプロパティを変更する
-        changeControlPropertyByValidTrue cboFontSizeList
+        VBUtil.changeControlPropertyByValidTrue cboFontSizeList
     End If
     
     Exit Sub
@@ -978,45 +978,5 @@ End Sub
 '
 ' =========================================================
 Private Sub frmDBColumnFormatVar_cancel()
-
-End Sub
-
-' =========================================================
-' ▽テキストボックスチェック成功時のコントロール変更処理
-'
-' 概要　　　：
-' 引数　　　：cnt コントロール
-' 戻り値　　：
-'
-' =========================================================
-Private Sub changeControlPropertyByValidTrue(ByRef cnt As MSForms.control)
-
-    With cnt
-        .BackColor = &H80000005
-        .ForeColor = &H80000012
-    
-    End With
-
-End Sub
-
-' =========================================================
-' ▽テキストボックスチェック失敗時のコントロール変更処理
-'
-' 概要　　　：
-' 引数　　　：cnt コントロール
-' 戻り値　　：
-'
-' =========================================================
-Private Sub changeControlPropertyByValidFalse(ByRef cnt As MSForms.control)
-
-    With cnt
-        ' テキスト全体を選択する
-        .SelStart = 0
-        .SelLength = Len(.text)
-        
-        .BackColor = RGB(&HFF, &HFF, &HCC)
-        .ForeColor = reverseRGB(&HFF, &HFF, &HCC)
-        
-    End With
 
 End Sub

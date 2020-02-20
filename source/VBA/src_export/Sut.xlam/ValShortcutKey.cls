@@ -52,7 +52,7 @@ Public Property Let shortcutKeyLabel(ByVal vNewValue As String)
     m_shortcutKeyLabel = vNewValue
 End Property
 
-Public Function Clone() As ValShortcutKey
+Public Function clone() As ValShortcutKey
 
     Dim ret As ValShortcutKey
     
@@ -61,6 +61,6 @@ Public Function Clone() As ValShortcutKey
     ret.shortcutKeyCode = m_shortcutKeyCode
     ret.shortcutKeyLabel = m_shortcutKeyLabel
     
-    Set Clone = ret
+    Set clone = ret
 
 End Function

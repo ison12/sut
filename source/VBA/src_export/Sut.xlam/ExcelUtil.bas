@@ -1612,7 +1612,7 @@ Public Sub copyCommandBarControl(ByRef srcControl As Object, ByRef desControl As
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             .Picture = srcControl.Picture
-            .Mask = srcControl.Mask
+            .mask = srcControl.mask
         End If
     
     End With

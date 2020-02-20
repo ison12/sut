@@ -42,7 +42,7 @@ Public Event ok(ByRef applicationSetting As ValApplicationSettingShortcut)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' ショートカットキー設定情報
 Private WithEvents frmShortcutKeySettingVar As frmShortcutKeySetting
@@ -203,11 +203,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If
@@ -260,7 +260,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -300,7 +300,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstAppList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstAppList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
 
     editAppShortcutKey
 End Sub

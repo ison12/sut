@@ -12,3 +12,5 @@ source/cpp/Sut/x64
 source/vba/src/~$Sut.xlam
 source/cpp/Sut/*.ncb
 source/cpp/Sut/*.suo
+source/vba/src/resource/config/*
+source/vba/src/module

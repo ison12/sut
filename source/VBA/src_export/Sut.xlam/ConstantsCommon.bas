@@ -25,7 +25,7 @@ Public Const version As String = "2.00"
 Public Const HELP_FILE As String = "Sut.chm"
 
 ' コマンドバーメニューの名称
-Public Const COMMANDBAR_MENU_NAME       As String = "Sut by Ison"
+Public Const COMMANDBAR_MENU_NAME       As String = "Sut"
 ' コマンドバーメニューの名称（表示に使われるプロパティ）
 Public Const COMMANDBAR_MENU_NAME_LOCAL As String = "Sut"
 

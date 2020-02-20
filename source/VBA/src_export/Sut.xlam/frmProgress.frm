@@ -35,7 +35,10 @@ Option Explicit
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
+
+' プログレスの計測不可記号
+Private Const PROGRESS_UNAVAILABLE_MARK As String = "-"
 
 ' セカンダリプログレスの表示有無
 Private enableSecProgressParam As Boolean
@@ -80,8 +83,17 @@ Public Property Get priCountOfAll() As Long
 End Property
 
 Public Property Let priCountOfAll(ByVal vNewValue As Long)
-    lblPriCountOfAll.Caption = CStr(vNewValue)
+    
+    If vNewValue = -1 Then
+        ' 計測不可
+        lblPriCountOfAll.Caption = PROGRESS_UNAVAILABLE_MARK
+    Else
+        ' 通常
+        lblPriCountOfAll.Caption = CStr(vNewValue)
+    End If
+    
     updatePrimaryProgressBar
+    
 End Property
 
 ' =========================================================
@@ -115,8 +127,17 @@ Public Property Get secCountOfAll() As Long
 End Property
 
 Public Property Let secCountOfAll(ByVal vNewValue As Long)
-    lblSecCountOfAll.Caption = CStr(vNewValue)
+
+    If vNewValue = -1 Then
+        ' 計測不可
+        lblSecCountOfAll.Caption = PROGRESS_UNAVAILABLE_MARK
+    Else
+        ' 通常
+        lblSecCountOfAll.Caption = CStr(vNewValue)
+    End If
+    
     updateSecondaryProgressBar
+    
 End Property
 
 ' =========================================================
@@ -331,8 +352,14 @@ End Sub
 ' =========================================================
 Private Sub updatePrimaryProgressBar()
 
-    updateProgressBar lblPriProgressFg, lblPriProgressBg, CLng(lblPriCount.Caption), CLng(lblPriCountOfAll.Caption)
-    
+    If lblPriCountOfAll.Caption = PROGRESS_UNAVAILABLE_MARK Then
+        ' 計測不可
+        updateProgressBar lblPriProgressFg, lblPriProgressBg, CLng(lblPriCount.Caption), CLng(lblPriCount.Caption)
+    Else
+        ' 通常
+        updateProgressBar lblPriProgressFg, lblPriProgressBg, CLng(lblPriCount.Caption), CLng(lblPriCountOfAll.Caption)
+    End If
+
 End Sub
 
 ' =========================================================
@@ -345,7 +372,13 @@ End Sub
 ' =========================================================
 Private Sub updateSecondaryProgressBar()
 
-    updateProgressBar lblSecProgressFg, lblSecProgressBg, CLng(lblSecCount.Caption), CLng(lblSecCountOfAll.Caption)
+    If lblSecCountOfAll.Caption = PROGRESS_UNAVAILABLE_MARK Then
+        ' 計測不可
+        updateProgressBar lblSecProgressFg, lblSecProgressBg, CLng(lblSecCount.Caption), CLng(lblSecCount.Caption)
+    Else
+        ' 通常
+        updateProgressBar lblSecProgressFg, lblSecProgressBg, CLng(lblSecCount.Caption), CLng(lblSecCountOfAll.Caption)
+    End If
     
 End Sub
 
@@ -417,18 +450,18 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
 
     If CloseMode = 0 Then
     
         If showCancelConfDialog = 6 Then
         
             ' キャンセルイベントを送信する
-            RaiseEvent cancel
+            RaiseEvent Cancel
             
         End If
         
-        cancel = True
+        Cancel = True
         
     End If
     

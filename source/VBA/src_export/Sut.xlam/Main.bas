@@ -93,9 +93,9 @@ Public Function SutUpdateDbConn(ByRef dbConn_ As Object, ByRef dbConnStr_ As Str
     End If
     
     If ADOUtil.getConnectionStatus(dbConn) = adStateClosed Then
-        changeDbConnectStatus False
+        changeDbConnectStatus dbConnStr_, dbConnSimpleStr_, False
     Else
-        changeDbConnectStatus True
+        changeDbConnectStatus dbConnStr_, dbConnSimpleStr_, True
     End If
 
 End Function
@@ -140,8 +140,8 @@ Public Function SutRelease()
     Set menuDB = Nothing
     Set menuTable = Nothing
     Set menuData = Nothing
-    Set menuDiff = Nothing
     Set menuFile = Nothing
+    Set menuDiff = Nothing
     Set menuTool = Nothing
     Set menuHelp = Nothing
     
@@ -161,6 +161,7 @@ Public Function SutRelease()
     Unload frmQueryParameter
     Unload frmQueryParameterSetting
     Unload frmQueryResult
+    Unload frmQueryResultDetail
     Unload frmRecordAppender
     Unload frmSelectConditionCreator
     Unload frmShortcutKey
@@ -197,14 +198,14 @@ Private Sub initUIObject()
         Set menuData = New UIMenuData
     End If
 
-    If menuDiff Is Nothing Then
-
-        Set menuDiff = New UIMenuDiff
-    End If
-
     If menuFile Is Nothing Then
 
         Set menuFile = New UIMenuFile
+    End If
+
+    If menuDiff Is Nothing Then
+
+        Set menuDiff = New UIMenuDiff
     End If
 
     If menuTool Is Nothing Then
@@ -348,6 +349,31 @@ err:
 End Function
 
 ' =========================================================
+' ▽DB接続情報表示
+'
+' 概要　　　：
+'
+' =========================================================
+Public Function SutDBConnectInfo()
+
+    On Error GoTo err
+    
+    ' UIオブジェクトの初期化
+    initUIObject
+    
+    menuDB.init
+    menuDB.showDBConnectInfo dbConn
+    
+    doAfterProcess
+
+    Exit Function
+err:
+    
+    Main.ShowErrorMessage
+    
+End Function
+
+' =========================================================
 ' ▽DB接続切断
 '
 ' 概要　　　：
@@ -361,7 +387,7 @@ Public Function SutDisConnectDB()
     initUIObject
     
     menuDB.init
-    menuDB.disconnectDb
+    menuDB.disconnectDB
     
     doAfterProcess
 
@@ -371,7 +397,6 @@ err:
     Main.ShowErrorMessage
     
 End Function
-
 ' =========================================================
 ' ▽DBエクスプローラ表示
 '
@@ -898,37 +923,6 @@ err:
 End Function
 
 ' =========================================================
-' ▽行の追加
-'
-' 概要　　　：
-'
-' =========================================================
-Public Function SutRecordAdd()
-
-    On Error GoTo err
-    
-    ' ブックのチェックを行う
-    validWorkbook
-    
-    ' UIオブジェクトの初期化
-    initUIObject
-    
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
-    
-    menuData.init appSetting, appSettingColFmt, Nothing
-    menuData.recordAdd
-    
-    doAfterProcess
-
-    Exit Function
-err:
-    
-    Main.ShowErrorMessage
-        
-End Function
-
-' =========================================================
 ' ▽クエリエディタ（ !!! 未実装 !!! ）
 '
 ' 概要　　　：
@@ -1019,6 +1013,65 @@ err:
 End Function
 
 ' =========================================================
+' ▽クエリパラメータ設定
+'
+' 概要　　　：
+'
+' =========================================================
+Public Function SutSettingQueryParameter()
+
+    On Error GoTo err
+    
+    ' UIオブジェクトの初期化
+    initUIObject
+    
+    Dim appSetting As Object: Set appSetting = getApplicationSetting
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    
+    menuData.init appSetting, appSettingColFmt, Nothing, False ' クエリ結果を消去しない
+    menuData.settingQueryParameter
+    
+    doAfterProcess
+
+    Exit Function
+err:
+    
+    Main.ShowErrorMessage
+        
+End Function
+
+' =========================================================
+' ▽行の追加
+'
+' 概要　　　：
+'
+' =========================================================
+Public Function SutRecordAdd()
+
+    On Error GoTo err
+    
+    ' ブックのチェックを行う
+    validWorkbook
+    
+    ' UIオブジェクトの初期化
+    initUIObject
+    
+    Dim appSetting As Object: Set appSetting = getApplicationSetting
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    
+    menuData.init appSetting, appSettingColFmt, Nothing
+    menuData.recordAdd
+    
+    doAfterProcess
+
+    Exit Function
+err:
+    
+    Main.ShowErrorMessage
+        
+End Function
+
+' =========================================================
 ' ▽スナップショットSQL定義シート作成
 '
 ' 概要　　　：
@@ -1069,30 +1122,6 @@ Public Function SutShowSnapshot()
     menuDiff.init appSetting, appSettingColFmt, conn
     menuDiff.showSnapshot
     
-    Exit Function
-err:
-    
-    Main.ShowErrorMessage
-        
-End Function
-
-' =========================================================
-' ▽オプション設定
-'
-' 概要　　　：
-'
-' =========================================================
-Public Function SutSettingQueryParameter()
-
-    On Error GoTo err
-    
-    ' UIオブジェクトの初期化
-    initUIObject
-    
-    menuTool.settingQueryParameter
-    
-    doAfterProcess
-
     Exit Function
 err:
     
@@ -1674,6 +1703,18 @@ Public Function getDBConnection() As Object
 End Function
 
 ' =========================================================
+' ▽DBコネクション切断
+'
+' 概要　　　：
+'
+' =========================================================
+Public Sub disconnectDB()
+
+    SutDisConnectDB
+
+End Sub
+
+' =========================================================
 ' ▽アプリケーション設定情報取得
 '
 ' 概要　　　：アプリケーション設定情報を取得する
@@ -1901,7 +1942,7 @@ Private Function initLoadingToolbar()
             .Tag = ConstantsCommon.COMMANDBAR_DONT_DELETE_TARGET
             
             setCommandBarControlIcon appIcon _
-                                   , RESOURCE_ICON.database
+                                   , "Database"
             
             ' ※DescriptionTextプロパティに明示的に空文字列を設定する
             ' 　ショートカットキーの機能リストに本コントロールは追加しない
@@ -1917,7 +1958,7 @@ Private Function initLoadingToolbar()
     ' -----------------------------------------------------------------------
     
     ' ***************************************************************
-    ' DB接続
+    ' アプリケーションの起動と終了
     ' ***************************************************************
     ' ファイルポップアップ
     Dim popFile                   As commandBarPopup
@@ -1932,7 +1973,7 @@ Private Function initLoadingToolbar()
     With popFile
         ' 削除対象から除外
         .Tag = ConstantsCommon.COMMANDBAR_DONT_DELETE_TARGET
-        .Caption = "ファイル"
+        .Caption = "Sut"
     End With
         
     ' ロードボタンをコマンドバーにボタンを追加する
@@ -1942,7 +1983,7 @@ Private Function initLoadingToolbar()
     With btnLoad
     
         .Style = msoButtonIconAndCaption
-        .Caption = "アプリケーションの開始"
+        .Caption = "アプリケーション起動"
         .OnAction = "Main.SutLoad"
         .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutLoad"
         
@@ -1959,9 +2000,9 @@ Private Function initLoadingToolbar()
     With btnUnload
     
         .Style = msoButtonIconAndCaption
-        .Caption = "アプリケーションの終了"
+        .Caption = "アプリケーション終了"
         .OnAction = "Main.SutUnload"
-        .enabled = False
+        .Enabled = False
         .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutUnload"
         
         ' ※DescriptionTextプロパティに明示的に空文字列を設定する
@@ -2049,7 +2090,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDBConnect _
-                                   , RESOURCE_ICON.databaseSetting
+                                   , "DatabaseSetting"
         End If
         
     End With
@@ -2069,7 +2110,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDBDisConnect _
-                                   , RESOURCE_ICON.deleteDatabase
+                                   , "DeleteDatabase"
         End If
         
     End With
@@ -2114,7 +2155,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDbExplorer _
-                                   , RESOURCE_ICON.databaseSearch
+                                   , "Search"
         End If
         
     End With
@@ -2134,7 +2175,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnTableList _
-                                   , RESOURCE_ICON.searchWindow
+                                   , "SearchWindow"
         End If
         
     End With
@@ -2154,7 +2195,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnTableCreateSheetWizard _
-                                   , RESOURCE_ICON.addFolder
+                                   , "AddFolder"
         End If
         
     End With
@@ -2174,7 +2215,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnTableUpdateSheetWizard _
-                                   , RESOURCE_ICON.windowImport
+                                   , "WindowImport"
         End If
     End With
 
@@ -2230,7 +2271,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnInsertUpdate _
-                                   , RESOURCE_ICON.Add
+                                   , "Add"
         End If
 
     End With
@@ -2250,7 +2291,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnInsertUpdateSelected _
-                                   , RESOURCE_ICON.areaAdd
+                                   , "AreaAdd"
         End If
     End With
     
@@ -2290,7 +2331,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnInsert _
-                                   , RESOURCE_ICON.Add
+                                   , "Add"
         End If
 
     End With
@@ -2310,7 +2351,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnInsertSelected _
-                                   , RESOURCE_ICON.areaAdd
+                                   , "AreaAdd"
         End If
     End With
     
@@ -2350,7 +2391,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnupdate _
-                                   , RESOURCE_ICON.Edit
+                                   , "Edit"
         End If
     End With
     
@@ -2369,7 +2410,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnUpdateSelected _
-                                   , RESOURCE_ICON.areaEdit
+                                   , "AreaEdit"
         End If
     End With
     
@@ -2411,7 +2452,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDelete _
-                                   , RESOURCE_ICON.remove
+                                   , "Remove"
         End If
     End With
     
@@ -2430,7 +2471,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDeleteSelected _
-                                   , RESOURCE_ICON.areaRemove
+                                   , "AreaRemove"
         End If
     End With
     
@@ -2449,7 +2490,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnDeleteAllOfTable _
-                                   , RESOURCE_ICON.bug
+                                   , "Bug"
         End If
     End With
     
@@ -2491,7 +2532,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnSelect _
-                                   , RESOURCE_ICON.Search
+                                   , "Search"
         End If
     End With
     
@@ -2510,7 +2551,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnSelectSelected _
-                                   , RESOURCE_ICON.areaSearch
+                                   , "AreaSearch"
         End If
     End With
     
@@ -2579,7 +2620,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnQueryBatch _
-                                   , RESOURCE_ICON.Forward
+                                   , "Forward"
         End If
         
     End With
@@ -2599,15 +2640,15 @@ Private Function initToolbar()
     With btnQueryResult
     
         .Style = msoButtonIconAndCaption
-        .Caption = "クエリ結果"
-        .DescriptionText = "クエリ結果"
+        .Caption = "最後に実行したクエリ結果"
+        .DescriptionText = "最後に実行したクエリ結果"
         .OnAction = "Main.SutShowQueryResult"
         .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutShowQueryResult"
         
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnQueryResult _
-                                   , RESOURCE_ICON.Paste
+                                   , "AlertMessage"
         End If
         
     End With
@@ -2635,65 +2676,31 @@ Private Function initToolbar()
     
     ' ***************************************************************
     
-    
     ' ***************************************************************
-    ' Diff
+    ' クエリパラメータ
     ' ***************************************************************
-    ' Diffポップアップ
-    Dim popDiff                   As commandBarPopup
+    ' クエリパラメータボタン
+    Dim btnQueryParameter As CommandBarButton
     
-    ' Diffポップアップを追加する
-    Set popDiff = cb.Controls.Add(Type:=msoControlPopup)
+    ' クエリパラメータボタンをコマンドバーにボタンを追加する
+    Set btnQueryParameter = popData.Controls.Add(Type:=msoControlButton)
     
-    With popDiff
-    
-        .Caption = "Diff"
-    End With
-    ' ***************************************************************
-    
-    
-    ' ***************************************************************
-    ' DBスナップショット取得フォーム呼び出し
-    ' ***************************************************************
-    ' スナップショット取得
-    Dim btnShowDBSnapshot As CommandBarButton
-    
-    ' スナップショット取得ボタンをコマンドバーにボタンを追加する
-    Set btnShowDBSnapshot = popDiff.Controls.Add(Type:=msoControlButton)
-    
-    ' スナップショット取得ボタンのプロパティを設定する
-    With btnShowDBSnapshot
+    ' クエリパラメータボタンのプロパティを設定する
+    With btnQueryParameter
     
         .BeginGroup = True
         .Style = msoButtonIconAndCaption
-        .Caption = "スナップショット取得・比較"
-        .DescriptionText = "スナップショット取得・比較"
-        .OnAction = "Main.SutShowSnapshot"
-        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutShowSnapshot"
+        .Caption = "クエリパラメータ"
+        .DescriptionText = "クエリパラメータ"
+        .OnAction = "Main.SutSettingQueryParameter"
+        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutSettingQueryParameter"
         
+        ' Excel2002以降のプロパティ
+        If excelVer >= Ver2002 Then
+            setCommandBarControlIcon btnQueryParameter _
+                                   , "Run"
+        End If
     End With
-    
-    ' ***************************************************************
-    ' DBスナップショットSQL定義シート追加
-    ' ***************************************************************
-    ' スナップショットSQLシート追加
-    Dim btnNewSheetDataSnapshotSqlDefine As CommandBarButton
-    
-    ' スナップショットSQLシート追加ボタンをコマンドバーにボタンを追加する
-    Set btnNewSheetDataSnapshotSqlDefine = popDiff.Controls.Add(Type:=msoControlButton)
-    
-    ' スナップショットSQLシート追加ボタンのプロパティを設定する
-    With btnNewSheetDataSnapshotSqlDefine
-    
-        .BeginGroup = False
-        .Style = msoButtonIconAndCaption
-        .Caption = "スナップショットSQLシート追加"
-        .DescriptionText = "スナップショットSQLシート追加"
-        .OnAction = "Main.SutCreateNewSheetSnapSqlDefine"
-        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutCreateNewSheetSnapSqlDefine"
-        
-    End With
-    
     ' ***************************************************************
     
     ' ***************************************************************
@@ -2876,8 +2883,68 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnFileBatch _
-                                   , RESOURCE_ICON.Forward
+                                   , "Forward"
         End If
+        
+    End With
+    
+    ' ***************************************************************
+    
+    
+    ' ***************************************************************
+    ' Diff
+    ' ***************************************************************
+    ' Diffポップアップ
+    Dim popDiff                   As commandBarPopup
+    
+    ' Diffポップアップを追加する
+    Set popDiff = cb.Controls.Add(Type:=msoControlPopup)
+    
+    With popDiff
+    
+        .Caption = "Diff"
+    End With
+    ' ***************************************************************
+    
+    ' ***************************************************************
+    ' DBスナップショット取得フォーム呼び出し
+    ' ***************************************************************
+    ' スナップショット取得
+    Dim btnShowDBSnapshot As CommandBarButton
+    
+    ' スナップショット取得ボタンをコマンドバーにボタンを追加する
+    Set btnShowDBSnapshot = popDiff.Controls.Add(Type:=msoControlButton)
+    
+    ' スナップショット取得ボタンのプロパティを設定する
+    With btnShowDBSnapshot
+    
+        .BeginGroup = True
+        .Style = msoButtonIconAndCaption
+        .Caption = "スナップショット取得・比較"
+        .DescriptionText = "スナップショット取得・比較"
+        .OnAction = "Main.SutShowSnapshot"
+        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutShowSnapshot"
+        
+    End With
+    
+    ' ***************************************************************
+    ' DBスナップショットSQL定義シート追加
+    ' ***************************************************************
+    ' スナップショットSQLシート追加
+    Dim btnNewSheetDataSnapshotSqlDefine As CommandBarButton
+    
+    ' スナップショットSQLシート追加ボタンをコマンドバーにボタンを追加する
+    Set btnNewSheetDataSnapshotSqlDefine = popDiff.Controls.Add(Type:=msoControlButton)
+    
+    ' スナップショットSQLシート追加ボタンのプロパティを設定する
+    With btnNewSheetDataSnapshotSqlDefine
+    
+        .BeginGroup = False
+        .Style = msoButtonIconAndCaption
+        .Caption = "スナップショットSQLシート追加"
+        .DescriptionText = "スナップショットSQLシート追加"
+        .OnAction = "Main.SutCreateNewSheetSnapSqlDefine"
+        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutCreateNewSheetSnapSqlDefine"
         
     End With
     
@@ -2888,8 +2955,6 @@ Private Function initToolbar()
     ' ***************************************************************
     ' ツールポップアップ
     Dim popTool             As commandBarPopup
-    ' クエリパラメーボタン
-    Dim btnQueryParameter As CommandBarButton
     ' オプションボタン
     Dim btnOption           As CommandBarButton
     ' 右クリックメニューのカスタマイズボタン
@@ -2907,32 +2972,13 @@ Private Function initToolbar()
         .Caption = "ツール"
     End With
     
-    ' クエリパラメーボタンをコマンドバーにボタンを追加する
-    Set btnQueryParameter = popTool.Controls.Add(Type:=msoControlButton)
-    
-    ' クエリパラメーボタンのプロパティを設定する
-    With btnQueryParameter
-    
-        .Style = msoButtonIconAndCaption
-        .Caption = "クエリパラメータ"
-        .DescriptionText = "クエリパラメータ"
-        .OnAction = "Main.SutSettingQueryParameter"
-        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutSettingQueryParameter"
-        
-        ' Excel2002以降のプロパティ
-        If excelVer >= Ver2002 Then
-            'setCommandBarControlIcon btnOption _
-            '                       , RESOURCE_ICON.SETTINGS _
-            '                       , RESOURCE_ICON.SETTINGS_MASK
-        End If
-    End With
-
     ' オプションボタンをコマンドバーにボタンを追加する
     Set btnOption = popTool.Controls.Add(Type:=msoControlButton)
     
     ' オプションボタンのプロパティを設定する
     With btnOption
     
+        .BeginGroup = True
         .Style = msoButtonIconAndCaption
         .Caption = "オプション"
         .DescriptionText = "オプション"
@@ -2942,7 +2988,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnOption _
-                                   , RESOURCE_ICON.settings
+                                   , "Settings"
         End If
     End With
     
@@ -2962,7 +3008,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnRClickMenuCustom _
-                                   , RESOURCE_ICON.flagRed
+                                   , "FlagRed"
         End If
     End With
     
@@ -2981,7 +3027,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnShortCutKey _
-                                   , RESOURCE_ICON.flagGreen
+                                   , "FlagGreen"
         End If
     End With
     
@@ -3000,7 +3046,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnPopupKey _
-                                   , RESOURCE_ICON.flagBlue
+                                   , "FlagBlue"
         End If
     End With
     
@@ -3042,7 +3088,7 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnHelp _
-                                   , RESOURCE_ICON.book
+                                   , "Book"
         End If
         
     End With
@@ -3061,9 +3107,30 @@ Private Function initToolbar()
         ' Excel2002以降のプロパティ
         If excelVer >= Ver2002 Then
             setCommandBarControlIcon btnVersion _
-                                   , RESOURCE_ICON.alertMessage
+                                   , "AlertMessage"
         End If
         
+    End With
+    
+    ' ***************************************************************
+    
+    ' ***************************************************************
+    ' DB接続情報
+    ' ***************************************************************
+    ' DB接続情報ポップアップ
+    Dim btnDBConnectInfo As CommandBarButton
+    
+    ' DB接続情報ポップアップを追加する
+    Set btnDBConnectInfo = cb.Controls.Add(Type:=msoControlButton)
+    
+    With btnDBConnectInfo
+    
+        .Style = msoButtonCaption
+        .Caption = ""
+        .DescriptionText = "DB接続情報"
+        .OnAction = "Main.SutDBConnectInfo"
+        .visible = False
+        .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutDBConnectInfo"
     End With
     
     ' ***************************************************************
@@ -3074,7 +3141,7 @@ Private Function initToolbar()
     
     If Not btnLoad Is Nothing Then
     
-        btnLoad.enabled = False
+        btnLoad.Enabled = False
     End If
 
     ' アンロードボタンを押下可能にする
@@ -3083,7 +3150,7 @@ Private Function initToolbar()
     
     If Not btnUnload Is Nothing Then
     
-        btnUnload.enabled = True
+        btnUnload.Enabled = True
     End If
     
     cb.visible = True
@@ -3161,7 +3228,7 @@ Private Function deleteToolbarExcludeSomeItems()
     
     If Not btnLoad Is Nothing Then
     
-        btnLoad.enabled = True
+        btnLoad.Enabled = True
     End If
 
     ' アンロードボタンを押下不可にする
@@ -3170,21 +3237,33 @@ Private Function deleteToolbarExcludeSomeItems()
     
     If Not btnUnload Is Nothing Then
     
-        btnUnload.enabled = False
+        btnUnload.Enabled = False
     End If
     
     On Error GoTo 0
     
 End Function
 
+' =========================================================
+' ▽コマンドバーのアイコンを設定する処理
+'
+' 概要　　　：
+'
+' =========================================================
 Private Function setCommandBarControlIcon(ByVal control As Object _
-                                        , ByVal icon As RESOURCE_ICON)
+                                        , ByVal iconName As String)
                                    
-    'control.Picture = LoadPicture("")
-    'control.Mask = LoadPicture("")
+    control.Picture = LoadPicture(SutWorkbook.path & "\resource\icon\" & iconName & "_16x16.bmp")
+    control.mask = LoadPicture(SutWorkbook.path & "\resource\icon\" & iconName & "_16x16_mask.bmp")
 
 End Function
 
+' =========================================================
+' ▽処理全般の後処理
+'
+' 概要　　　：
+'
+' =========================================================
 Private Function doAfterProcess()
 
     On Error Resume Next
@@ -3197,7 +3276,16 @@ Private Function doAfterProcess()
 
 End Function
 
-Private Sub changeDbConnectStatus(ByVal conn As Boolean)
+' =========================================================
+' ▽DB接続ステータスを設定する処理
+'
+' 概要　　　：
+' 引数　　　：dbConnStr_        DB接続文字列
+'     　　　：dbConnSimpleStr_  DB接続文字列（単純な名前）
+'     　　　：conn              DB接続有無
+'
+' =========================================================
+Private Sub changeDbConnectStatus(ByRef dbConnStr_ As String, ByRef dbConnSimpleStr_ As String, ByVal conn As Boolean)
 
     ' コマンドバー
     Dim cb   As CommandBar
@@ -3209,11 +3297,13 @@ Private Sub changeDbConnectStatus(ByVal conn As Boolean)
         Exit Sub
     End If
     
-    Dim btnConn    As CommandBarButton
-    Dim btnDisconn As CommandBarButton
+    Dim btnConn          As CommandBarButton
+    Dim btnDisconn       As CommandBarButton
+    Dim btnDBConnectInfo As CommandBarButton
     
     Set btnConn = cb.FindControl(Tag:=ConstantsCommon.COMMANDBAR_CONTROL_BASE_ID & "Main.SutConnectDB", recursive:=True)
     Set btnDisconn = cb.FindControl(Tag:=ConstantsCommon.COMMANDBAR_CONTROL_BASE_ID & "Main.SutDisconnectDB", recursive:=True)
+    Set btnDBConnectInfo = cb.FindControl(Tag:=ConstantsCommon.COMMANDBAR_CONTROL_BASE_ID & "Main.SutDBConnectInfo", recursive:=True)
     
     If _
         Not btnConn Is Nothing And _
@@ -3228,6 +3318,13 @@ Private Sub changeDbConnectStatus(ByVal conn As Boolean)
             btnConn.state = msoButtonUp
             btnDisconn.state = msoButtonDown
         End If
+    End If
+    
+    If _
+        Not btnDBConnectInfo Is Nothing Then
+    
+        btnDBConnectInfo.Caption = "( " & dbConnSimpleStr_ & " )"
+        btnDBConnectInfo.visible = conn
     End If
     
 End Sub

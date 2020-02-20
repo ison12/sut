@@ -156,7 +156,7 @@ End Function
 ' 戻り値　　：
 '
 ' =========================================================
-Public Sub cancel()
+Public Sub Cancel()
 
     If stream Is Nothing Then
     

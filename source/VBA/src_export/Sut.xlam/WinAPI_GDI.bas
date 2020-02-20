@@ -218,11 +218,6 @@ Public Function getFontNameList() As ValCollection
     
         getFontNameList.setItem temp, temp
     Next
-    
-    #If DEBUG_MODE = 1 Then
-    
-        Debug.Print "フォントの数：" & getFontNameList.count
-    #End If
 
     ' デバイスコンテキストを解放する
     WinAPI_User.ReleaseDC 0, hdc

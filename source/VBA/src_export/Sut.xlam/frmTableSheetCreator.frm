@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmTableSheetCreator 
    Caption         =   "テーブルシートの作成"
-   ClientHeight    =   8790
+   ClientHeight    =   8790.001
    ClientLeft      =   45
    ClientTop       =   330
-   ClientWidth     =   8535
+   ClientWidth     =   8535.001
    OleObjectBlob   =   "frmTableSheetCreator.frx":0000
 End
 Attribute VB_Name = "frmTableSheetCreator"
@@ -42,7 +42,7 @@ Public Event complete(ByRef createTargetTable As ValCollection)
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 Private Const MULTIPAGE_MIN_PAGE As Long = 0
 Private Const MULTIPAGE_MAX_PAGE As Long = 4
@@ -158,13 +158,13 @@ Private Sub activate()
     
     ' ウィザード形式のウィンドウを操作するための各ボタンのenableプロパティを設定する
     ' 1ページ目なので戻れない
-    btnBack.enabled = False
+    btnBack.Enabled = False
     ' 1ページ目なので戻れる
-    btnNext.enabled = True
+    btnNext.Enabled = True
     ' キャンセルは押下可能
-    btnCancel.enabled = True
+    btnCancel.Enabled = True
     ' 完了は押下不可
-    btnFinish.enabled = False
+    btnFinish.Enabled = False
     
     ' ページ毎の初期化を行う
     ' ウェルカムページ
@@ -241,11 +241,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         btnCancel_Click
     End If
@@ -276,10 +276,10 @@ Private Sub btnBack_Click()
         changePage page
         
         ' 各ボタンのenableプロパティを1ページの状態に設定
-        btnBack.enabled = False
-        btnNext.enabled = True
-        btnCancel.enabled = True
-        btnFinish.enabled = False
+        btnBack.Enabled = False
+        btnNext.Enabled = True
+        btnCancel.Enabled = True
+        btnFinish.Enabled = False
         
     ' 1ページ以外
     Else
@@ -291,10 +291,10 @@ Private Sub btnBack_Click()
         changePage page
         
         ' 各ボタンのenableプロパティを1ページ以外の状態に設定
-        btnBack.enabled = True
-        btnNext.enabled = True
-        btnCancel.enabled = True
-        btnFinish.enabled = False
+        btnBack.Enabled = True
+        btnNext.Enabled = True
+        btnCancel.Enabled = True
+        btnFinish.Enabled = False
         
         ' マルチページを現在のページから1ページ前に設定
         page = multiPage.value - 1
@@ -338,10 +338,10 @@ Private Sub btnNext_Click()
         changePage page
         
         ' 各ボタンのenableプロパティを最終ページの状態に設定
-        btnBack.enabled = True
-        btnNext.enabled = False
-        btnCancel.enabled = True
-        btnFinish.enabled = True
+        btnBack.Enabled = True
+        btnNext.Enabled = False
+        btnCancel.Enabled = True
+        btnFinish.Enabled = True
         
     ' 最終ページ以外
     Else
@@ -353,10 +353,10 @@ Private Sub btnNext_Click()
         changePage page
         
         ' 各ボタンのenableプロパティを最終ページ以外の状態に設定
-        btnBack.enabled = True
-        btnNext.enabled = True
-        btnCancel.enabled = True
-        btnFinish.enabled = False
+        btnBack.Enabled = True
+        btnNext.Enabled = True
+        btnCancel.Enabled = True
+        btnFinish.Enabled = False
         
     End If
     
@@ -389,7 +389,7 @@ Private Sub btnCancel_Click()
         HideExt
     
         ' イベントを発行する
-        RaiseEvent cancel
+        RaiseEvent Cancel
     End If
     
     

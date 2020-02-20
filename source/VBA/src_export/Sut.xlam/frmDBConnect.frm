@@ -42,7 +42,7 @@ Public Event ok(ByVal connStr As String, ByVal connSimpleStr As String, ByVal co
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' 接続文字列 配列インデックス最小値
 Private Const CONNECT_STR_MIN As Long = 1
@@ -375,11 +375,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下の処理経由で閉じる
         cmdCancel_Click
     End If
@@ -449,10 +449,10 @@ Private Sub changeControlByEnableStatus(ByRef c As control, ByVal enable As Bool
 
     If enable = True Then
     
-        c.enabled = True
+        c.Enabled = True
         c.BackColor = &H80000005
     Else
-        c.enabled = False
+        c.Enabled = False
         c.BackColor = &H8000000F
     
     End If
@@ -715,10 +715,10 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' DB接続キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
     ' リスナーにもイベントを通知する
     If Not dbConnectListener Is Nothing Then
-        dbConnectListener.cancel
+        dbConnectListener.Cancel
     End If
 
     Exit Sub
@@ -1144,11 +1144,11 @@ Private Function createConnectSimpleString(ByVal dbType As String _
     End If
     
     If host <> "" Then
-        connStr = connStr & joinStr & "ホスト=" & host: joinStr = ", "
+        connStr = connStr & joinStr & "Host=" & host: joinStr = ", "
     End If
     
     If port <> "" Then
-        connStr = connStr & joinStr & "ポート=" & port: joinStr = ", "
+        connStr = connStr & joinStr & "Port=" & port: joinStr = ", "
     End If
     
     If db <> "" Then

@@ -85,7 +85,7 @@ End Sub
 ' 概要　　　：
 '
 ' =========================================================
-Private Sub Workbook_BeforeClose(cancel As Boolean)
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
 
     #If (DEBUG_MODE = 1) Then
     

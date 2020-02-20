@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmQueryParameter 
    Caption         =   "クエリパラメータ設定"
-   ClientHeight    =   8595
+   ClientHeight    =   8595.001
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   8055
@@ -42,7 +42,7 @@ Public Event ok()
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' クエリパラメータの新規作成最大数
 Private Const QUERY_PARAMETER_NEW_CREATED_OVER_SIZE As String = "クエリパラメータは最大${count}まで登録可能です。"
@@ -112,6 +112,8 @@ Private Sub activate()
 
     restoreQueryParameter
     
+    lblDescription.Caption = replace(replace(lblDescription.Caption, "$es", ConstantsTable.QUERY_PARAMETER_ENCLOSE_START), "$ee", ConstantsTable.QUERY_PARAMETER_ENCLOSE_END)
+    
 End Sub
 
 ' =========================================================
@@ -174,7 +176,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     
@@ -192,7 +194,7 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub lstQueryParameterList_DblClick(ByVal cancel As MSForms.ReturnBoolean)
+Private Sub lstQueryParameterList_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     editQueryParameter
 End Sub
 
@@ -227,7 +229,7 @@ Private Sub cmdAdd_Click()
     Dim queryParameter As ValQueryParameter
     Set queryParameter = New ValQueryParameter
     
-    queryParameter.name = ConstantsCommon.QUERY_PARAMETER_DEFAULT_NAME & " " & (cnt + 1)
+    queryParameter.name = ConstantsCommon.QUERY_PARAMETER_DEFAULT_NAME & "_" & (cnt + 1)
     
     Dim list As New ValCollection
     list.setItem queryParameter
@@ -612,11 +614,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If

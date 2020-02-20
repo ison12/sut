@@ -51,7 +51,7 @@ Public Event ok(ByRef appSettingShortcut As ValApplicationSettingShortcut _
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' =========================================================
 ' ▽リセットされた場合に呼び出されるイベント
@@ -62,7 +62,7 @@ Public Event cancel()
 '
 ' =========================================================
 Public Event reset(ByRef appSettingShortcut As ValApplicationSettingShortcut _
-                 , ByRef cancel As Boolean)
+                 , ByRef Cancel As Boolean)
 
 ' アイコン画像
 Private iconImage As IPictureDisp
@@ -132,11 +132,11 @@ Public Sub ShowExt(ByRef icon As Object _
     txtMenuName.value = menuName
     If menuNameDisable = True Then
     
-        txtMenuName.enabled = False
+        txtMenuName.Enabled = False
         lstAppList.SetFocus
     Else
     
-        txtMenuName.enabled = True
+        txtMenuName.Enabled = True
         txtMenuName.SetFocus
     End If
     
@@ -261,11 +261,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If
@@ -330,7 +330,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
     
     Exit Sub
     

@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBQueryBatch 
    Caption         =   "クエリ一括実行"
-   ClientHeight    =   9705
+   ClientHeight    =   9705.001
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   13935
@@ -46,7 +46,7 @@ Public Event ok(ByVal dbQueryBatchMode As DB_QUERY_BATCH_MODE _
 ' 引数　　　：
 '
 ' =========================================================
-Public Event cancel()
+Public Event Cancel()
 
 ' DBクエリバッチモード
 Public Enum DB_QUERY_BATCH_MODE
@@ -344,11 +344,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdCancel_Click
     End If
@@ -506,7 +506,7 @@ Private Sub cmdCancel_Click()
     HideExt
     
     ' キャンセルイベントを送信する
-    RaiseEvent cancel
+    RaiseEvent Cancel
 
     Exit Sub
     

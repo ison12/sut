@@ -88,6 +88,7 @@ Public Const VALID_ERR_AND_OVER                As String = "{1}ˆÈã‚Ì”’l‚ð“ü—Í‚
 Public Const VALID_ERR_AND_LESS                As String = "{1}ˆÈ‰º‚Ì”’l‚ð“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B"
 Public Const VALID_ERR_INVALID                 As String = "“ü—Í’l‚ª•s³‚Å‚·B"
 Public Const VALID_ERR_INVALID_SIZE            As String = "“ü—Í’l‚ÌƒTƒCƒY‚ª•s³‚Å‚·B"
+Public Const VALID_ERR_NOT_ALPHA_NUM_MARK_FULL As String = "‰p”Žš‚Ü‚½‚Í‹L†( -   ‚Ì‚Ý_)‚Æ‘SŠp•¶Žš‚Ì‚Ý‚ð“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B"
 
 ' =========================================================
 ' ¤ƒAƒvƒŠƒP[ƒVƒ‡ƒ“ƒGƒ‰[ƒ`ƒFƒbƒN

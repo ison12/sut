@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDBExplorer 
    Caption         =   "DBエクスプローラ"
-   ClientHeight    =   9420
+   ClientHeight    =   9420.001
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   7995
@@ -190,11 +190,11 @@ End Sub
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub UserForm_QueryClose(cancel As Integer, CloseMode As Integer)
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
     
     If CloseMode = 0 Then
         ' 本処理では処理自体をキャンセルする
-        cancel = True
+        Cancel = True
         ' 以下のイベント経由で閉じる
         cmdClose_Click
     End If

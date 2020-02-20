@@ -266,10 +266,11 @@ Public Function getTable(ByVal schemaName As String, ByVal tableName As String) 
             Set retConstObj = retTableObj.constraintsList.getItem(convertNullToEmptyStr(recordSet!CONSTRAINT_NAME))
             If retConstObj Is Nothing Then
                 Set retConstObj = New ValDbDefineTableConstraints
+                retConstObj.constraintName = VBUtil.convertNullToEmptyStr(recordSet!CONSTRAINT_NAME)
+                
                 retTableObj.addConstraint retConstObj
             End If
       
-            retConstObj.constraintName = VBUtil.convertNullToEmptyStr(recordSet!CONSTRAINT_NAME)
             If VBUtil.convertNullToEmptyStr(recordSet!CONSTRAINT_TYPE) = "P" Then
                 retConstObj.constraintType = tableConstPk
             ElseIf VBUtil.convertNullToEmptyStr(recordSet!CONSTRAINT_TYPE) = "U" Then

@@ -89,7 +89,7 @@ End Sub
 Public Function getDBName(ByRef conn As Object) As String
 
     ' データベース名を取得する
-    getDBName = conn.defaultDatabase
+    getDBName = conn.defaultdatabase
     
 End Function
 

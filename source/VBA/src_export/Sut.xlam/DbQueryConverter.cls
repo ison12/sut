@@ -28,11 +28,13 @@ Public encloseStart As String
 Public encloseEnd   As String
 
 ' クエリパラメータリスト
-Private queryParamList As ValQueryParameterList
+Private queryParamList As ValCollection
 ' 変換対象パラメータリスト
 Private convertedParamList As ValCollection
 ' ワークシート
 Private sheet As Worksheet
+' 初期化フラグ
+Private isInit As Boolean
 
 ' =========================================================
 ' ▽クラス初期化メソッド
@@ -42,6 +44,11 @@ Private Sub Class_Initialize()
     encloseStart = ConstantsTable.QUERY_PARAMETER_ENCLOSE_START
     encloseEnd = ConstantsTable.QUERY_PARAMETER_ENCLOSE_END
     
+    Set queryParamList = New ValCollection
+    Set convertedParamList = New ValCollection
+    
+    isInit = False
+
 End Sub
 
 ' =========================================================
@@ -54,14 +61,33 @@ End Sub
 ' =========================================================
 ' ▽初期化処理メソッド
 ' =========================================================
-Public Function init(ByRef conn As Object, ByVal queryParamList_ As ValQueryParameterList)
+Public Sub init(ByRef conn As Object, ByRef queryParamList_ As ValQueryParameterList)
 
     ' DBコネクション
     Set Me.conn = conn
     ' クエリパラメータリスト
-    Set queryParamList = queryParamList_
+    Dim queryParameter As ValQueryParameter
+    For Each queryParameter In queryParamList_.list.col
     
-End Function
+        queryParamList.setItem queryParameter, queryParameter.name
+    
+    Next
+    
+    isInit = True
+    
+End Sub
+
+' =========================================================
+' ▽初期化処理メソッド（初回のみ実行）
+' =========================================================
+Public Sub initIfFirst(ByRef conn As Object, ByRef queryParamList_ As ValQueryParameterList)
+
+    If isInit = False Then
+        Call init(conn, queryParamList_)
+    End If
+    
+End Sub
+
 
 ' =========================================================
 ' ▽SQL変換実行
@@ -77,31 +103,27 @@ End Function
 ' =========================================================
 Public Function convertSql(ByRef sql As String) As String
 
+    If queryParamList.count <= 0 Then
+        ' クエリパラメータリストがない場合は、何もしない
+        convertSql = sql
+        Exit Function
+    End If
+
     ' 変換対象パラメータ
-    Dim convertedParam As Variant
-    
-    ' クエリパラメータの定義情報
-    Dim bookPropVal As ValCollection
+    Dim convertedParam           As Variant
+    Dim convertedQueryParamName  As String
+    Dim convertedQueryParamValue As String
     
     Dim queryParameter  As ValQueryParameter
-    Dim queryParamName  As String
-    Dim queryParamValue As String
-
-    If convertedParamList Is Nothing Then
     
-        Set convertedParamList = New ValCollection
-        
-        For Each queryParameter In queryParamList.list.col
-        
-            If isShouldExecuteSql(queryParameter.value) Then
-                queryParameter.value = executeSql(queryParameter.value)
-            End If
-        
-            convertedParamList.setItem Array(queryParameter.name, queryParameter.value), queryParameter.name
-        
-        Next
-        
-    End If
+    Dim mm         As Object
+    
+    Dim i As Long
+    Dim match      As Object
+    Dim matches    As Object
+    Dim matcheSub  As Object
+    
+    Dim matchParamName As String
 
     ' 正規表現関連オブジェクト
     ' RegExpオブジェクトの作成
@@ -117,11 +139,6 @@ Public Function convertSql(ByRef sql As String) As String
         .Global = True
     End With
     
-    Dim mm         As Object
-    Dim matches    As Object
-    Dim matcheSub  As Object
-    Dim matcheText As String
-    
     ' 正規表現でのマッチングを実行
     Set matches = reg.execute(sql)
     
@@ -129,14 +146,45 @@ Public Function convertSql(ByRef sql As String) As String
         convertSql = sql
         Exit Function
     End If
-
-    ' 変換対象パラメータで変換を実行する
-    For Each convertedParam In convertedParamList.col
-        ' SQLを変換する
-        queryParamName = convertedParam(0)
-        queryParamValue = convertedParam(1)
+    
+    For i = 0 To matches.count - 1
+    
+        Set match = matches.item(i)
+        Set matcheSub = match.submatches
+        matchParamName = matcheSub.item(0)
         
-        sql = replace(sql, encloseStart & queryParamName & encloseEnd, queryParamValue)
+        If queryParamList.exist(matchParamName) = False Then
+            ' 該当するクエリパラメータが存在しない
+            GoTo continue
+        End If
+    
+        Set queryParameter = queryParamList.getItem(matchParamName)
+    
+        If convertedParamList.exist(matchParamName) = False Then
+            ' 変換済みクエリパラメータが存在しない
+        
+            If isShouldExecuteSql(queryParameter.value) Then
+                convertedQueryParamValue = executeSql(queryParameter.value)
+            End If
+            
+            convertedParam = Array(queryParameter.name, convertedQueryParamValue)
+            convertedParamList.setItem convertedParam, queryParameter.name
+            
+        Else
+            ' 既に変換済みクエリパラメータが存在する
+            convertedParam = convertedParamList.getItem(matchParamName, vbVariant)
+            
+        End If
+        
+        ' 変換対象パラメータで変換を実行する
+        ' SQLを変換する
+        convertedQueryParamName = convertedParam(0)
+        convertedQueryParamValue = convertedParam(1)
+        
+        sql = replace(sql, encloseStart & convertedQueryParamName & encloseEnd, convertedQueryParamValue)
+        
+continue:
+    
     Next
     
     convertSql = sql
