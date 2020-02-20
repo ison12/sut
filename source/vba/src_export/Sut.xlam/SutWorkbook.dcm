@@ -1,0 +1,96 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "SutWorkbook"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Option Explicit
+' *********************************************************
+' ワークブック
+'
+' 作成者　：Ison
+' 履歴　　：2008/02/16　新規作成
+'
+' 特記事項：
+' *********************************************************
+
+Private appEvent As New ApplicationEvent
+
+' =========================================================
+' ▽アドインとして組み込まれた際に発生するイベント
+'
+' 概要　　　：
+'
+' =========================================================
+Private Sub Workbook_AddinInstall()
+
+    #If (DEBUG_MODE = 1) Then
+    
+        Debug.Print "Workbook_AddinInstall"
+    #End If
+    
+End Sub
+
+' =========================================================
+' ▽アドインとしての組み込みが解除された際に発生するイベント
+'
+' 概要　　　：
+'
+' =========================================================
+Private Sub Workbook_AddinUninstall()
+
+    #If (DEBUG_MODE = 1) Then
+    
+        Debug.Print "Workbook_AddinUninstall"
+    #End If
+    
+End Sub
+
+' =========================================================
+' ▽ワークブックが開かれたときに発生するイベント
+'
+' 概要　　　：
+'
+' =========================================================
+Private Sub Workbook_Open()
+
+    On Error GoTo err
+
+    #If (DEBUG_MODE = 1) Then
+    
+        Debug.Print "Workbook_Open"
+        
+        VBUtil.showMessageBoxForWarning "デバッグモードになっています", ConstantsCommon.APPLICATION_NAME, Nothing
+    #End If
+    
+    appEvent.init Application
+    
+    SutPreload
+    
+    Exit Sub
+    
+err:
+
+    ' エラー発生
+    Main.ShowErrorMessage
+
+End Sub
+
+' =========================================================
+' ▽ワークブックが閉じられる直前に発生するイベント
+'
+' 概要　　　：
+'
+' =========================================================
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+
+    #If (DEBUG_MODE = 1) Then
+    
+        Debug.Print "Workbook_BeforeClose"
+    #End If
+
+End Sub
+
