@@ -1,1 +1,0 @@
-    c.table_schema IN (${schemaList})

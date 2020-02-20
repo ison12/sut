@@ -1,1 +1,0 @@
-    c.owner IN (${schemaList})
