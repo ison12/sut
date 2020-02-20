@@ -14,21 +14,21 @@ Option Explicit
 ' =========================================================
 ' íËêî
 ' =========================================================
-Public Const NAME_ROW            As Long = 3
+Public Const NAME_ROW            As Long = 2
 Public Const NAME_COL            As Long = 3
 
-Public Const MODIFY_ALL_ROW            As Long = 4
+Public Const MODIFY_ALL_ROW            As Long = 3
 Public Const MODIFY_ALL_COL            As Long = 4
 
-Public Const RESULT_START_ROW    As Long = 6
+Public Const RESULT_START_ROW    As Long = 5
 Public Const RESULT_START_OFFSET_SQL       As Long = 1
 Public Const RESULT_START_OFFSET_MODIFY    As Long = 2
 Public Const RESULT_START_OFFSET_HEADER    As Long = 3
 Public Const RESULT_START_OFFSET_RECORD    As Long = 4
 
-Public Const RESULT_RANGE_START_ROW As Long = 6
+Public Const RESULT_RANGE_START_ROW As Long = 5
 Public Const RESULT_RANGE_START_COL As Long = 2
-Public Const RESULT_RANGE_END_ROW   As Long = 10
+Public Const RESULT_RANGE_END_ROW   As Long = 9
 Public Const RESULT_RANGE_END_COL   As Long = 14
 
 Public Const MODIFY_COL          As Long = 4

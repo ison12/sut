@@ -167,7 +167,6 @@ Public Function SutRelease()
     Unload frmShortcutKey
     Unload frmShortcutKeySetting
     Unload frmSnapshot
-    Unload frmSnapshotDiff
     Unload frmSplash
     Unload frmTableSheetCreator
     Unload frmTableSheetList
@@ -2920,11 +2919,16 @@ Private Function initToolbar()
     
         .BeginGroup = True
         .Style = msoButtonIconAndCaption
-        .Caption = "スナップショット取得・比較"
-        .DescriptionText = "スナップショット取得・比較"
+        .Caption = "スナップショット取得"
+        .DescriptionText = "スナップショット取得"
         .OnAction = "Main.SutShowSnapshot"
         .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutShowSnapshot"
         
+        ' Excel2002以降のプロパティ
+        If excelVer >= Ver2002 Then
+            setCommandBarControlIcon btnShowDBSnapshot _
+                                   , "Camera"
+        End If
     End With
     
     ' ***************************************************************
@@ -2946,6 +2950,11 @@ Private Function initToolbar()
         .OnAction = "Main.SutCreateNewSheetSnapSqlDefine"
         .Tag = COMMANDBAR_CONTROL_BASE_ID & "Main.SutCreateNewSheetSnapSqlDefine"
         
+        ' Excel2002以降のプロパティ
+        If excelVer >= Ver2002 Then
+            setCommandBarControlIcon btnNewSheetDataSnapshotSqlDefine _
+                                   , "NoteCheck"
+        End If
     End With
     
     ' ***************************************************************

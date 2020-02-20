@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSnapshot 
    Caption         =   "スナップショット取得"
-   ClientHeight    =   8265.001
+   ClientHeight    =   8025
    ClientLeft      =   45
    ClientTop       =   375
-   ClientWidth     =   8415.001
+   ClientWidth     =   9600.001
    OleObjectBlob   =   "frmSnapshot.frx":0000
 End
 Attribute VB_Name = "frmSnapshot"
@@ -72,13 +72,15 @@ Public Event changeSql(ByRef sheet As Worksheet)
 Public Event clearSnapshot(ByRef sheet As Worksheet)
 
 ' =========================================================
-' ▽スナップショット比較表示イベント
+' ▽実行イベント
 '
 ' 概要　　　：
-' 引数　　　：
+' 引数　　　：sheet    シート
+'             srcIndex 比較元インデックス
+'             desIndex 比較先インデックス
 '
 ' =========================================================
-Public Event showSnapshotDiff(ByRef sheet As Worksheet)
+Public Event execDiff(ByRef sheet As Worksheet, ByVal srcIndex As Long, ByVal desIndex As Long)
 
 ' アプリケーション設定情報
 Private applicationSetting As ValApplicationSetting
@@ -92,6 +94,10 @@ Private dbConnStr As String
 Private executeSqltList  As CntListBox
 ' スナップショットリスト
 Private snapShotList     As CntListBox
+' 比較元スナップショットリスト
+Private srcSnapshotList  As CntListBox
+' 比較先スナップショットリスト
+Private desSnapshotList  As CntListBox
 
 ' 対象ブック
 Private targetBook As Workbook
@@ -225,11 +231,7 @@ Private Sub cmdDBConnectedChange_Click()
 
     On Error GoTo err
     
-    Me.Hide
-    
     RaiseEvent changeDb
-    
-    Me.Show vbModeless
     
     Exit Sub
     
@@ -240,7 +242,7 @@ err:
 End Sub
 
 ' =========================================================
-' ▽SQL更新処理
+' ▽実行SQL更新処理
 '
 ' 概要　　　：
 ' 引数　　　：
@@ -251,7 +253,6 @@ Private Sub cmdExecuteSqlUpdate_Click()
 
     On Error GoTo err
     
-    Dim book  As Workbook
     Dim sheet As Worksheet
     
     Dim ExeSnapSqlDefineSheetReader As ExeSnapSqlDefineSheetReader
@@ -260,23 +261,18 @@ Private Sub cmdExecuteSqlUpdate_Click()
     executeSqltList.removeAll
     executeSqltList.init cboExecuteSql
     
-    ' 全ブックを対象にする
-    For Each book In Workbooks
+    ' 全シートを対象にする
+    For Each sheet In targetBook.Sheets
     
-        ' 全シートを対象にする
-        For Each sheet In book.Sheets
+        Set ExeSnapSqlDefineSheetReader = New ExeSnapSqlDefineSheetReader
+        Set ExeSnapSqlDefineSheetReader.sheet = sheet
+                
+        If ExeSnapSqlDefineSheetReader.isSqlDefineSheet = True Then
+            ' SQL定義シートの場合、リストに追加
+            executeSqltList.addItem sheet.name, sheet
         
-            Set ExeSnapSqlDefineSheetReader = New ExeSnapSqlDefineSheetReader
-            Set ExeSnapSqlDefineSheetReader.sheet = sheet
-                    
-            If ExeSnapSqlDefineSheetReader.isSqlDefineSheet = True Then
-                ' SQL定義シートの場合、リストに追加
-                executeSqltList.addItem book.name & " " & sheet.name, sheet
-            
-            End If
-        
-        Next
-        
+        End If
+    
     Next
     
     ' 実行SQ選択コンボボックスに追加されたものがあれば
@@ -294,7 +290,7 @@ err:
 End Sub
 
 ' =========================================================
-' ▽フォーム非表示
+' ▽実行SQL変更処理
 '
 ' 概要　　　：
 ' 引数　　　：
@@ -307,7 +303,7 @@ Private Sub cboExecuteSql_Change()
     
     ' 実行SQ選択コンボボックスが未選択の場合
     If cboExecuteSql.ListIndex = -1 Then
-    
+        clearSnapshot
         Exit Sub
     End If
     
@@ -340,7 +336,7 @@ Private Sub cmdSnapshotClear_Click()
     
     ' 実行SQ選択コンボボックスが未選択の場合
     If cboExecuteSql.ListIndex = -1 Then
-    
+        clearSnapshot
         Exit Sub
     End If
     
@@ -358,37 +354,14 @@ err:
 End Sub
 
 ' =========================================================
-' ▽スナップショット比較フォーム表示処理
+' ▽ページ変更処理
 '
 ' 概要　　　：
 ' 引数　　　：
 ' 戻り値　　：
 '
 ' =========================================================
-Private Sub cmdSnapshotDiff_Click()
-
-    On Error GoTo err
-    
-    ' 実行SQ選択コンボボックスが未選択の場合
-    If cboExecuteSql.ListIndex = -1 Then
-    
-        Exit Sub
-    End If
-    
-    Dim sheet As Worksheet
-    Set sheet = executeSqltList.getItem(cboExecuteSql.ListIndex)
-    
-    Me.Hide
-    
-    RaiseEvent showSnapshotDiff(sheet)
-    
-    Me.Show vbModeless
-    
-    Exit Sub
-    
-err:
-
-    Main.ShowErrorMessage
+Private Sub multiPage_Change()
 
 End Sub
 
@@ -421,6 +394,80 @@ err:
 
     Main.ShowErrorMessage
 
+End Sub
+
+' =========================================================
+' ▽スナップショットリスト比較元変更イベント
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub lstSnapshotSrc_Change()
+
+    On Error GoTo err
+    
+    refreshLstSnapshotDes lstSnapshotSrc.ListIndex
+
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
+End Sub
+
+' =========================================================
+' ▽比較結果出力イベント
+'
+' 概要　　　：
+' 引数　　　：
+' 戻り値　　：
+'
+' =========================================================
+Private Sub cmdResultOut_Click()
+
+    On Error GoTo err
+    
+    ' 実行SQ選択コンボボックスが未選択の場合
+    If cboExecuteSql.ListIndex = -1 Then
+    
+        Exit Sub
+    End If
+
+    Dim srcIndex As Long
+    Dim desIndex As Long
+
+    srcIndex = lstSnapshotSrc.ListIndex
+    desIndex = lstSnapshotDes.ListIndex
+
+    If srcIndex = desIndex Then
+        ' 同じにならないはず
+        Exit Sub
+    End If
+
+    If srcIndex = -1 Or desIndex = -1 Then
+        ' 未選択状態
+        Exit Sub
+    End If
+    
+    If srcIndex <= desIndex Then
+        ' 同じにならないはず
+        Exit Sub
+    End If
+    
+    Dim sheet As Worksheet
+    Set sheet = executeSqltList.getItem(cboExecuteSql.ListIndex)
+    
+    RaiseEvent execDiff(sheet, srcIndex, desIndex)
+    
+    Exit Sub
+    
+err:
+
+    Main.ShowErrorMessage
+    
 End Sub
 
 ' =========================================================
@@ -462,6 +509,10 @@ Private Sub initial()
     Set executeSqltList = New CntListBox
     Set snapShotList = New CntListBox
     snapShotList.init lstSnapshot
+    Set srcSnapshotList = New CntListBox
+    srcSnapshotList.init lstSnapshotSrc
+    Set desSnapshotList = New CntListBox
+    desSnapshotList.init lstSnapshotDes
 
     ' 閉じるボタンを非表示にする
     cmdClose.Width = 0
@@ -495,6 +546,8 @@ Private Sub activate()
     cmdExecuteSqlUpdate_Click
     
     txtDBConnected.text = dbConnStr
+    multiPage.value = 0 ' 最初のページを表示
+    
 End Sub
 
 ' =========================================================
@@ -545,6 +598,13 @@ Public Sub clearSnapshot()
     
     snapShotList.removeAll
     snapShotList.init lstSnapshot
+    
+    srcSnapshotList.removeAll
+    srcSnapshotList.init lstSnapshotSrc
+    
+    desSnapshotList.removeAll
+    desSnapshotList.init lstSnapshotDes
+    
     Exit Sub
     
 err:
@@ -567,6 +627,11 @@ Public Sub addSnapshot(ByRef label As String, ByRef value As String)
     On Error GoTo err
     
     snapShotList.addItem label, value
+    srcSnapshotList.addItem label, value
+    
+    ' 末尾を選択
+    srcSnapshotList.setSelectedIndex srcSnapshotList.count - 1
+    
     Exit Sub
     
 err:
@@ -575,4 +640,40 @@ err:
     
 End Sub
 
+' =========================================================
+' ▽スナップショットリスト比較先更新
+'
+' 概要　　　：
+' 引数　　　：lstSnapshotSrcListIndex スナップショットリスト比較元インデックス
+' 戻り値　　：
+'
+' =========================================================
+Private Sub refreshLstSnapshotDes(ByVal lstSnapshotSrcListIndex As Long)
+
+    Dim snapshot As ValSnapRecordsSet
+
+    If desSnapshotList Is Nothing Then
+        Set desSnapshotList = New CntListBox
+        desSnapshotList.init lstSnapshotDes
+    Else
+        desSnapshotList.removeAll
+        desSnapshotList.init lstSnapshotDes
+    End If
+    
+    Dim i As Long
+    
+    i = 0
+    For i = 0 To snapShotList.count - 1
+    
+        If i < lstSnapshotSrcListIndex Then
+            desSnapshotList.addItem snapShotList.control.list(i), Empty
+        End If
+    
+    Next
+    
+    If lstSnapshotDes.ListCount > 0 Then
+        lstSnapshotDes.ListIndex = lstSnapshotDes.ListCount - 1
+    End If
+
+End Sub
 

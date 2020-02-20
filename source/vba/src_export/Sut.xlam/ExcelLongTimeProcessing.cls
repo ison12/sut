@@ -82,8 +82,8 @@ End Sub
 Public Sub init(Optional ByVal displayAlerts As Boolean = True _
               , Optional ByVal enableCancelKey As Boolean = True _
               , Optional ByVal enableEvents As Boolean = True _
-              , Optional ByVal cursor As Boolean = False _
-              , Optional ByVal screenUpdating As Boolean = False _
+              , Optional ByVal cursor As Boolean = True _
+              , Optional ByVal screenUpdating As Boolean = True _
               , Optional ByVal calculation As Boolean = True _
               , Optional ByVal interactive As Boolean = True)
               

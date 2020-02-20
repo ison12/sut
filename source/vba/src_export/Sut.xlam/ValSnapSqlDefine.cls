@@ -20,14 +20,12 @@ Option Explicit
 
 Public name As String
 Public sqlList As ValCollection
-Public paramList As ValCollection
 
 ' =========================================================
 ' ▽クラス初期化メソッド
 ' =========================================================
 Private Sub Class_Initialize()
     Set sqlList = New ValCollection
-    Set paramList = New ValCollection
 End Sub
 
 ' =========================================================
@@ -35,13 +33,8 @@ End Sub
 ' =========================================================
 Private Sub Class_Terminate()
     Set sqlList = Nothing
-    Set paramList = Nothing
 End Sub
 
 Public Sub addSql(ByVal val As ValSnapSqlDefineSql)
     sqlList.setItem val
-End Sub
-
-Public Sub addParam(ByVal val As ValSnapSqlDefineParam)
-    paramList.setItem val, val.name
 End Sub

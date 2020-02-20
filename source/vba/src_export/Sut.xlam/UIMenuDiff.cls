@@ -27,9 +27,6 @@ Attribute frmDBConnectVar.VB_VarHelpID = -1
 ' スナップショット取得フォーム
 Private WithEvents frmSnapShotVar               As frmSnapshot
 Attribute frmSnapShotVar.VB_VarHelpID = -1
-' スナップショット取得フォーム（比較）
-Private WithEvents frmSnapshotDiffVar           As frmSnapshotDiff
-Attribute frmSnapshotDiffVar.VB_VarHelpID = -1
 
 ' スナップショットSQL定義シート生成
 Private WithEvents snapSqlDefineSheetCreator    As ExeSnapSqlDefineSheetCreator
@@ -143,6 +140,15 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
     Dim ssList As ValCollection
     Dim ss     As ValSnapRecordsSet
 
+    ' シートが途中で削除されても良いように、エラー発生時にも継続実行されるようにする
+    On Error Resume Next
+    ssKey = sheet.parent.name & " " & sheet.name
+    On Error GoTo err
+    
+    If ssKey = "" Then
+        err.Raise ConstantsError.ERR_NUMBER_SHEET_MISSING, , ConstantsError.ERR_DESC_SHEET_MISSING
+    End If
+
     Set snapSqlDefineSheetReader = New ExeSnapSqlDefineSheetReader
     Set snapSqlDefineSheetReader.sheet = sheet
     Set snapSqlDefineSheetReader.conn = dbConn
@@ -173,12 +179,10 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
     ' スナップショットデータの格納
     Set ss = snapQueryExecution.execute(sqlDefineWorkSheet)
     
-    ssKey = sheet.parent.name & " " & sheet.name
-    
     Set ssList = snapshotSet.getItem(ssKey)
     If ssList Is Nothing Then
         Set ssList = New ValCollection
-        snapshotSet.setItem ssList, sheet.parent.name & " " & sheet.name
+        snapshotSet.setItem ssList, ssKey
     End If
     
     ssList.setItem ss
@@ -236,7 +240,14 @@ Private Sub frmSnapShotVar_changeSql(sheet As Worksheet)
     Dim ssList As ValCollection
     Dim ss     As ValSnapRecordsSet
 
+    ' シートが途中で削除されても良いように、エラー発生時にも継続実行されるようにする
+    On Error Resume Next
     ssKey = sheet.parent.name & " " & sheet.name
+    On Error GoTo 0
+    
+    If ssKey = "" Then
+        err.Raise ConstantsError.ERR_NUMBER_SHEET_MISSING, , ConstantsError.ERR_DESC_SHEET_MISSING
+    End If
     
     Set ssList = snapshotSet.getItem(ssKey)
     If Not ssList Is Nothing Then
@@ -260,6 +271,8 @@ End Sub
 ' =========================================================
 Private Sub frmSnapShotVar_clearSnapshot(sheet As Worksheet)
 
+    On Error GoTo err
+
     Dim resultMsg As Long
     
     resultMsg = VBUtil.showMessageBoxForYesNo("スナップショットをクリアしてもよろしいですか？" _
@@ -278,63 +291,59 @@ Private Sub frmSnapShotVar_clearSnapshot(sheet As Worksheet)
     Dim ssList As ValCollection
     Dim ss     As ValSnapRecordsSet
 
+    ' シートが途中で削除されても良いように、エラー発生時にも継続実行されるようにする
+    On Error Resume Next
     ssKey = sheet.parent.name & " " & sheet.name
-    
+    On Error GoTo err
+
+    If ssKey = "" Then
+        err.Raise ConstantsError.ERR_NUMBER_SHEET_MISSING, , ConstantsError.ERR_DESC_SHEET_MISSING
+    End If
+
     Set ssList = snapshotSet.getItem(ssKey)
     If Not ssList Is Nothing Then
         snapshotSet.remove ssKey
     End If
     
     frmSnapShotVar.clearSnapshot
-
-End Sub
-
-' =========================================================
-' ▼スナップショット取得フォーム - スナップショットリストクリア
-' =========================================================
-Private Sub frmSnapShotVar_showSnapshotDiff(ByRef sheet As Worksheet)
-
-    Dim ssKey  As String
-    Dim ssList As ValCollection
-    Dim ss     As ValSnapRecordsSet
-
-    ssKey = sheet.parent.name & " " & sheet.name
     
-    Set ssList = snapshotSet.getItem(ssKey)
-    If Not ssList Is Nothing Then
-        ' モーダル表示するのでロードを常に実行する
-        If VBUtil.unloadFormIfChangeActiveBook(frmSnapshotDiff) Then Unload frmSnapshotDiff
-        Load frmSnapshotDiff
-        Set frmSnapshotDiffVar = frmSnapshotDiff
-        frmSnapshotDiffVar.ShowExt vbModal, ssList
-        
-    Else
+    Exit Sub
+err:
     
-        VBUtil.showMessageBoxForWarning "スナップショットがありません。" _
-                , ConstantsCommon.APPLICATION_NAME _
-                , Nothing
-
-    End If
-
+    ' エラー発生
+    Main.ShowErrorMessage
+    
 End Sub
 
 ' =========================================================
-' ▼スナップショット取得比較フォーム - キャンセル
+' ▼スナップショット取得フォーム - 比較実行
 ' =========================================================
-Private Sub frmSnapshotDiffVar_Cancel()
-
-End Sub
-
-' =========================================================
-' ▼スナップショット取得比較フォーム - 比較実行
-' =========================================================
-Private Sub frmSnapshotDiffVar_execDiff(ByRef snapShotList As ValCollection, ByVal srcIndex As Long, ByVal desIndex As Long)
+Private Sub frmSnapShotVar_execDiff(ByRef sheet As Worksheet, ByVal srcIndex As Long, ByVal desIndex As Long)
 
     On Error GoTo err
     
-    ' モーダルフォームを非表示にする
-    frmSnapshotDiffVar.Hide
+    Dim ssKey  As String
+    Dim ssList As ValCollection
+    
+    ' シートが途中で削除されても良いように、エラー発生時にも継続実行されるようにする
+    On Error Resume Next
+    ssKey = sheet.parent.name & " " & sheet.name
+    On Error GoTo err
 
+    If ssKey = "" Then
+        err.Raise ConstantsError.ERR_NUMBER_SHEET_MISSING, , ConstantsError.ERR_DESC_SHEET_MISSING
+    End If
+
+    Set ssList = snapshotSet.getItem(ssKey)
+    If ssList Is Nothing Then
+        ' 通常起こりえない
+        Exit Sub
+    End If
+    
+    ' Excel.Applicationプロパティを操作するオブジェクト
+    ' 関数を抜けると自動でApplicationプロパティが復元される
+    Dim longTimeProcessing As New ExcelLongTimeProcessing: longTimeProcessing.init
+    
     ' プログレスウィンドウを表示する
     frmProgressVar.ShowExt vbModeless, False
     frmProgressVar.title = "スナップショット比較"
@@ -344,18 +353,20 @@ Private Sub frmSnapshotDiffVar_execDiff(ByRef snapShotList As ValCollection, ByV
     snapDiff.applicationSetting = applicationSetting
     
     Dim valSnapRecordsSet1 As ValSnapRecordsSet
-    Set valSnapRecordsSet1 = snapShotList.getItemByIndex(srcIndex + 1) ' リストの要素は、1始まりなので、+1する
+    Set valSnapRecordsSet1 = ssList.getItemByIndex(srcIndex + 1) ' リストの要素は、1始まりなので、+1する
     
     Dim valSnapRecordsSet2 As ValSnapRecordsSet
-    Set valSnapRecordsSet2 = snapShotList.getItemByIndex(desIndex + 1) ' リストの要素は、1始まりなので、+1する
+    Set valSnapRecordsSet2 = ssList.getItemByIndex(desIndex + 1) ' リストの要素は、1始まりなので、+1する
     
     snapDiff.execute valSnapRecordsSet1, valSnapRecordsSet2
     
+    ' ExcelLongTimeProcessingにて、Application.interactiveを無効にした状態で
+    ' ダイアログ等を開いたり閉じたりすると、ウィンドウのZオーダーが乱れてしまう。（処理終了後に、Excelがアクティブにならない）
+    ' そのため、ExcelLongTimeProcessingオブジェクトを明示的に破棄する
+    Set longTimeProcessing = Nothing
+
     frmProgressVar.HideExt
     
-    ' モーダルフォームを元に戻す
-    frmSnapshotDiffVar.Show vbModal
-
     Exit Sub
 err:
     
@@ -370,9 +381,6 @@ err:
     ' エラー発生
     Main.ShowErrorMessage
     
-    ' モーダルフォームを元に戻す
-    frmSnapshotDiffVar.Show
-
 End Sub
 
 ' =========================================================
@@ -552,7 +560,6 @@ Private Sub Class_Terminate()
     Set frmDBConnectVar = Nothing
     ' スナップショットフォームを破棄する
     Set frmSnapShotVar = Nothing
-    Set frmSnapshotDiffVar = Nothing
     
     ' アプリケーション設定情報を破棄する
     Set applicationSetting = Nothing
@@ -594,12 +601,6 @@ Public Sub init(ByRef appSetting As ValApplicationSetting _
     Load frmSnapshot
     ' スナップショットフォームを設定する
     Set frmSnapShotVar = frmSnapshot
-
-    ' スナップショット比較フォームをロードする
-    If VBUtil.unloadFormIfChangeActiveBook(frmSnapshotDiff) Then Unload frmSnapshotDiff
-    Load frmSnapshotDiff
-    ' スナップショット比較フォームを設定する
-    Set frmSnapshotDiffVar = frmSnapshotDiff
 
     ' フォームを設定する
     If VBUtil.unloadFormIfChangeActiveBook(frmProgress) Then Unload frmProgress
@@ -726,4 +727,3 @@ err:
     Main.ShowErrorMessage
     
 End Sub
-

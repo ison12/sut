@@ -37,6 +37,7 @@ Public Const ERR_NUMBER_NOT_SELECTED_DB_CONNECT   As Long = 23 + vbObjectError +
 Public Const ERR_NUMBER_NOT_SELECTED_TABLE_SHEET  As Long = 25 + vbObjectError + 512
 Public Const ERR_NUMBER_CREATE_WORKSHEET_FAILED  As Long = 26 + vbObjectError + 512
 Public Const ERR_NUMBER_ACTIVE_ADDIN_BOOK        As Long = 27 + vbObjectError + 512
+Public Const ERR_NUMBER_SHEET_MISSING        As Long = 28 + vbObjectError + 512
 
 
 Public Const ERR_NUMBER_REG_EXP_NOT_CREATED   As Long = 997 + vbObjectError + 512
@@ -72,6 +73,7 @@ Public Const ERR_DESC_NOT_SELECTED_DB_CONNECT  As String = "接続情報を選択してく
 Public Const ERR_DESC_NOT_SELECTED_TABLE_SHEET As String = "シートを1つ以上選択してください。"
 Public Const ERR_DESC_CREATE_WORKSHEET_FAILED  As String = "ワークブックの作成に失敗しました。"
 Public Const ERR_DESC_ACTIVE_ADDIN_BOOK        As String = "アドインブックがアクティブになっています。" & vbNewLine & "他のブックをアクティブにして再度実行してください。"
+Public Const ERR_DESC_SHEET_MISSING            As String = "対象となるシートから情報を読み取れません。" & vbNewLine & "削除された可能性があります。"
 
 Public Const ERR_DESC_REGISTRY_ACCESS_FAILED   As String = "レジストリのアクセスに失敗しました。"
 Public Const ERR_DESC_DLL_FUNCTION_FAILED      As String = "DLLの呼び出しに失敗しました。"

@@ -165,6 +165,8 @@ Public Function convertSql(ByRef sql As String) As String
         
             If isShouldExecuteSql(queryParameter.value) Then
                 convertedQueryParamValue = executeSql(queryParameter.value)
+            Else
+                convertedQueryParamValue = queryParameter.value
             End If
             
             convertedParam = Array(queryParameter.name, convertedQueryParamValue)

@@ -12,7 +12,11 @@ Option Explicit
 ' *********************************************************
 
 ' シート名
-Public Const BOOK_PROPERTIES_SHEET_NAME     As String = "sut.properties"
+Public Const BOOK_PROPERTIES_SHEET_NAME          As String = "sut.properties"
+Public Const BOOK_PROPERTIES_SHEET_COLOR_INDEX   As Long = 15
+
+Public Const BOOK_PROPERTIES_WARN_MESSAGE_CELL   As String = "A1"
+Public Const BOOK_PROPERTIES_WARN_MESSAGE        As String = "※本シートは、Excelアドイン Sut の設定データです。本シートを削除することで、画面などで使用されている設定データなども失われてしまうため、削除しないことをおすすめします。"
 
 Public Const INI_FILE_DIR_FORM_POSITION     As String = "formPosition"
 Public Const INI_FILE_DIR_FORM              As String = "form"
@@ -24,6 +28,7 @@ Public Const INI_SECTION_DEFAULT            As String = "default"
 
 Public Const INI_KEY_X As String = "x"
 Public Const INI_KEY_Y As String = "y"
+
 
 ' SELECTの再実行のSQL本体
 Public Const INI_KEY_SELECT_LATEST_SQL                As String = "sql"

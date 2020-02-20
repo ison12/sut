@@ -84,12 +84,42 @@ Private executingSql      As Boolean
 ' アプリケーション設定情報
 Private m_applicationSetting As ValApplicationSetting
 
+' クエリ変換
+Private queryConverter As New DbQueryConverter
+' クエリパラメータリスト
+Private queryParameterList_ As ValQueryParameterList
+
+
 ' =========================================================
 ' ▽アプリケーション設定情報
 ' =========================================================
 Public Property Let applicationSetting(ByVal vNewValue As Variant)
 
     Set m_applicationSetting = vNewValue
+End Property
+
+' =========================================================
+' ▽クエリパラメータリスト取得プロパティ
+' =========================================================
+Public Property Get queryParameterList(ByRef sheet As Worksheet) As ValQueryParameterList
+
+    If Not queryParameterList_ Is Nothing Then
+        Set queryParameterList = queryParameterList_
+        Exit Property
+    End If
+
+    Set queryParameterList_ = Nothing
+        
+    If sheet Is Nothing Then
+        Exit Property
+    End If
+    
+    Set queryParameterList_ = New ValQueryParameterList
+    queryParameterList_.init sheet.parent
+    queryParameterList_.readForData
+    
+    Set queryParameterList = queryParameterList_
+    
 End Property
 
 ' =========================================================
@@ -164,7 +194,6 @@ Public Function execute(ByRef sqlDefineWorkSheet As ValSnapSqlDefineWorkSheet) A
     Dim varOfParamList As Variant
     
     Dim sqlDefineSql   As ValSnapSqlDefineSql
-    Dim sqlDefineParam As ValSnapSqlDefineParam
     
     Dim sqlTemplate As String
     Dim sql As String
@@ -192,11 +221,8 @@ Public Function execute(ByRef sqlDefineWorkSheet As ValSnapSqlDefineWorkSheet) A
         sqlTemplate = sqlDefineSql.sql
         sql = sqlTemplate
         
-        For Each varOfParamList In sqlDefineWorkSheet.snapSqlDefine.paramList.col
-        
-            Set sqlDefineParam = varOfParamList
-            sql = replace$(sql, sqlDefineParam.name, DBUtil.convertQueryLiteral(ADOUtil.getDBMSType(dbConn), String_, sqlDefineParam.value))
-        Next
+        queryConverter.initIfFirst Me.conn, queryParameterList(sqlDefineWorkSheet.sheet)
+        sql = queryConverter.convertSql(sql)
     
         ' -------------------------------------------------------------
         ' SQLを実行する
@@ -296,6 +322,8 @@ loop_end:
 
     Next
     
+    recordSetIndex = 0
+    
     ' 念のためレコードセットを解放する
     ADOUtil.closeRecordSet recordSet: Set recordSet = Nothing
     
@@ -341,9 +369,13 @@ err:
         RaiseEvent ExecuteSqlError(sqlDefineWorkSheet.sheet, recordSetIndex, sql, sqlState, err.Description)
         
     Else
-
-        ' ▼SQL実行時エラー
-        RaiseEvent ExecuteSqlError(sqlDefineWorkSheet.sheet, recordSetIndex, sql, Empty, err.Description)
+    
+        If recordSetIndex <= 0 Then
+            ' 前処理時
+        Else
+            ' ▼SQL実行時エラー
+            RaiseEvent ExecuteSqlError(sqlDefineWorkSheet.sheet, recordSetIndex, sql, Empty, err.Description)
+        End If
     
     End If
 

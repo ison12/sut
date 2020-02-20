@@ -97,7 +97,7 @@ Public Function createSheet() As Worksheet
     ' ◇スナップショットSQL定義シート生成イベント
     RaiseEvent createSnapshotSqlDefineSheetBegin
 
-    sheetName = "SQL_" & Format(Now, "yyyymmdd_hhmmss")
+    sheetName = "DiffSQL_" & Format(Now, "yyyy-mm-dd_hhmmss")
 
     ' シートの削除（存在していたら）と挿入を実行する
     deleteAndInsertSheet sheetName
@@ -110,7 +110,6 @@ Public Function createSheet() As Worksheet
 
         ' シートを可視にする
         .visible = xlSheetVisible
-        .Cells(ConstantsSnapSqlDefine.NAME_ROW, ConstantsSnapSqlDefine.NAME_COL) = sheetName
 
     End With
     

@@ -143,6 +143,9 @@ Public Function execute(ByRef diff1 As ValSnapRecordsSet, ByRef diff2 As ValSnap
     ' 比較実行
     diffRecordsSet diffSheet, diff1, diff2
 
+    ' グループを全て閉じた状態にする
+    diffSheet.Outline.ShowLevels RowLevels:=1
+
     Exit Function
 
 err:
@@ -240,6 +243,12 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
 
     Dim diff1RecMap As ValCollection
     Dim diff2RecMap As ValCollection
+    
+    Dim diff1RecVal As Variant
+    Dim diff2RecVal As Variant
+    
+    Dim diff1RecValIsNull As Boolean
+    Dim diff2RecValIsNull As Boolean
     
     Dim diffDeletedRecord As Variant
     
@@ -343,13 +352,19 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
                 isUpdate = False
                 For headerIndex = LBound(diff1Rec.headerList) To UBound(diff1Rec.headerList)
                     
-                    If diff1Rec.recordList(recordIndex, headerIndex) <> diff2Rec.recordList(diff2RecIndex, headerIndex) Then
+                    diff1RecVal = diff1Rec.recordList(recordIndex, headerIndex)
+                    diff2RecVal = diff2Rec.recordList(diff2RecIndex, headerIndex)
+                    diff1RecValIsNull = isNull(diff1RecVal)
+                    diff2RecValIsNull = isNull(diff2RecVal)
+                    
+                    If diff1RecValIsNull <> diff2RecValIsNull Or _
+                      (diff1RecValIsNull = False And diff2RecValIsNull = False And diff1RecVal <> diff2RecVal) Then
                     
                         ' 値が異なる場合、変更の前の値をセルにコメントとして埋め込む
                         ExcelUtil.addCommentForWorkSheet sheet, _
                             offsetRowReocrd, _
                             ConstantsSnapDiff.RECORD_COL + headerIndex, _
-                            diff2Rec.recordList(diff2RecIndex, headerIndex)
+                            VBUtil.convertNullToEmptyStr(diff2Rec.recordList(diff2RecIndex, headerIndex))
                             
                         ' 背景色を変更する
                         sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL + headerIndex).Interior.Color = _
@@ -505,7 +520,7 @@ Private Function createSheet() As Worksheet
     ' ◇スナップショット比較シート生成イベント
     RaiseEvent createSnapshotDiffSheetBegin
 
-    sheetName = "比較結果_" & Format(Now, "yyyymmdd_hhmmss")
+    sheetName = "DiffResult_" & Format(Now, "yyyy-mm-dd_hhmmss")
 
     ' コピーシート
     Dim copySheetName As String

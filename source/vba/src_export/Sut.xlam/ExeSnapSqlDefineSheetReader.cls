@@ -14,6 +14,7 @@ Option Explicit
 '
 ' 作成者　：Ison
 ' 履歴　　：2019/01/04　新規作成
+'     　　：2020/02/20　パラメータセルを削除
 '
 ' 特記事項：
 ' *********************************************************
@@ -42,33 +43,6 @@ Public Event readSqlDefineInfoBegin()
 '
 ' =========================================================
 Public Event readSqlDefineInfo(ByRef sqlDefineSheet As ValSnapSqlDefineWorkSheet)
-
-' =========================================================
-' ▽パラメータリスト読込開始前イベント
-'
-' 概要　　　：パラメータリストの読込を開始する前に呼び出されるイベント
-' 引数　　　：cnt 件数
-'
-' =========================================================
-Public Event readParamListBegin(ByVal cnt As Long)
-
-' =========================================================
-' ▽パラメータ情報読込イベント
-'
-' 概要　　　：パラメータ情報読込時に呼び出されるイベント
-' 引数　　　：param パラメータ情報
-'
-' =========================================================
-Public Event readParam(ByRef param As ValSnapSqlDefineParam)
-
-' =========================================================
-' ▽パラメータリスト読込イベント
-'
-' 概要　　　：パラメータリスト読込時に呼び出されるイベント
-' 引数　　　：
-'
-' =========================================================
-Public Event readParamList()
 
 ' =========================================================
 ' ▽SQLリスト読込開始前イベント
@@ -198,15 +172,13 @@ Public Function readSqlDefineInfo() As ValSnapSqlDefineWorkSheet
     With sheet
 
         ' テーブル名を取得する
-        name = .Cells(ConstantsSnapSqlDefine.NAME_ROW _
-                         , ConstantsSnapSqlDefine.NAME_COL)
+        name = sheet.name
         sqlDefine.name = name
         
         ' テーブル情報取得元シートを設定する
         Set sqlDefineSheet.sheet = sheet
         sqlDefineSheet.sheetName = sheet.name
         
-        readSqlDefineParamsInfo sqlDefineSheet
         readSqlDefineSqlsInfo sqlDefineSheet
         
     End With ' sheet
@@ -216,102 +188,6 @@ Public Function readSqlDefineInfo() As ValSnapSqlDefineWorkSheet
 
     ' 戻り値を設定する
     Set readSqlDefineInfo = sqlDefineSheet
-
-End Function
-
-' =========================================================
-' ▽SQL定義のパラメータリスト読み込み
-'
-' 概要　　　：シート上のSQL定義のパラメータリストを読み込む。
-'
-' 引数　　　：sqlDefineSheet SQL定義シート
-' 戻り値　　：
-'
-' =========================================================
-Private Function readSqlDefineParamsInfo(ByRef sqlDefineSheet As ValSnapSqlDefineWorkSheet)
-
-    Dim i As Long
-    
-    ' 改行コード（セルの改行コードはLF）
-    Dim newline As String: newline = vbLf
-
-    ' SQL定義
-    Dim sqlDefine      As ValSnapSqlDefine
-    Set sqlDefine = sqlDefineSheet.snapSqlDefine
-    
-    ' パラメータ
-    Dim param     As ValSnapSqlDefineParam
-    
-    ' ループ継続フラグ
-    Dim continue   As Variant
-    
-    ' 現在行
-    Dim currentRow As Long
-    
-    ' パラメータ情報
-    Dim paramName   As String    ' 名称
-    Dim paramValue  As String    ' 値
-    Dim paramMemo   As String    ' 備考
-    
-    ' パラメータサイズ
-    Dim paramSize As Long
-    ' パラメータサイズを取得する
-    paramSize = getParamRowSize()
-    
-    ' パラメータサイズが0の場合
-    If paramSize <= 0 Then
-    
-        Exit Function
-    End If
-
-    ' パラメータ生成開始イベント
-    RaiseEvent readParamListBegin(paramSize)
-    
-    ' ---------------------------------------------------------------------
-    With sheet
-    
-        ' 行の最初の位置を取得
-        currentRow = ConstantsSnapSqlDefine.PARAM_START_ROW
-    
-        ' ループを繰り返し行うかどうかを判定するための文字列を取得する
-        continue = .Cells(currentRow, ConstantsSnapSqlDefine.PARAM_ROW_COL)
-        
-        ' ループ継続条件（continueが空ではない場合継続）
-        Do While continue <> Empty
-        
-            ' レコードにカラムを一つ追加する
-            Set param = New ValSnapSqlDefineParam
-            
-            ' パラメータ名を取得
-            paramName = .Cells(currentRow, ConstantsSnapSqlDefine.PARAM_NAME_COL)
-            param.name = paramName
-            
-            ' パラメータ値を取得
-            paramValue = .Cells(currentRow, ConstantsSnapSqlDefine.PARAM_VALUE_COL)
-            param.value = paramValue
-            
-            ' 備考を取得
-            paramMemo = .Cells(currentRow, ConstantsSnapSqlDefine.PARAM_MEMO_COL)
-            param.memo = paramMemo
-
-            sqlDefine.addParam param
-            
-            ' パラメータ生成完了イベント
-            RaiseEvent readParam(param)
-        
-            ' 行を一つ進める
-            currentRow = currentRow + 1
-            
-            ' ループを繰り返し行うかどうかを判定するための文字列を取得する
-            continue = .Cells(currentRow, ConstantsSnapSqlDefine.PARAM_ROW_COL)
-        
-        Loop
-        ' ---------------------------------------------------------------------
-    
-        ' パラメータリスト生成完了イベント
-        RaiseEvent readParamList
-    
-    End With ' sheet
 
 End Function
 
@@ -351,32 +227,8 @@ Private Function readSqlDefineSqlsInfo(ByRef sqlDefineSheet As ValSnapSqlDefineW
     Dim sqlPkArr() As String
     Dim sqlMemo    As String    ' 備考
     
-    ' ---------------------------------------------------------------------
-    ' パラメータリストを最初に読み込み終点を探索する
-    With sheet
-    
-        ' 行の最初の位置を取得
-        currentRow = ConstantsSnapSqlDefine.PARAM_START_ROW
-    
-        ' ループを繰り返し行うかどうかを判定するための文字列を取得する
-        continue = .Cells(currentRow, ConstantsSnapSqlDefine.SQL_DEFINE_ROW_COL)
-        
-        ' ループ継続条件（continueが空ではない場合継続）
-        Do While continue <> Empty
-        
-            ' 行を一つ進める
-            currentRow = currentRow + 1
-            
-            ' ループを繰り返し行うかどうかを判定するための文字列を取得する
-            continue = .Cells(currentRow, ConstantsSnapSqlDefine.SQL_DEFINE_ROW_COL)
-        
-        Loop
-        
-        ' 終点からN行加算すると、SQL定義リストの最初の位置になる
-        currentRow = currentRow + 3
-        
-    End With
-    ' ---------------------------------------------------------------------
+    ' 行の最初の位置を取得
+    currentRow = ConstantsSnapSqlDefine.SQL_DEFINE_START_ROW
     
     ' SQLサイズ
     Dim sqlSize As Long
@@ -410,6 +262,8 @@ Private Function readSqlDefineSqlsInfo(ByRef sqlDefineSheet As ValSnapSqlDefineW
             
             ' パラメータ値を取得
             sqlPk = .Cells(currentRow, ConstantsSnapSqlDefine.SQL_DEFINE_PRIMARY_KEY_COL)
+            sqlPk = replace(sqlPk, vbNewLine, vbLf)
+            sqlPk = replace(sqlPk, vbCr, vbLf)
             sqlPkArr = Split(sqlPk, newline)
             
             For i = LBound(sqlPkArr) To UBound(sqlPkArr)
@@ -445,26 +299,6 @@ Private Function readSqlDefineSqlsInfo(ByRef sqlDefineSheet As ValSnapSqlDefineW
     
     End With ' sheet
 
-End Function
-
-' =========================================================
-' ▽シートのパラメータリストサイズ取得
-'
-' 概要　　　：パラメータリストサイズの取得を行う
-'
-' 引数　　　：
-' 戻り値　　：パラメータリストサイズ
-'
-' =========================================================
-Public Function getParamRowSize() As Long
-
-    ' 戻り値変数
-    Dim ret As Long
-    ret = ExcelUtil.getCellEndOfLastInputtedRow(sheet, ConstantsSnapSqlDefine.PARAM_ROW_COL) - ConstantsSnapSqlDefine.PARAM_START_ROW + 1
-    
-    ' 戻り値を設定する
-    getParamRowSize = ret
-    
 End Function
 
 ' =========================================================
