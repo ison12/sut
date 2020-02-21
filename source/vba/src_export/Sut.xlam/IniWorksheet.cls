@@ -339,14 +339,17 @@ Private Function readContents(ByVal sheet As Worksheet, ByVal column As Long) As
     If Not findRange Is Nothing Then
     
         ' 検索範囲から配列を取得する
-        findContentCells = ExcelUtil.copyCellsToArray(sheet, ConstantsIniData.ROW_FIRST, findRange.End(xlDown).row - findRange.row + 1, column, 2)
+        findContentCells = ExcelUtil.copyCellsToArray(sheet, ConstantsIniData.ROW_FIRST, lastInputtedRow - findRange.row + 1, column, 2)
         
         ' 配列からコンテンツを取得する
         For i = LBound(findContentCells, 1) To UBound(findContentCells, 1)
             
-            If Mid(findContentCells(i, 1), 1, 1) = "[" And _
-               Mid(findContentCells(i, 1), Len(findContentCells(i, 1)), 1) = "]" And _
-               findContentCells(i, 2) = "" Then
+            If findContentCells(i, 1) = Empty Then
+                ' キーが空の場合はスキップする
+            
+            ElseIf Mid(findContentCells(i, 1), 1, 1) = "[" And _
+                   Mid(findContentCells(i, 1), Len(findContentCells(i, 1)), 1) = "]" And _
+                   findContentCells(i, 2) = "" Then
                ' セクションの場合
                 ret.append findContentCells(i, 1) & vbNewLine
                

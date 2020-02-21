@@ -15,12 +15,17 @@ Option Explicit
 ' 外部プログラム起動関数
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" _
-        (ByVal hWnd As LongPtr _
+        (ByVal hwnd As LongPtr _
        , ByVal lpOperation As String _
        , ByVal lpFile As String _
        , ByVal lpParameters As String _
        , ByVal lpDirectory As String _
        , ByVal nShowCmd_ As Long) As Long
+       
+    Public Declare PtrSafe Function SHCreateDirectoryEx Lib "shell32" Alias "SHCreateDirectoryExA" ( _
+                                                                  ByVal hwnd As LongPtr, _
+                                                                  ByVal pszPath As String, _
+                                                                  ByVal psa As Long) As Long
 #Else
     Public Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" _
         (ByVal hWnd As Long _
@@ -29,6 +34,11 @@ Option Explicit
        , ByVal lpParameters As String _
        , ByVal lpDirectory As String _
        , ByVal nShowCmd_ As Long) As Long
+       
+    Public Declare Function SHCreateDirectoryEx Lib "shell32" Alias "SHCreateDirectoryExA" ( _
+                                                                  ByVal hwnd As LongPtr, _
+                                                                  ByVal pszPath As String, _
+                                                                  ByVal psa As Long) As Long
 #End If
 
 ' =========================================================

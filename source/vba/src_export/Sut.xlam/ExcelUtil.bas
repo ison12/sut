@@ -146,7 +146,7 @@ End Function
         
         If e >= Ver2002 Then
         
-            getApplicationHWnd = app.hWnd
+            getApplicationHWnd = app.hwnd
         
         Else
         
@@ -167,7 +167,7 @@ End Function
         
         If e >= Ver2002 Then
         
-            getApplicationHWnd = app.hWnd
+            getApplicationHWnd = app.hwnd
         
         Else
         
@@ -190,9 +190,9 @@ Public Sub setUserFormTopMost(ByVal form As Object, Optional ByVal topmost As Bo
 
     ' ウィンドウハンドル
     #If VBA7 And Win64 Then
-        Dim hWnd As LongPtr
+        Dim hwnd As LongPtr
     #Else
-        Dim hWnd As Long
+        Dim hwnd As Long
     #End If
 
     Dim ret As Long
@@ -206,20 +206,20 @@ Public Sub setUserFormTopMost(ByVal form As Object, Optional ByVal topmost As Bo
     form.Caption = formCaption & "                                "
     
     ' フォームのウィンドウハンドルを取得する
-    hWnd = WinAPI_User.FindWindow("ThunderDFrame", form.Caption)
+    hwnd = WinAPI_User.FindWindow("ThunderDFrame", form.Caption)
     
     ' フォームキャプションを元に戻す
     form.Caption = formCaption
     
-    If hWnd <> 0 Then
+    If hwnd <> 0 Then
     
         ' フォームを最前面表示する
         If topmost Then
         
-            ret = SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE)
+            ret = SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE)
             
         Else
-            ret = SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE)
+            ret = SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE)
 
         End If
     End If
@@ -241,9 +241,9 @@ Public Function setNonTitleBarWindowStyle(ByRef uForm As Object) As Boolean
 
     ' ウィンドウハンドル
     #If VBA7 And Win64 Then
-        Dim hWnd As LongPtr
+        Dim hwnd As LongPtr
     #Else
-        Dim hWnd As Long
+        Dim hwnd As Long
     #End If
   
     ' スタイル適用前のフォームのサイズを取得する
@@ -254,26 +254,26 @@ Public Function setNonTitleBarWindowStyle(ByRef uForm As Object) As Boolean
     formHeight = uForm.InsideHeight
   
     ' ウィンドウハンドルを取得する
-    WinAPI_OLEACC.WindowFromAccessibleObject uForm, hWnd
+    WinAPI_OLEACC.WindowFromAccessibleObject uForm, hwnd
 
     ' ダイアログの枠を除去
-    ret = WinAPI_User.SetWindowLong(hWnd _
+    ret = WinAPI_User.SetWindowLong(hwnd _
                       , GWL_EXSTYLE _
-                      , WinAPI_User.GetWindowLong(hWnd, GWL_EXSTYLE) And Not WS_EX_DLGMODALFRAME)
+                      , WinAPI_User.GetWindowLong(hwnd, GWL_EXSTYLE) And Not WS_EX_DLGMODALFRAME)
     If ret = 0 Then
         setNonTitleBarWindowStyle = False
     End If
     
     ' タイトルバーを除去
-    ret = WinAPI_User.SetWindowLong(hWnd _
+    ret = WinAPI_User.SetWindowLong(hwnd _
                       , GWL_STYLE _
-                      , WinAPI_User.GetWindowLong(hWnd, GWL_STYLE) And Not WS_CAPTION)
+                      , WinAPI_User.GetWindowLong(hwnd, GWL_STYLE) And Not WS_CAPTION)
     If ret = 0 Then
         setNonTitleBarWindowStyle = False
     End If
     
     ' メニューバーを再描画
-    ret = WinAPI_User.DrawMenuBar(hWnd)
+    ret = WinAPI_User.DrawMenuBar(hwnd)
     If ret = 0 Then
         setNonTitleBarWindowStyle = False
     End If

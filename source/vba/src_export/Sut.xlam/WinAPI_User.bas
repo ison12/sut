@@ -41,7 +41,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function GetWindowLong Lib "user32" Alias "GetWindowLongPtrA" _
-           (ByVal hWnd As LongPtr, _
+           (ByVal hwnd As LongPtr, _
             ByVal nIndex As Long) As Long
 #Else
     Public Declare Function GetWindowLong Lib "user32.dll" Alias "GetWindowLongA" _
@@ -61,7 +61,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function SetWindowLong Lib "user32.dll" Alias "SetWindowLongA" _
-            (ByVal hWnd As LongPtr _
+            (ByVal hwnd As LongPtr _
            , ByVal nIndex As Long _
            , ByVal dwNewLong As LongPtr) As Long
 #Else
@@ -82,7 +82,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function ClientToScreen Lib "user32.dll" _
-            (ByVal hWnd As LongPtr _
+            (ByVal hwnd As LongPtr _
            , ByRef lpPoint As Point) As Boolean
 #Else
     Public Declare Function ClientToScreen Lib "user32.dll" _
@@ -166,7 +166,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function SetMenu Lib "user32.dll" _
-            (ByVal hWnd As LongPtr, ByVal hMenu As LongPtr) As Boolean
+            (ByVal hwnd As LongPtr, ByVal hMenu As LongPtr) As Boolean
 #Else
     Public Declare Function SetMenu Lib "user32.dll" _
             (ByVal hWnd As Long, ByVal hMenu As Long) As Boolean
@@ -234,7 +234,7 @@ Option Explicit
            , ByVal X As Long _
            , ByVal Y As Long _
            , ByVal nReserved As Long _
-           , ByVal hWnd As LongPtr _
+           , ByVal hwnd As LongPtr _
            , ByRef notUserd As Long) As Boolean
 #Else
     Public Declare Function TrackPopupMenu Lib "user32.dll" _
@@ -262,7 +262,7 @@ Option Explicit
            , ByVal fuFlags As Long _
            , ByVal X As Long _
            , ByVal Y As Long _
-           , ByVal hWnd As LongPtr _
+           , ByVal hwnd As LongPtr _
            , ByRef var As LongPtr) As Boolean
 #Else
     Public Declare Function TrackPopupMenuEx Lib "user32.dll" _
@@ -285,7 +285,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function DrawMenuBar Lib "user32.dll" _
-            (ByVal hWnd As LongPtr) As Long
+            (ByVal hwnd As LongPtr) As Long
 #Else
     Public Declare Function DrawMenuBar Lib "user32.dll" _
             (ByVal hWnd As Long) As Long
@@ -336,7 +336,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function TranslateAccelerator Lib "user32.dll" Alias "TranslateAcceleratorA" _
-            (ByVal hWnd As LongPtr _
+            (ByVal hwnd As LongPtr _
            , ByVal hAccTable As LongPtr _
            , ByRef lpMsg As LongPtr) As Long
 #Else
@@ -358,7 +358,7 @@ Option Explicit
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function CallWindowProc Lib "user32.dll" Alias "CallWindowProcA" _
         (ByVal lpPrevWndFunc As LongPtr _
-       , ByVal hWnd As LongPtr _
+       , ByVal hwnd As LongPtr _
        , ByVal msg As Long _
        , ByVal wParam As Long _
        , ByVal lParam As Long) As Long
@@ -382,7 +382,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function GetDC Lib "user32.dll" _
-        (ByVal hWnd As LongPtr) As Long
+        (ByVal hwnd As LongPtr) As Long
 #Else
     Public Declare Function GetDC Lib "user32.dll" _
         (ByVal hWnd As Long) As Long
@@ -399,7 +399,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function ReleaseDC Lib "user32.dll" _
-        (ByVal hWnd As LongPtr _
+        (ByVal hwnd As LongPtr _
        , ByVal hdc As LongPtr) As Long
 #Else
     Public Declare Function ReleaseDC Lib "user32.dll" _
@@ -419,7 +419,7 @@ Option Explicit
 
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function MessageBox Lib "user32.dll" Alias "MessageBoxA" _
-        (ByVal hWnd As LongPtr _
+        (ByVal hwnd As LongPtr _
         , ByVal lpText As String _
         , ByVal lpCaption As String _
         , ByVal uType As Long) As Long
@@ -442,7 +442,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function SetWindowPos Lib "user32.dll" _
-        (ByVal hWnd As LongPtr _
+        (ByVal hwnd As LongPtr _
         , ByVal hWndInsertAfter As LongPtr _
         , ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long _
         , ByVal wFlags As Long) As Long
@@ -529,7 +529,7 @@ Option Explicit
 ' =========================================================
 #If VBA7 And Win64 Then
     Public Declare PtrSafe Function PostMessage Lib "user32.dll" Alias "PostMessageA" ( _
-                                 ByVal hWnd As LongPtr, _
+                                 ByVal hwnd As LongPtr, _
                                  ByVal wMsg As Long, _
                                  ByVal wParam As LongPtr, _
                                  ByVal lParam As LongPtr) As Long
@@ -819,7 +819,7 @@ Public Const FALT      As Long = &H10
 
 Public Type MOUSEHOOKSTRUCT
     pt           As POINTAPI
-    hWnd         As LongPtr
+    hwnd         As LongPtr
     wHitTestCode As Long
     dwExtraInfo  As Long
 End Type

@@ -36,7 +36,7 @@ Option Explicit
 ' 戻り値　　：処理したかどうかを表すフラグ
 '
 ' =========================================================
-Public Function process(ByVal hWnd As Long _
+Public Function process(ByVal hwnd As Long _
                          , ByVal msg As Long _
                          , ByVal wParam As Long _
                          , ByVal lParam As Long _

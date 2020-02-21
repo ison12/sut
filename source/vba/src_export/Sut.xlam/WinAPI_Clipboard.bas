@@ -3,7 +3,7 @@ Option Explicit
 
 
 #If VBA7 And Win64 Then
-    Private Declare PtrSafe Function OpenClipboard Lib "user32.dll" (ByVal hWnd As LongPtr) As Long
+    Private Declare PtrSafe Function OpenClipboard Lib "user32.dll" (ByVal hwnd As LongPtr) As Long
     Private Declare PtrSafe Function EmptyClipboard Lib "user32.dll" () As Long
     Private Declare PtrSafe Function CloseClipboard Lib "user32.dll" () As Long
     Private Declare PtrSafe Function IsClipboardFormatAvailable Lib "user32.dll" (ByVal wFormat As Long) As Long

@@ -1626,13 +1626,15 @@ Public Function createDir(ByVal filePath As String) As Boolean
     Dim fso As Object
     Set fso = CreateObject("Scripting.FileSystemObject")
     
-    If fso.folderexists(filePath) = False And _
-       fso.FileExists(filePath) = False Then
-        fso.CreateFolder filePath
+    Dim rc As Long
+    
+    rc = WinAPI_Shell.SHCreateDirectoryEx(0&, filePath, 0&)
+    
+    If rc = 0 Then
         createDir = True
+    Else
+        createDir = False
     End If
-
-    createDir = False
         
 End Function
 

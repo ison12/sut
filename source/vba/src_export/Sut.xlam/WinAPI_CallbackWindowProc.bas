@@ -33,7 +33,7 @@ Private listPrevWindowProc As ValCollection
 '
 ' =========================================================
 Public Sub registWindowProc(ByRef proc As IWindowProc _
-                          , ByVal hWnd As Long)
+                          , ByVal hwnd As Long)
 
 
     ' リストが初期化されていない場合、初期化を実施する
@@ -47,7 +47,7 @@ Public Sub registWindowProc(ByRef proc As IWindowProc _
     Dim prevWindowProc As Long
     
     ' 設定前のウィンドウプロシージャ
-    prevWindowProc = WinAPI_User.GetWindowLong(hWnd, WinAPI_User.GWL_WNDPROC)
+    prevWindowProc = WinAPI_User.GetWindowLong(hwnd, WinAPI_User.GWL_WNDPROC)
     
     ' エラーチェック
     If prevWindowProc = 0 Then
@@ -60,12 +60,12 @@ Public Sub registWindowProc(ByRef proc As IWindowProc _
     
     
     ' ウィンドウハンドルをキーに、IWindowProcオブジェクトを設定する
-    list.setItem proc, hWnd
+    list.setItem proc, hwnd
     ' ウィンドウハンドルをキーに、設定前のウィンドウプロシージャを設定する
-    list.setItem prevWindowProc, hWnd
+    list.setItem prevWindowProc, hwnd
     
     ' サブクラス化開始
-    If WinAPI_User.SetWindowLong(hWnd _
+    If WinAPI_User.SetWindowLong(hwnd _
                                 , WinAPI_User.GWL_WNDPROC _
                                 , AddressOf windowProcedure) = 0 Then
                             
@@ -87,21 +87,21 @@ End Sub
 ' 戻り値　　：処理に成功したかどうかを表すフラグ
 '
 ' =========================================================
-Public Sub unregistWindowProc(ByVal hWnd As Long)
+Public Sub unregistWindowProc(ByVal hwnd As Long)
 
     ' ウィンドウハンドルをキーに、IWindowProcオブジェクトを削除する
-    list.remove hWnd
+    list.remove hwnd
     
     ' 設定前のウィンドウプロシージャ
     Dim prevWindowProc As Long
     
     ' ウィンドウハンドルをキーに、設定前のウィンドウプロシージャを削除する
-    prevWindowProc = listPrevWindowProc.getItem(hWnd, vbLong)
+    prevWindowProc = listPrevWindowProc.getItem(hwnd, vbLong)
     
     ' 最初に設定されていたウィンドウプロシージャを再セットする
-    WinAPI_User.SetWindowLong hWnd, WinAPI_User.GWL_WNDPROC, prevWindowProc
+    WinAPI_User.SetWindowLong hwnd, WinAPI_User.GWL_WNDPROC, prevWindowProc
 
-    listPrevWindowProc.remove hWnd
+    listPrevWindowProc.remove hwnd
 
 End Sub
 
@@ -117,7 +117,7 @@ End Sub
 ' 戻り値　　：結果コード
 '
 ' =========================================================
-Private Function windowProcedure(ByVal hWnd As Long _
+Private Function windowProcedure(ByVal hwnd As Long _
                                , ByVal msg As Long _
                                , ByVal wParam As Long _
                                , ByVal lParam As Long) As Long
@@ -132,18 +132,18 @@ Private Function windowProcedure(ByVal hWnd As Long _
     Dim prevWindowProc As Long
 
     ' オブジェクトを取得する
-    Set windowProc = list.getItem(hWnd)
+    Set windowProc = list.getItem(hwnd)
 
     ' ウィンドウプロシージャオブジェクトのチェック
     If Not windowProc Is Nothing Then
     
         ' IWindowProcオブジェクトに処理を振り分ける
-        If windowProc.process(hWnd, msg, wParam, lParam, resultCode) = False Then
+        If windowProc.process(hwnd, msg, wParam, lParam, resultCode) = False Then
         
             ' 最初に設定されていたウィンドウプロシージャを取得する
-            prevWindowProc = listPrevWindowProc.getItem(hWnd, vbLong)
+            prevWindowProc = listPrevWindowProc.getItem(hwnd, vbLong)
             ' デフォルトメッセージ処理
-            windowProcedure = CallWindowProc(prevWindowProc, hWnd, msg, wParam, lParam)
+            windowProcedure = CallWindowProc(prevWindowProc, hwnd, msg, wParam, lParam)
             
         Else
         
