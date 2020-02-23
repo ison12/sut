@@ -331,7 +331,10 @@ End Function
 Public Function SutConnectDB()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -356,7 +359,10 @@ End Function
 Public Function SutDBConnectInfo()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -381,7 +387,10 @@ End Function
 Public Function SutDisConnectDB()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -405,7 +414,10 @@ End Function
 Public Function SutShowDbExplorer()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -464,7 +476,10 @@ End Function
 Public Function SutCreateTableSheet()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -994,7 +1009,10 @@ End Function
 Public Function SutShowQueryResult()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -1020,7 +1038,10 @@ End Function
 Public Function SutSettingQueryParameter()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -1079,7 +1100,10 @@ End Function
 Public Function SutCreateNewSheetSnapSqlDefine()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -1137,7 +1161,10 @@ End Function
 Public Function SutSettingOption()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
 
@@ -1161,7 +1188,10 @@ End Function
 Public Function SutSettingRClickMenu()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -1185,7 +1215,10 @@ End Function
 Public Function SutSettingShortCutKey()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
@@ -1209,7 +1242,10 @@ End Function
 Public Function SutSettingPopupMenu()
 
     On Error GoTo err
-    
+        
+    ' ブックのチェックを行う
+    validWorkbook
+
     ' UIオブジェクトの初期化
     initUIObject
     
