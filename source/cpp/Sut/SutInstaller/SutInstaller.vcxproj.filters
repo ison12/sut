@@ -133,9 +133,6 @@
     <Image Include="res\SutInstaller.ico">
       <Filter>リソース ファイル</Filter>
     </Image>
-    <Image Include="..\..\..\resource\image\sut_icon.bmp">
-      <Filter>リソース ファイル</Filter>
-    </Image>
     <Image Include="..\..\..\resource\image\Data-base.ico">
       <Filter>リソース ファイル</Filter>
     </Image>

@@ -27,7 +27,6 @@ void CSutInstallerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_INSTALLED_EXCEL_LIST, m_installedExcelList);
-    DDX_Control(pDX, IDC_CHK_REG_DELETE, m_regDelete);
     DDX_Control(pDX, IDC_INSTALL, m_install);
     DDX_Control(pDX, IDC_UNINSTALL, m_uninstall);
 }
@@ -527,11 +526,6 @@ void CSutInstallerDlg::processInstall()
 
 void CSutInstallerDlg::processUninstall()
 {
-    // レジストリ削除
-    BOOL isRegDelete = m_regDelete.GetCheck();
-
-    ATLTRACE2("Dose user delete registry? %s\n", isRegDelete == TRUE ? "true" : "false");
-
     // チェック件数
     int checkedCount = 0;
 
@@ -595,30 +589,6 @@ void CSutInstallerDlg::processUninstall()
             infoMessage.LoadString(IDS_INFO_COMPLETELY_DELETE_ADDIN_OK);
             AfxMessageBox((LPCTSTR)infoMessage, MB_OK | MB_ICONINFORMATION);
         }
-    }
-
-    // レジストリを削除する
-    if (isRegDelete) {
-        checkedCount++;
-
-        // 関数の戻り値を格納する
-        LONG lResult;
-
-        CString key(LPCTSTR(_T("Software\\ison\\Sut")));
-        lResult = AfxGetApp()->DelRegTree(HKEY_CURRENT_USER, key);
-
-        if (lResult != ERROR_SUCCESS && lResult != ERROR_FILE_NOT_FOUND) {
-
-            // エラー発生
-            CString infoMessage;
-            infoMessage.LoadString(IDS_INFO_REG_DELETE_FAILED);
-            AfxMessageBox((LPCTSTR)infoMessage, MB_OK | MB_ICONERROR);
-            return;
-        }
-
-        CString infoMessage;
-        infoMessage.LoadString(IDS_INFO_REG_DELETE_SUCCESS);
-        AfxMessageBox((LPCTSTR)infoMessage, MB_OK | MB_ICONINFORMATION);
     }
 
     // チェックされた件数が0の場合

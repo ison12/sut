@@ -54,11 +54,6 @@ protected:
     CButton m_comDelete;
 
     /**
-     * レジストリ削除チェックボックス
-     */
-    CButton m_regDelete;
-
-    /**
      * インストールボタン
      */
     CButton m_install;

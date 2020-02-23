@@ -54,6 +54,7 @@
 #define IDC_CHK_REG_DELETE              1007
 #define IDC_STATIC_TITLE                1009
 #define IDC_STATIC_TITLE2               1010
+#define IDC_STATIC_TITLE3               1011
 
 // Next default values for new objects
 // 
