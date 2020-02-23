@@ -15,3 +15,4 @@ source/cpp/Sut/*.suo
 source/vba/src/resource/config/*
 source/vba/src/module
 dist/tool/logs/*
+source/vba/src/SutInstaller*
