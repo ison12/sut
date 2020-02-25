@@ -35,7 +35,10 @@ Private m_dbms As DbmsType
 ' 空白文字読み取り方式
 Private m_emptyValueReading As Long
 ' 直接入力文字
-Private m_directInputChar As String
+Private m_directInputCharPrefix As String
+Private m_directInputCharSuffix As String
+' NULL入力文字
+Private m_nullInputChar As String
 ' カラム書式情報リスト
 Private m_columnFormatList As ValCollection
 ' スキーマ使用有無
@@ -104,19 +107,53 @@ Private Property Let IDbQueryCreator_emptyValueReading(ByVal RHS As Long)
 End Property
 
 ' =========================================================
-' ▽直接入力文字設定
+' ▽直接入力文字接頭辞設定
 '
-' 概要　　　：直接入力文字を設定する。
-' 引数　　　：vNewValue 直接入力文字
+' 概要　　　：
+' 引数　　　：vNewValue 直接入力文字接頭辞
 '
 ' 特記事項　：
 '
 '
 ' =========================================================
-Private Property Let IDbQueryCreator_directInputChar(ByVal RHS As String)
+Private Property Let IDbQueryCreator_directInputCharPrefix(ByVal RHS As String)
 
-    m_directInputChar = RHS
-    queryCreatorCommon.directInputChar = RHS
+    m_directInputCharPrefix = RHS
+    queryCreatorCommon.directInputCharPrefix = RHS
+
+End Property
+
+' =========================================================
+' ▽直接入力文字接尾辞設定
+'
+' 概要　　　：
+' 引数　　　：vNewValue 直接入力文字接尾辞
+'
+' 特記事項　：
+'
+'
+' =========================================================
+Private Property Let IDbQueryCreator_directInputCharSuffix(ByVal RHS As String)
+
+    m_directInputCharSuffix = RHS
+    queryCreatorCommon.directInputCharSuffix = RHS
+
+End Property
+
+' =========================================================
+' ▽NULL入力文字設定
+'
+' 概要　　　：
+' 引数　　　：vNewValue NULL入力文字
+'
+' 特記事項　：
+'
+'
+' =========================================================
+Public Property Let IDbQueryCreator_nullInputChar(ByVal vNewValue As String)
+
+    m_nullInputChar = vNewValue
+    queryCreatorCommon.nullInputChar = vNewValue
 
 End Property
 

@@ -49,16 +49,44 @@ Public Property Let emptyValueReading(ByVal vNewValue As Long)
 End Property
 
 ' =========================================================
-' ▽直接入力文字設定
+' ▽直接入力文字接頭辞設定
 '
-' 概要　　　：直接入力文字を設定する。
-' 引数　　　：vNewValue 直接入力文字
+' 概要　　　：
+' 引数　　　：vNewValue 直接入力文字接頭辞
 '
 ' 特記事項　：
 '
 '
 ' =========================================================
-Public Property Let directInputChar(ByVal vNewValue As String)
+Public Property Let directInputCharPrefix(ByVal vNewValue As String)
+
+End Property
+
+' =========================================================
+' ▽直接入力文字接尾辞設定
+'
+' 概要　　　：
+' 引数　　　：vNewValue 直接入力文字接尾辞
+'
+' 特記事項　：
+'
+'
+' =========================================================
+Public Property Let directInputCharSuffix(ByVal vNewValue As String)
+
+End Property
+
+' =========================================================
+' ▽NULL入力文字設定
+'
+' 概要　　　：
+' 引数　　　：vNewValue NULL入力文字
+'
+' 特記事項　：
+'
+'
+' =========================================================
+Public Property Let nullInputChar(ByVal vNewValue As String)
 
 End Property
 

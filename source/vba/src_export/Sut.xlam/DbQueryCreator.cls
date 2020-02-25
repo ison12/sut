@@ -40,14 +40,19 @@ Private m_dbms As DbmsType
 ' 空白文字読み取り方式
 Private m_emptyValueReading As Long
 ' 直接入力文字
-Private m_directInputChar As String
+Private m_directInputCharPrefix As String
+Private m_directInputCharSuffix As String
+' NULL入力文字
+Private m_nullInputChar As String
 ' カラム書式情報リスト
 Private m_columnFormatList As ValCollection
 ' スキーマ使用有無
 Private m_schemaUse As Long
 ' テーブル・カラム名のエスケープ
 Private m_tableColumnEscape As Boolean
-
+' クエリパラメータの囲み文字
+Private m_queryParameterEnclosePrefix As String
+Private m_queryParameterEncloseSuffix As String
 
 ' アプリケーション設定
 ' 定数を利用するためにオブジェクトを生成
@@ -108,18 +113,48 @@ Public Property Let emptyValueReading(ByVal RHS As Long)
 End Property
 
 ' =========================================================
-' ▽直接入力文字設定
+' ▽直接入力文字接頭辞設定
 '
-' 概要　　　：直接入力文字を設定する。
-' 引数　　　：vNewValue 直接入力文字
+' 概要　　　：
+' 引数　　　：vNewValue 直接入力文字接頭辞
 '
 ' 特記事項　：
 '
 '
 ' =========================================================
-Public Property Let directInputChar(ByVal RHS As String)
+Public Property Let directInputCharPrefix(ByVal RHS As String)
 
-    m_directInputChar = RHS
+    m_directInputCharPrefix = RHS
+End Property
+
+' =========================================================
+' ▽直接入力文字接尾辞設定
+'
+' 概要　　　：
+' 引数　　　：vNewValue 直接入力文字接尾辞
+'
+' 特記事項　：
+'
+'
+' =========================================================
+Public Property Let directInputCharSuffix(ByVal RHS As String)
+
+    m_directInputCharSuffix = RHS
+End Property
+
+' =========================================================
+' ▽NULL入力文字設定
+'
+' 概要　　　：
+' 引数　　　：vNewValue NULL入力文字
+'
+' 特記事項　：
+'
+'
+' =========================================================
+Public Property Let nullInputChar(ByVal vNewValue As String)
+
+    m_nullInputChar = vNewValue
 End Property
 
 ' =========================================================
@@ -165,6 +200,36 @@ End Property
 Public Property Let tableColumnEscape(ByVal vNewValue As Variant)
 
     m_tableColumnEscape = vNewValue
+End Property
+
+' =========================================================
+' ▽クエリパラメータ囲み文字接頭辞設定
+'
+' 概要　　　：
+' 引数　　　：vNewValue 値
+'
+' 特記事項　：
+'
+'
+' =========================================================
+Public Property Let queryParameterEnclosePrefix(ByVal vNewValue As String)
+
+    m_queryParameterEnclosePrefix = vNewValue
+End Property
+
+' =========================================================
+' ▽クエリパラメータ囲み文字接尾辞設定
+'
+' 概要　　　：
+' 引数　　　：vNewValue 値
+'
+' 特記事項　：
+'
+'
+' =========================================================
+Public Property Let queryParameterEncloseSuffix(ByVal vNewValue As String)
+
+    queryParameterEncloseSuffix = vNewValue
 End Property
 
 ' =========================================================
@@ -286,7 +351,7 @@ Public Function createInsert(ByRef table As ValDbDefineTable _
             ' 値が設定されている場合のみステートメントに追加する
             If recordValue <> "" Then
     
-                queryValue = convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputChar)
+                queryValue = DBUtil.convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputCharPrefix, m_directInputCharSuffix, m_nullInputChar)
                 ' COLUMN句
                 columnStatement.append(newline).append(CONNECT_COMMA).append (DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape))
                 ' VALUES句
@@ -298,11 +363,29 @@ Public Function createInsert(ByRef table As ValDbDefineTable _
         Else
         
             ' 常にステートメントを追加する
+            If recordValue = "" Then
+                ' 空白セル
             
-            ' 空文字の場合、NULLに変換
-            queryValue = DBUtil.convertEmptyToNull(recordValue)
-            queryValue = convertUpdateFormat(m_dbms, columnFormat.formatUpdate, queryValue, True, m_directInputChar)
-    
+                If m_emptyValueReading = applicationSetting.EMPTY_CELL_READING_NON_DEL Then
+                    ' NULLに変換
+                    queryValue = "NULL"
+                Else
+                    ' 文字データ型の場合に、空文字列に変換
+                    If DBUtil.isCharType(m_dbms, columnFormat.columnName) Then
+                        ' 文字データ型
+                        queryValue = "''"
+                    Else
+                        ' 数値型など
+                        queryValue = "NULL"
+                    End If
+                
+                End If
+                
+            Else
+                ' 何かしら入力されている
+                queryValue = DBUtil.convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputCharPrefix, m_directInputCharSuffix, m_nullInputChar)
+            End If
+            
             ' COLUMN句
             columnStatement.append(newline).append(CONNECT_COMMA).append (DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape))
             ' VALUES句
@@ -480,7 +563,7 @@ Public Function createUpdate(ByRef table As ValDbDefineTable, ByRef record As Va
                 ' 値が設定されている場合のみステートメントに追加する
                 If recordValue <> "" Then
         
-                    queryValue = convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputChar)
+                    queryValue = DBUtil.convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputCharPrefix, m_directInputCharSuffix, m_nullInputChar)
     
                     ' COLUMN句
                     columnValuesStatement.append(newline).append(CONNECT_COMMA).append(DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape)).append(" = ").append (queryValue)
@@ -491,10 +574,28 @@ Public Function createUpdate(ByRef table As ValDbDefineTable, ByRef record As Va
             Else
             
                 ' 常にステートメントを追加する
+                If recordValue = "" Then
+                    ' 空白セル
                 
-                ' 空文字の場合、NULLに変換
-                queryValue = DBUtil.convertEmptyToNull(recordValue)
-                queryValue = convertUpdateFormat(m_dbms, columnFormat.formatUpdate, queryValue, True, m_directInputChar)
+                    If m_emptyValueReading = applicationSetting.EMPTY_CELL_READING_NON_DEL Then
+                        ' NULLに変換
+                        queryValue = "NULL"
+                    Else
+                        ' 文字データ型の場合に、空文字列に変換
+                        If DBUtil.isCharType(m_dbms, columnFormat.columnName) Then
+                            ' 文字データ型
+                            queryValue = "''"
+                        Else
+                            ' 数値型など
+                            queryValue = "NULL"
+                        End If
+                    
+                    End If
+                    
+                Else
+                    ' 何かしら入力されている
+                    queryValue = DBUtil.convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputCharPrefix, m_directInputCharSuffix, m_nullInputChar)
+                End If
         
                 ' COLUMN句
                 columnValuesStatement.append(newline).append(CONNECT_COMMA).append(DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape)).append(" = ").append (queryValue)
@@ -508,7 +609,7 @@ Public Function createUpdate(ByRef table As ValDbDefineTable, ByRef record As Va
         ' column1のみ条件として追加してしまうと、レコードを一意に特定できずに複数件更新されてしまう恐れがあるため。
         If isColumnPk = True Then
 
-            queryValue = convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputChar)
+            queryValue = DBUtil.convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputCharPrefix, m_directInputCharSuffix, m_nullInputChar)
             
             conditionStatement.append(newline).append(CONNECT_AND).append(DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape)).append(" = ").append (queryValue)
         End If
@@ -677,7 +778,7 @@ Public Function createDelete(ByRef table As ValDbDefineTable, ByRef record As Va
         ' column1のみ条件として追加してしまうと、レコードを一意に特定できずに複数件更新されてしまう恐れがあるため。
         If isColumnPk = True Then
 
-            queryValue = convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputChar)
+            queryValue = DBUtil.convertUpdateFormat(m_dbms, columnFormat.formatUpdate, recordValue, True, m_directInputCharPrefix, m_directInputCharSuffix, m_nullInputChar)
             
             conditionStatement.append(newline).append(CONNECT_AND).append(DBUtil.escapeTableColumn(m_dbms, column.columnName, m_tableColumnEscape)).append(" = ").append (queryValue)
         End If
@@ -856,12 +957,6 @@ Public Sub createSelectForWhereOrderby(ByVal table As ValDbDefineTable _
     Const CONNECT_AND              As String = " AND "
     ' 接続文字 カンマ
     Const CONNECT_COMMA            As String = "    ,"
-    ' 接続文字 代入式（＝）
-    Const CONNECT_LEFT_RIGHT_EQUAL As String = " = "
-    ' 接続文字 代入式（LIKE）
-    Const CONNECT_LEFT_RIGHT_LIKE  As String = " LIKE "
-    ' 接続文字 代入式（IS）
-    Const CONNECT_LEFT_RIGHT_IS     As String = " IS "
 
     ' WHERE句の内容
     Dim where       As New StringBuilder
@@ -877,10 +972,14 @@ Public Sub createSelectForWhereOrderby(ByVal table As ValDbDefineTable _
     ' カラム書式情報
     Dim columnFormat    As ValDbColumnTypeColInfo
     
+    ' 記号
+    Dim sign       As String
     ' 値
     Dim value      As String
     ' 順序
     Dim orderByVal As Variant
+    ' 必須値かどうかのフラグ
+    Dim isReqValue As Boolean
     
     Dim connectLeftRight As String
     
@@ -923,62 +1022,68 @@ Public Sub createSelectForWhereOrderby(ByVal table As ValDbDefineTable _
         
         End If
         
+        ' 記号を取得する
+        sign = condition.getConditionSign(columnName)
+        If sign = "" Then sign = "="
         ' 値を取得する
         value = condition.getConditionValue(columnName)
         ' 並び順を取得する
         orderByVal = condition.getConditionOrder(columnName)
-    
-        ' 値が設定されている場合
-        If value <> "" Then
+        ' 必須値かを取得する
+        isReqValue = condition.getConditionReq(columnName)
+
+        ' 値が設定されているまたは必須の場合
+        If value <> "" Or isReqValue Then
         
-            ' NULLまたは
-            ' NOT NULLと入力された場合は、IS NULLで引っ掛けるようにする
-            If _
-                Trim$(UCase$(value)) = "NULL" _
-             Or Trim$(UCase$(value)) = "NOT NULL" Then
+            If UCase$(sign) = "IS" Then
+                ' 記号が IS の場合は
+                ' NULL or NOT NULL で判定する
             
-                where.append(vbLf).append(CONNECT_AND).append(identifier & DBUtil.escapeTableColumn(m_dbms, CStr(columnName), m_tableColumnEscape)).append(CONNECT_LEFT_RIGHT_IS).append (Trim$(UCase$(value)))
+                where.append(vbLf).append(CONNECT_AND).append(identifier & DBUtil.escapeTableColumn(m_dbms, CStr(columnName), m_tableColumnEscape)).append(" " & UCase$(sign) & " ").append (Trim$(UCase$(value)))
                 
-            ' 上記以外の場合
-            Else
+            ElseIf UCase$(sign) = "LIKE" Or UCase$(sign) = "NOT LIKE" Then
+                ' LIKE関数を利用すると判断する
             
-                ' カラムのリテラル種類がStringの場合で且つ、LIKE関数のパターン文字が含まれている場合
-                ' LIKE関数を利用すると判断する。
-                If ( _
-                     InStr(value, "%") <> 0 Or _
-                    (InStr(value, "_") <> 0 And Not (InStr(value, ConstantsTable.QUERY_PARAMETER_ENCLOSE_START) = 1 And InStr(value, ConstantsTable.QUERY_PARAMETER_ENCLOSE_END) = Len(value)))) Then
-                
-                    ' シングルクォートをエスケープ
-                    value = DBUtil.escapeValueForSinglequart(m_dbms, value)
-                    ' 文字列の両端にシングルクォートを付加する
-                    value = DBUtil.escapeValueForEscapeChar(m_dbms, value)
-                
-                    where.append(vbLf).append(CONNECT_AND).append(identifier & DBUtil.escapeTableColumn(m_dbms, CStr(columnName), m_tableColumnEscape)).append(CONNECT_LEFT_RIGHT_LIKE).append (DBUtil.encloseSingleQuart(value))
-                    
-                    If _
-                        m_dbms = DbmsType.MySQL _
-                     Or m_dbms = DbmsType.PostgreSQL Then
+                 ' シングルクォートをエスケープ
+                 value = DBUtil.escapeValueForSinglequart(m_dbms, value)
+                 ' 文字列の両端にシングルクォートを付加する
+                 value = DBUtil.escapeValueForEscapeChar(m_dbms, value)
+             
+                 where.append(vbLf).append(CONNECT_AND).append(identifier & DBUtil.escapeTableColumn(m_dbms, CStr(columnName), m_tableColumnEscape)).append(" " & UCase$(sign) & " ").append (DBUtil.encloseSingleQuart(value))
+                 
+                 If _
+                     m_dbms = DbmsType.MySQL _
+                  Or m_dbms = DbmsType.PostgreSQL Then
+                  
+                     ' MySQLやPostgreSQLは、"\"が既にエスケープ文字なので、別の文字をエスケープ文字にしてあげる
+                     where.append (DBUtil.addLikeEscape(m_dbms, "#"))
                      
-                        ' MySQLやPostgreSQLは、"\"が既にエスケープ文字なので、別の文字をエスケープ文字にしてあげる
-                        where.append (DBUtil.addLikeEscape(m_dbms, "#"))
-                        
+                 Else
+                 
+                     where.append (DBUtil.addLikeEscape(m_dbms))
+                 End If
+            Else
+             
+                If value = "" Then
+                    
+                    ' 文字データ型の場合に、空文字列に変換
+                    If m_emptyValueReading = applicationSetting.EMPTY_CELL_READING_NON_DEL_STR_EMPTY And _
+                       DBUtil.isCharType(m_dbms, columnFormat.columnName) Then
+                        ' 文字データ型
+                        value = "''"
                     Else
-                    
-                        where.append (DBUtil.addLikeEscape(m_dbms))
+                        ' 数値型など
+                        value = "NULL"
                     End If
-                Else
-                
-                    ' 値を変換する。変換する場合はエスケープ文字はそのままにする
-                    ' （DBUtil.convertUpdateFormatの第５引数はFalseに設定。※\→\\ に変換したりしない。
-                    ' 　また第６引数の直接入力文字は有効にしない。）
-                    ' 値を変換する。型特有のフォーマットに変換する
-                    value = convertUpdateFormat(m_dbms, columnFormat.formatUpdate, value, False)
                     
-                    where.append(vbLf).append(CONNECT_AND).append(identifier & DBUtil.escapeTableColumn(m_dbms, CStr(columnName), m_tableColumnEscape)).append(CONNECT_LEFT_RIGHT_EQUAL).append (value)
-                
+                Else
+                    ' 値を変換する。型特有のフォーマットに変換する
+                    value = DBUtil.convertUpdateFormat(m_dbms, columnFormat.formatUpdate, value, True, m_directInputCharPrefix, m_directInputCharSuffix, m_nullInputChar)
                 End If
-            
-            End If
+                
+                where.append(vbLf).append(CONNECT_AND).append(identifier & DBUtil.escapeTableColumn(m_dbms, CStr(columnName), m_tableColumnEscape)).append(" " & UCase$(sign) & " ").append (value)
+             
+             End If
         
         End If
         

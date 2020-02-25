@@ -451,7 +451,7 @@ Public Sub setValue _
              ByVal key As String, _
              ByVal value As String)
 
-    inid.setValue SECTION, key, value
+    inid.setValue SECTION, ExcelUtil.convertCellStrValue(key), ExcelUtil.convertCellStrValue(value)
 End Sub
 
 Public Function getValues _
@@ -464,7 +464,38 @@ Public Sub setValues _
             (ByVal SECTION As String, _
              ByRef values As ValCollection)
 
-    inid.setValues SECTION, values
+    ' ------------------------------------------
+    ' Excelシート用に文字列を変換する
+    ' ------------------------------------------
+    Dim valuesForSheet           As New ValCollection
+    Dim valuesOfElementForSheet  As Variant
+    Dim key                      As Variant
+    Dim valuesOfElement          As Variant
+    
+    For Each valuesOfElement In values.col
+        
+        If UBound(valuesOfElement) - LBound(valuesOfElement) + 1 >= 3 Then
+            ' 配列のサイズが3つならセクションあり
+            valuesOfElementForSheet = Array( _
+                        ExcelUtil.convertCellStrValue(valuesOfElement(0)), _
+                        ExcelUtil.convertCellStrValue(valuesOfElement(1)), _
+                        ExcelUtil.convertCellStrValue(valuesOfElement(2)))
+            key = valuesOfElement(1)
+        Else
+            ' 配列のサイズが3つ未満ならセクションなし
+            valuesOfElementForSheet = Array( _
+                        ExcelUtil.convertCellStrValue(valuesOfElement(0)), _
+                        ExcelUtil.convertCellStrValue(valuesOfElement(1)))
+            key = valuesOfElement(0)
+        End If
+        
+        valuesForSheet.setItem valuesOfElementForSheet, key
+        
+    Next
+    ' ------------------------------------------
+
+    inid.setValues SECTION, valuesForSheet
+    
 End Sub
 
 Public Sub delete _

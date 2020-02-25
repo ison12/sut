@@ -307,7 +307,7 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
     Set diff2RecMap = diff2Rec.convertToMapKeyIsPkValIsReocrdIndex
     
     ' diff1を基準に比較する
-    If Not IsEmpty(diff1Rec.recordList) Then
+    If Not isEmpty(diff1Rec.recordList) Then
     
         ' --------------------------------------------
         ' レコードリストをセルに出力する
@@ -408,7 +408,7 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
     End If
     
     ' diff2を基準に比較する
-    If Not IsEmpty(diff2Rec.recordList) Then
+    If Not isEmpty(diff2Rec.recordList) Then
         
         recordIndex = 0
         For recordIndex = LBound(diff2Rec.recordList) To UBound(diff2Rec.recordList)

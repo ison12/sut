@@ -51,6 +51,9 @@ Private Const QUERY_PARAMETER_NEW_CREATED_OVER_SIZE As String = "ƒNƒGƒŠƒpƒ‰ƒ[ƒ
 Private WithEvents frmQueryParameterSettingVar As frmQueryParameterSetting
 Attribute frmQueryParameterSettingVar.VB_VarHelpID = -1
 
+' ƒAƒvƒŠƒP[ƒVƒ‡ƒ“İ’èî•ñ
+Private applicationSetting As ValApplicationSetting
+
 ' ƒNƒGƒŠƒpƒ‰ƒ[ƒ^ƒŠƒXƒg ƒRƒ“ƒgƒ[ƒ‹
 Private queryParameterList As CntListBox
 
@@ -73,10 +76,14 @@ End Function
 '
 ' ŠT—v@@@F
 ' ˆø”@@@Fmodal ƒ‚[ƒ_ƒ‹‚Ü‚½‚Íƒ‚[ƒhƒŒƒX•\¦w’è
+'     @@@Fvar   ƒAƒvƒŠƒP[ƒVƒ‡ƒ“İ’è
 ' –ß‚è’l@@F
 '
 ' =========================================================
-Public Sub ShowExt(ByVal modal As FormShowConstants)
+Public Sub ShowExt(ByVal modal As FormShowConstants _
+                 , ByRef var As ValApplicationSetting)
+
+    Set applicationSetting = var
 
     activate
     
@@ -112,7 +119,7 @@ Private Sub activate()
 
     restoreQueryParameter
     
-    lblDescription.Caption = replace(replace(lblDescription.Caption, "$es", ConstantsTable.QUERY_PARAMETER_ENCLOSE_START), "$ee", ConstantsTable.QUERY_PARAMETER_ENCLOSE_END)
+    lblDescription.Caption = replace(replace(lblDescription.Caption, "$es", applicationSetting.queryParameterEncloseCustomPrefix), "$ee", applicationSetting.queryParameterEncloseCustomSuffix)
     
 End Sub
 

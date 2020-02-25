@@ -127,6 +127,15 @@ Public Event ReflectionRecordBegin(ByVal recordListSize As Long, ByRef recordLis
 ' =========================================================
 Public Event ReflectionRecord(ByVal recordListSize As Long, ByRef recordList As Variant)
 
+' =========================================================
+' ▽SQL実行結果反映時のエラーイベント
+'
+' 概要　　　：SQL実行時にエラーが発生した際に呼び出されるイベント
+' 引数　　　：message    メッセージ
+'     　　　：cell       セル
+'
+' =========================================================
+Public Event ReflectionRecordError(ByRef message As String, ByVal cell As String)
 
 ' ---------------------------------------------------------
 ' □プロパティ
@@ -224,7 +233,7 @@ Public Function executeSelect() As Long
     Dim queryCreator        As IDbQueryCreator
     
     ' クエリー生成オブジェクトを取得（第2,3引数は適当）
-    Set queryCreator = dbObjFactory.createQueryCreator(conn, 0, "", applicationSettingColFmt.getDbColFormatListByDbConn(conn), applicationSetting.schemaUse, applicationSetting.getTableColumnEscapeByDbConn(conn))
+    Set queryCreator = dbObjFactory.createQueryCreator(conn, 0, "", "", "", applicationSettingColFmt.getDbColFormatListByDbConn(conn), applicationSetting.schemaUse, applicationSetting.getTableColumnEscapeByDbConn(conn))
 
     ' 条件
     Dim emptyCondition As New ValSelectCondition
@@ -311,7 +320,7 @@ Private Function execute(ByRef tableSheet As ValTableWorksheet, ByRef sql As Str
     ' SQL実行中フラグをONにする
     executingSql = True
     
-    queryConverter.initIfFirst Me.conn, queryParameterList
+    queryConverter.initIfFirst Me.conn, queryParameterList, applicationSetting.queryParameterEncloseCustomPrefix, applicationSetting.queryParameterEncloseCustomSuffix
     sql = queryConverter.convertSql(sql)
     
     ' クエリーを実行する
@@ -370,6 +379,9 @@ Private Function execute(ByRef tableSheet As ValTableWorksheet, ByRef sql As Str
         tableSheetCreator.deleteCellOfRecord tableSheet, recordOffset
         
     End If
+    
+    ' セル最大文字数チェックエラー（Trueの場合はエラー）
+    Dim isMaxLengthOverCell As Boolean
         
     ' 取得レコードが0件になるまでレコードセットを処理する
     Do While Not recordSet.EOF
@@ -409,7 +421,7 @@ Private Function execute(ByRef tableSheet As ValTableWorksheet, ByRef sql As Str
         RaiseEvent ReflectionRecordBegin(recordListSize, recordList)
         
         ' ワークシートにレコードリストの内容を反映する
-        reflectSheet tableSheet, recordList, recordOffset
+        reflectSheet tableSheet, recordList, recordOffset, isMaxLengthOverCell
         
         ' ▲レコード反映イベント
         RaiseEvent ReflectionRecord(recordListSize, recordList)
@@ -429,6 +441,11 @@ loop_end:
 
     ' レコード取得件数を返す
     execute = recordCount
+    
+    If isMaxLengthOverCell Then
+        ' セルの最大文字数超過エラー
+        err.Raise ConstantsError.ERR_NUMBER_CELL_MAX_LENGTH_OVER_REFLECT, , ConstantsError.ERR_DESC_CELL_MAX_LENGTH_OVER_REFLECT
+    End If
 
     Exit Function
 
@@ -715,19 +732,23 @@ End Function
 ' 引数　　　：tableSheet   テーブルシート
 '             recordList   レコードリスト
 ' 　　　　　　recordOffset レコード反映時のオフセット位置
+' 　　　　　　outIsMaxLengthOverCell セルの最大文字数オーバーフラグ
 '
 ' =========================================================
-Private Sub reflectSheet(ByRef tableSheet As ValTableWorksheet, ByRef recordList As Variant, ByVal recordOffset As Long)
+Private Sub reflectSheet(ByRef tableSheet As ValTableWorksheet _
+                       , ByRef recordList As Variant _
+                       , ByVal recordOffset As Long _
+                       , ByRef outIsMaxLengthOverCell As Boolean)
 
     Dim ret As Boolean
     
     If tableSheet.recFormat = REC_FORMAT.recFormatToUnder Then
     
-        ret = reflectSheetToUnder(tableSheet, recordList, recordOffset)
+        ret = reflectSheetToUnder(tableSheet, recordList, recordOffset, outIsMaxLengthOverCell)
         
     Else
     
-        ret = reflectSheetToRight(tableSheet, recordList, recordOffset)
+        ret = reflectSheetToRight(tableSheet, recordList, recordOffset, outIsMaxLengthOverCell)
     End If
     
     ' 戻り値が False の場合、エラーを発行する
@@ -747,6 +768,7 @@ End Sub
 ' 引数　　　：tableSheet   テーブルシート
 '             recordList   レコードリスト
 ' 　　　　　　recordOffset レコード反映時のオフセット位置
+' 　　　　　　outIsMaxLengthOverCell セルの最大文字数オーバーフラグ
 '
 ' 戻り値　　：True  正常
 ' 　　　　　　False シートへの反映失敗
@@ -754,7 +776,8 @@ End Sub
 ' =========================================================
 Private Function reflectSheetToUnder(ByRef tableSheet As ValTableWorksheet _
                                    , ByRef recordList As Variant _
-                                   , ByVal recordOffset As Long) As Boolean
+                                   , ByVal recordOffset As Long _
+                                   , ByRef outIsMaxLengthOverCell As Boolean) As Boolean
 
     ' 戻り値
     Dim ret As Boolean: ret = True
@@ -793,6 +816,24 @@ Private Function reflectSheetToUnder(ByRef tableSheet As ValTableWorksheet _
     ' 配列の内容をシートに反映する
     ' ------------------------------------------------------------
     ExcelUtil.copyArrayToCells recordList, sheet, recordOffset, ConstantsTable.U_COLUMN_OFFSET_COL, rowSize, colSize
+    
+    ' ------------------------------------------------------------
+    ' セルの最大文字数チェック
+    ' ------------------------------------------------------------
+    If applicationSetting.selectCheckCellMaxLength = True Then
+        
+        Dim maxLengthOverCell As Variant
+        Dim maxLengthCellList As ValCollection
+        Set maxLengthCellList = checkCellMaxLength(recordList)
+        
+        For Each maxLengthOverCell In maxLengthCellList.col
+            RaiseEvent ReflectionRecordError( _
+                                    ConstantsError.ERR_DESC_CELL_MAX_LENGTH_OVER, _
+                                    sheet.Cells(recordOffset + maxLengthOverCell(0), ConstantsTable.U_COLUMN_OFFSET_COL + maxLengthOverCell(1)).Address)
+            outIsMaxLengthOverCell = True
+        Next
+        
+    End If
 
     reflectSheetToUnder = ret
     
@@ -805,6 +846,7 @@ End Function
 ' 引数　　　：tableSheet   テーブルシート
 '             recordList   レコードリスト
 ' 　　　　　　recordOffset レコード反映時のオフセット位置
+' 　　　　　　outIsMaxLengthOverCell セルの最大文字数オーバーフラグ
 '
 ' 戻り値　　：True  正常
 ' 　　　　　　False シートへの反映失敗
@@ -812,7 +854,8 @@ End Function
 ' =========================================================
 Private Function reflectSheetToRight(ByRef tableSheet As ValTableWorksheet _
                                    , ByRef recordList As Variant _
-                                   , ByVal recordOffset As Long) As Boolean
+                                   , ByVal recordOffset As Long _
+                                   , ByRef outIsMaxLengthOverCell As Boolean) As Boolean
 
     ' 戻り値
     Dim ret As Boolean: ret = True
@@ -851,8 +894,65 @@ Private Function reflectSheetToRight(ByRef tableSheet As ValTableWorksheet _
     ' 配列の内容をシートに反映する
     ' ------------------------------------------------------------
     ExcelUtil.copyArrayToCells recordList, sheet, ConstantsTable.R_COLUMN_OFFSET_ROW, recordOffset, colSize, rowSize
+    
+    ' ------------------------------------------------------------
+    ' セルの最大文字数チェック
+    ' ------------------------------------------------------------
+    If applicationSetting.selectCheckCellMaxLength = True Then
+        
+        Dim maxLengthOverCell As Variant
+        Dim maxLengthCellList As ValCollection
+        Set maxLengthCellList = checkCellMaxLength(recordList)
+        
+        For Each maxLengthOverCell In maxLengthCellList.col
+            RaiseEvent ReflectionRecordError( _
+                                    ConstantsError.ERR_DESC_CELL_MAX_LENGTH_OVER, _
+                                    sheet.Cells(ConstantsTable.R_COLUMN_OFFSET_ROW + maxLengthOverCell(0), recordOffset + maxLengthOverCell(1)).Address)
+            outIsMaxLengthOverCell = True
+        Next
+        
+    End If
 
     reflectSheetToRight = ret
+
+End Function
+
+' =========================================================
+' ▽セルの最大文字数を超えているかをチェックする。
+'
+' 概要　　　：
+'
+' 引数　　　：recordList レコードリスト
+' 戻り値　　：最大文字数を超えているセルのリスト
+'
+' =========================================================
+Private Function checkCellMaxLength(ByRef recordList As Variant) As ValCollection
+    
+    Set checkCellMaxLength = New ValCollection
+    
+    Dim i As Long
+    Dim j As Long
+    
+    For i = LBound(recordList) To UBound(recordList)
+    
+        For j = LBound(recordList, 2) To UBound(recordList, 2)
+        
+            If Not isNull(recordList(i, j)) Then
+                ' NOT NULL
+            
+                If Len(CStr(recordList(i, j))) > 32767 Then
+                    ' セルの最大長を超えているかをチェックする
+                    checkCellMaxLength.setItem Array(i, j)
+                End If
+                
+            Else
+                ' NULL
+            
+            End If
+        
+        Next
+        
+    Next
 
 End Function
 

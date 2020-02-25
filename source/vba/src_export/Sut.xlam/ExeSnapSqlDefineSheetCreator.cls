@@ -113,6 +113,9 @@ Public Function createSheet() As Worksheet
 
     End With
     
+    ' IDを生成して埋め込んでおく
+    createSheet.Cells(ConstantsSnapSqlDefine.SNAPSHOT_ID_ROW, ConstantsSnapSqlDefine.SNAPSHOT_ID_COL) = WinAPI_Ole32.createGuid
+    
     ' ◇スナップショットSQL定義シート生成完了イベント
     RaiseEvent createSnapshotSqlDefineSheet
 

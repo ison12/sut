@@ -304,6 +304,26 @@ Public Function addLikeEscape(ByVal dbms As DbmsType _
 End Function
 
 ' =========================================================
+' ▽文字データ型かを判定
+'
+' 概要　　　：
+' 引数　　　：dbms        DBMS種類
+' 　　　　　　dataType    データ型名
+' 戻り値　　：True 文字データ型、False それ以外
+' 特記事項　：
+'
+' =========================================================
+Public Function isCharType(ByVal dbms As DbmsType, ByVal dataType As String) As Boolean
+
+    If InStr(dataType, "CHAR") > 0 Or InStr(dataType, "TEXT") > 0 Then
+        isCharType = True
+    Else
+        isCharType = False
+    End If
+
+End Function
+
+' =========================================================
 ' ▽クエリー値変換
 '
 ' 概要　　　：クエリーの値（カラムに対する代入値）を変換する。
@@ -386,11 +406,13 @@ End Function
 ' 　　　　　　書式情報 updateFormat の置換変数を置換することで実現する。
 ' 　　　　　　updateFormatは、TO_DATE($value, 'xxxxx') といった、内部に置換変数を含んだ文字列になっている。
 '
-' 引数　　　：dbms            DBMS種類
-' 　　　　　　updateFormat    更新書式情報
-' 　　　　　　value           値
-' 　　　　　　isEscapeChar    エスケープ文字をエスケープするフラグ
-' 　　　　　　directInputChar 直接入力文字
+' 引数　　　：dbms                  DBMS種類
+' 　　　　　　updateFormat          更新書式情報
+' 　　　　　　value                 値
+' 　　　　　　isEscapeChar          エスケープ文字をエスケープするフラグ
+' 　　　　　　directInputCharPrefix 直接入力文字接頭辞
+' 　　　　　　directInputCharSuffix 直接入力文字接尾辞
+' 　　　　　　nullInputChar         NULL入力文字
 ' 戻り値　　：変換後の値
 '
 ' =========================================================
@@ -398,19 +420,31 @@ Public Function convertUpdateFormat(ByVal dbms As DbmsType _
                                   , ByVal updateFormat As String _
                                   , ByVal value As String _
                                   , Optional ByVal isEscapeChar As Boolean = True _
-                                  , Optional ByVal directInputChar As String = "") As String
+                                  , Optional ByVal directInputCharPrefix As String = "" _
+                                  , Optional ByVal directInputCharSuffix As String = "" _
+                                  , Optional ByVal nullInputChar As String = "") As String
 
     ' 直接入力文字の判定
-    If directInputChar <> "" And InStr(value, directInputChar) = 1 Then
+    If directInputCharPrefix <> "" And _
+       directInputCharSuffix <> "" And _
+       InStr(value, directInputCharPrefix) = 1 And _
+       InStrRev(value, directInputCharSuffix) = Len(value) Then
+    
+        ' 先頭 1文字目と最後の文字が directInputChar と一致する場合、囲まれた文字を取り出して設定
+        convertUpdateFormat = Mid$(value, 2, Len(value) - 2)
+    
+    ElseIf directInputCharPrefix <> "" And _
+           InStr(value, directInputCharPrefix) = 1 Then
     
         ' 先頭 1文字目が directInputChar と一致する場合、2文字目以降を取得し戻り値として設定
         convertUpdateFormat = Mid$(value, 2)
     
-    ' 特殊文字
-    ElseIf isSpecialValue(dbms, value) = True Then
+    ' NULL入力文字
+    ElseIf nullInputChar <> "" And _
+           UCase$(nullInputChar) = UCase$(value) Then
     
-        convertUpdateFormat = value
-    
+        convertUpdateFormat = "NULL"
+        
     ' 直接入力形式
     ElseIf updateFormat = COLUMN_FORMAT_REPLACE_CHAR_DIRECT Then
     

@@ -22,6 +22,8 @@ Option Explicit
 ' ▽メンバ
 ' =========================================================
 Public dbList As ValCollection
+' ブック
+Private book As Workbook
 
 ' =========================================================
 ' ▽定数プロパティ
@@ -59,9 +61,22 @@ Private Sub Class_Terminate()
 
 End Sub
 
-Public Sub init()
+' =========================================================
+' ▽初期化メソッド
+' =========================================================
+Public Sub init(ByRef book_ As Workbook)
 
-    readForData
+    If book Is Nothing Then
+        ' 初回呼び出し
+        readForData
+    ElseIf Not book Is book_ Then
+        ' ブックオブジェクトが異なるのでリロード
+        readForData
+    Else
+        ' ブックオブジェクトが同じなのでリロードしない
+    End If
+    
+    Set book = book_
     
 End Sub
 
@@ -149,7 +164,7 @@ End Function
 Private Function createApplicationProperties(ByVal keyNameDb As String) As ApplicationProperties
 
     Dim appProp As New ApplicationProperties
-    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_OPTION & "\" & "appSettingColFormat_" & keyNameDb & ".ini"
+    appProp.initWorksheet book, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_OPTION & "\" & "appSettingColFormat_" & keyNameDb & ".ini"
 
     Set createApplicationProperties = appProp
     

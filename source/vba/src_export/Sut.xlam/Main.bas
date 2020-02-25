@@ -110,9 +110,9 @@ End Function
 Public Function SutInit()
     
     ' 各種メンバのGetメソッドをコールすることでメンバを初期化する
-    getApplicationSetting
+    getApplicationSetting ActiveWorkbook
     getApplicationSettingShortcut
-    getApplicationSettingColFormat
+    getApplicationSettingColFormat ActiveWorkbook
     
     initUIObject
     
@@ -421,7 +421,7 @@ Public Function SutShowDbExplorer()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuTable.init appSetting, conn
@@ -450,7 +450,7 @@ Public Function SutShowTableSheetList()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
 
     ' オートメーションエラーが発生してしまうためダミーのオブジェクトを作っておく
     ' （原因は不明）
@@ -483,7 +483,7 @@ Public Function SutCreateTableSheet()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
 
     menuTable.init appSetting, conn
@@ -514,7 +514,7 @@ Public Function SutUpdateTableSheet()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
 
     menuTable.init appSetting, conn
@@ -545,8 +545,8 @@ Public Function SutInsertUpdateAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -579,8 +579,8 @@ Public Function SutInsertUpdateSelection()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -612,8 +612,8 @@ Public Function SutInsertAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -646,8 +646,8 @@ Public Function SutInsertSelection()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -680,8 +680,8 @@ Public Function SutUpdateAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -714,8 +714,8 @@ Public Function SutUpdateSelection()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -748,8 +748,8 @@ Public Function SutDeleteAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -782,8 +782,8 @@ Public Function SutDeleteSelection()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -816,8 +816,8 @@ Public Function SutDeleteAllOfTable()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -850,8 +850,8 @@ Public Function SutSelectAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -884,8 +884,8 @@ Public Function SutSelectCondition()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -918,8 +918,8 @@ Public Function SutSelectReExecute()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -952,8 +952,8 @@ Public Function SutQueryEditor()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -984,8 +984,8 @@ Public Function SutQueryBatch()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuData.init appSetting, appSettingColFmt, conn
@@ -1016,8 +1016,8 @@ Public Function SutShowQueryResult()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     
     menuData.init appSetting, appSettingColFmt, Nothing, False ' クエリ結果を消去しない
     menuData.showQueryResult
@@ -1045,8 +1045,8 @@ Public Function SutSettingQueryParameter()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     
     menuData.init appSetting, appSettingColFmt, Nothing, False ' クエリ結果を消去しない
     menuData.settingQueryParameter
@@ -1076,8 +1076,8 @@ Public Function SutRecordAdd()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     
     menuData.init appSetting, appSettingColFmt, Nothing
     menuData.recordAdd
@@ -1107,8 +1107,8 @@ Public Function SutCreateNewSheetSnapSqlDefine()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     
     menuDiff.init appSetting, appSettingColFmt, Nothing
     menuDiff.createNewSheetSnapSqlDefine
@@ -1138,8 +1138,8 @@ Public Function SutShowSnapshot()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuDiff.init appSetting, appSettingColFmt, conn
@@ -1277,8 +1277,8 @@ Public Function SutFileInsertUpdateAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1309,8 +1309,8 @@ Public Function SutFileInsertUpdateSelection()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1340,8 +1340,8 @@ Public Function SutFileInsertAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1372,8 +1372,8 @@ Public Function SutFileInsertSelection()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1404,8 +1404,8 @@ Public Function SutFileUpdateAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1436,8 +1436,8 @@ Public Function SutFileUpdateSelection()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1468,8 +1468,8 @@ Public Function SutFileDeleteAll()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1500,8 +1500,8 @@ Public Function SutFileDeleteSelection()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1532,8 +1532,8 @@ Public Function SutFileBatch()
     ' UIオブジェクトの初期化
     initUIObject
     
-    Dim appSetting As Object: Set appSetting = getApplicationSetting
-    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat
+    Dim appSetting As Object: Set appSetting = getApplicationSetting(ActiveWorkbook)
+    Dim appSettingColFmt As Object: Set appSettingColFmt = getApplicationSettingColFormat(ActiveWorkbook)
     Dim conn As Object: Set conn = getDBConnection
     
     menuFile.init appSetting, appSettingColFmt, conn
@@ -1750,22 +1750,59 @@ Public Sub disconnectDB()
 End Sub
 
 ' =========================================================
+' ▽アプリケーション設定情報クリア
+'
+' 概要　　　：
+' 引数      ：
+'
+' =========================================================
+Public Sub clearApplicationSetting()
+
+    Set applicationSetting = Nothing
+End Sub
+
+' =========================================================
+' ▽アプリケーション設定カラムフォーマット情報クリア
+'
+' 概要　　　：
+' 引数      ：
+'
+' =========================================================
+Public Sub clearApplicationSettingColFormat()
+
+    Set applicationSettingColFormat = Nothing
+End Sub
+
+' =========================================================
+' ▽アプリケーション設定ショートカット情報クリア
+'
+' 概要　　　：
+' 引数      ：
+'
+' =========================================================
+Public Sub clearApplicationSettingShortcut()
+
+    Set applicationSettingShortcut = Nothing
+End Sub
+
+' =========================================================
 ' ▽アプリケーション設定情報取得
 '
 ' 概要　　　：アプリケーション設定情報を取得する
+' 引数      ：book 対象のブック
 '
 ' =========================================================
-Public Function getApplicationSetting() As Object
+Public Function getApplicationSetting(ByVal book As Workbook) As Object
 
     ' 初期化されている場合
     If Not applicationSetting Is Nothing Then
-    
+        applicationSetting.init book
     
     ' 初期化されていない場合
     Else
     
         Set applicationSetting = New ValApplicationSetting
-        applicationSetting.readForData
+        applicationSetting.init book
         
     End If
 
@@ -1803,19 +1840,20 @@ End Function
 ' ▽アプリケーション設定情報取得（カラム書式情報）
 '
 ' 概要　　　：アプリケーション設定情報（カラム書式情報）を取得する
+' 引数      ：book 対象のブック
 '
 ' =========================================================
-Public Function getApplicationSettingColFormat() As Object
+Public Function getApplicationSettingColFormat(ByVal book As Workbook) As Object
 
     ' 初期化されている場合
     If Not applicationSettingColFormat Is Nothing Then
-    
+        applicationSettingColFormat.init book
     
     ' 初期化されていない場合
     Else
     
         Set applicationSettingColFormat = New ValApplicationSettingColFormat
-        applicationSettingColFormat.init
+        applicationSettingColFormat.init book
         
     End If
 

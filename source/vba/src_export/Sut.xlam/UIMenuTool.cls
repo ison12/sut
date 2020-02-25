@@ -46,6 +46,10 @@ Attribute frmPopupMenuVar.VB_VarHelpID = -1
 ' =========================================================
 Private Sub frmOptionVar_ok(ByRef applicationSetting As ValApplicationSetting)
 
+    ' アプリケーション設定をクリアすることで、次回アプリケーション設定を参照する際にロードしなおすようにする
+    Main.clearApplicationSetting
+    Main.clearApplicationSettingColFormat
+
 End Sub
 
 ' =========================================================
@@ -72,7 +76,7 @@ Private Sub frmMenuSettingVar_ok(ByRef appSettingShortcut As ValApplicationSetti
     ' 現在の情報で右クリックメニューを一旦削除する
     appSettingShortcut.clearRClickMenu
 
-    ' アプリケーション設定情報に右クリックメニューに登録する項目を設定しレジストリに登録する
+    ' アプリケーション設定情報に右クリックメニューに登録する項目を設定し登録する
     Set appSettingShortcut.rclickMenuItemList = selectedItemList
     appSettingShortcut.writeForDataRClick
 
@@ -116,7 +120,7 @@ Private Sub frmMenuSettingVar_reset(appSettingShortcut As ValApplicationSettingS
     ' 右クリックメニューをデフォルト状態にする
     appSettingShortcut.resetRClickMenu
 
-    ' 空のコレクションを設定しレジストリに登録する（＝情報を全て削除する）
+    ' 空のコレクションを設定し登録する（＝情報を全て削除する）
     Set appSettingShortcut.rclickMenuItemList = New ValCollection
     appSettingShortcut.writeForDataRClick
 
@@ -154,7 +158,7 @@ Public Sub settingOption()
     Set frmOptionVar = frmOption
     
     ' オプションフォームを表示する
-    frmOptionVar.ShowExt vbModal, Main.getApplicationSetting, Main.getApplicationSettingColFormat
+    frmOptionVar.ShowExt vbModal, Main.getApplicationSetting(ActiveWorkbook), Main.getApplicationSettingColFormat(ActiveWorkbook)
 
     ' イベント受信用のオプションフォームを破棄する
     Set frmOptionVar = Nothing

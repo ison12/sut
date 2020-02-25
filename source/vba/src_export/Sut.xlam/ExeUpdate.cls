@@ -505,7 +505,9 @@ Private Function executeQuery(ByRef tableSheet As ValTableWorksheet _
     Dim dbObjFactory As New DbObjectFactory
     Set queryCreator = dbObjFactory.createQueryCreator(conn _
                                                             , applicationSetting.emptyCellReading _
-                                                            , applicationSetting.getDirectInputChar _
+                                                            , applicationSetting.getDirectInputCharPrefix _
+                                                            , applicationSetting.getDirectInputCharSuffix _
+                                                            , applicationSetting.getNullInputChar _
                                                             , applicationSettingColFmt.getDbColFormatListByDbConn(conn) _
                                                             , applicationSetting.schemaUse _
                                                             , applicationSetting.getTableColumnEscapeByDbConn(conn))
@@ -711,7 +713,9 @@ Private Function executeOutputQueryFile(ByRef tableSheet As ValTableWorksheet _
     Dim dbObjFactory As New DbObjectFactory
     Set queryCreator = dbObjFactory.createQueryCreator(conn _
                                                             , applicationSetting.emptyCellReading _
-                                                            , applicationSetting.getDirectInputChar _
+                                                            , applicationSetting.getDirectInputCharPrefix _
+                                                            , applicationSetting.getDirectInputCharSuffix _
+                                                            , applicationSetting.getNullInputChar _
                                                             , applicationSettingColFmt.getDbColFormatListByDbConn(conn) _
                                                             , applicationSetting.schemaUse _
                                                             , applicationSetting.getTableColumnEscapeByDbConn(conn))
@@ -840,7 +844,9 @@ Public Function executeQueryDeleteOfAllTable() As Long
     Dim dbObjFactory As New DbObjectFactory
     Set queryCreator = dbObjFactory.createQueryCreator(conn _
                                                             , applicationSetting.emptyCellReading _
-                                                            , applicationSetting.getDirectInputChar _
+                                                            , applicationSetting.getDirectInputCharPrefix _
+                                                            , applicationSetting.getDirectInputCharSuffix _
+                                                            , applicationSetting.getNullInputChar _
                                                             , applicationSettingColFmt.getDbColFormatListByDbConn(conn) _
                                                             , applicationSetting.schemaUse _
                                                             , applicationSetting.getTableColumnEscapeByDbConn(conn))
@@ -927,7 +933,7 @@ End Function
 Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Variant) As String
 
     ' クエリ変換オブジェクトを初期化する
-    queryConverter.initIfFirst Me.conn, Me.queryParameterList
+    queryConverter.initIfFirst Me.conn, Me.queryParameterList, applicationSetting.queryParameterEncloseCustomPrefix, applicationSetting.queryParameterEncloseCustomSuffix
     ' クエリパラメータでレコードの内容を変換する
     ' ---recordの内容を変換する方式も考えたが、SELECTに関してはクエリ全体を変換する方式を採用しているため
     ' -- 更新系も同じようにクエリ全体を変換する方式を採用する
@@ -988,14 +994,8 @@ Public Function createSql(ByRef table As ValDbDefineTable, ByRef record As Varia
                 ' カラムがPKである場合
                 If isColumnPk = True Then
                 
-                    If record(i) = "" Then
-                    
-                        condition.setCondition column.columnName, "NULL", Empty
-                    Else
-                    
-                        condition.setCondition column.columnName, record(i), Empty
-                    End If
-                    
+                    ' 通常の一致判定で照合する
+                    condition.setCondition column.columnName, "=", record(i), Empty, True
                 End If
                 
                 i = i + 1

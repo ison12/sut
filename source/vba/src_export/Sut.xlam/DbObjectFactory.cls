@@ -156,7 +156,9 @@ End Function
 ' =========================================================
 Public Function createQueryCreator(ByRef dbConn As Object _
                                  , ByVal emptyValueReading As Long _
-                                 , ByVal directInputChar As String _
+                                 , ByVal directInputCharPrefix As String _
+                                 , ByVal directInputCharSuffix As String _
+                                 , ByVal nullInputChar As String _
                                  , ByVal columnFormatList As ValCollection _
                                  , ByVal schemaUse As Long _
                                  , ByVal tableColumnEscape As Boolean) As IDbQueryCreator
@@ -176,7 +178,9 @@ Public Function createQueryCreator(ByRef dbConn As Object _
         Set ret = New DbQueryCreatorMySQL
         ret.dbConn = dbConn
         ret.emptyValueReading = emptyValueReading
-        ret.directInputChar = directInputChar
+        ret.directInputCharPrefix = directInputCharPrefix
+        ret.directInputCharSuffix = directInputCharSuffix
+        ret.nullInputChar = nullInputChar
         ret.columnFormatList = columnFormatList
         ret.schemaUse = schemaUse
         ret.tableColumnEscape = tableColumnEscape
@@ -187,7 +191,9 @@ Public Function createQueryCreator(ByRef dbConn As Object _
         Set ret = New DbQueryCreatorPostgreSQL
         ret.dbConn = dbConn
         ret.emptyValueReading = emptyValueReading
-        ret.directInputChar = directInputChar
+        ret.directInputCharPrefix = directInputCharPrefix
+        ret.directInputCharSuffix = directInputCharSuffix
+        ret.nullInputChar = nullInputChar
         ret.columnFormatList = columnFormatList
         ret.schemaUse = schemaUse
         ret.tableColumnEscape = tableColumnEscape
@@ -198,7 +204,9 @@ Public Function createQueryCreator(ByRef dbConn As Object _
         Set ret = New DbQueryCreatorOracle
         ret.dbConn = dbConn
         ret.emptyValueReading = emptyValueReading
-        ret.directInputChar = directInputChar
+        ret.directInputCharPrefix = directInputCharPrefix
+        ret.directInputCharSuffix = directInputCharSuffix
+        ret.nullInputChar = nullInputChar
         ret.columnFormatList = columnFormatList
         ret.schemaUse = schemaUse
         ret.tableColumnEscape = tableColumnEscape
@@ -209,7 +217,9 @@ Public Function createQueryCreator(ByRef dbConn As Object _
         Set ret = New DbQueryCreatorSQLServer
         ret.dbConn = dbConn
         ret.emptyValueReading = emptyValueReading
-        ret.directInputChar = directInputChar
+        ret.directInputCharPrefix = directInputCharPrefix
+        ret.directInputCharSuffix = directInputCharSuffix
+        ret.nullInputChar = nullInputChar
         ret.columnFormatList = columnFormatList
         ret.schemaUse = schemaUse
         ret.tableColumnEscape = tableColumnEscape
@@ -220,7 +230,9 @@ Public Function createQueryCreator(ByRef dbConn As Object _
         Set ret = New DbQueryCreatorAccess
         ret.dbConn = dbConn
         ret.emptyValueReading = emptyValueReading
-        ret.directInputChar = directInputChar
+        ret.directInputCharPrefix = directInputCharPrefix
+        ret.directInputCharSuffix = directInputCharSuffix
+        ret.nullInputChar = nullInputChar
         ret.columnFormatList = columnFormatList
         ret.schemaUse = schemaUse
         ret.tableColumnEscape = tableColumnEscape
@@ -231,7 +243,9 @@ Public Function createQueryCreator(ByRef dbConn As Object _
         Set ret = New DbQueryCreatorSymfoware
         ret.dbConn = dbConn
         ret.emptyValueReading = emptyValueReading
-        ret.directInputChar = directInputChar
+        ret.directInputCharPrefix = directInputCharPrefix
+        ret.directInputCharSuffix = directInputCharSuffix
+        ret.nullInputChar = nullInputChar
         ret.columnFormatList = columnFormatList
         ret.schemaUse = schemaUse
         ret.tableColumnEscape = tableColumnEscape

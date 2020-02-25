@@ -107,6 +107,3 @@ Public Const QUERY_ROWNUMBER_COL     As Long = 1
 Public Const QUERY_RESULTSET_ROW     As Long = 7
 Public Const QUERY_RESULTSET_COL     As Long = 1
 
-Public Const QUERY_PARAMETER_ENCLOSE_START As String = "{"
-Public Const QUERY_PARAMETER_ENCLOSE_END   As String = "}"
-

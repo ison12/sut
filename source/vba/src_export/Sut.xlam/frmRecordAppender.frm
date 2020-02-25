@@ -389,7 +389,7 @@ Private Sub txtRecCount_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
         changeControlPropertyByValidFalse txtRecCount
     
     ' 数値範囲チェック
-    ElseIf CDbl(txtRecCount.text) < 1 Then
+    ElseIf CDec(txtRecCount.text) < 1 Then
     
         ' 更新をキャンセルする
         Cancel = True

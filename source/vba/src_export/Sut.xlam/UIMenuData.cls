@@ -133,7 +133,7 @@ Private Sub onExecuteQueryCommon(ByVal queryList As ValCollection, ByVal isAppen
     
     Set queryExecution.conn = connForQueryEditor
     queryExecution.sheet = ActiveSheet
-    queryExecution.applicationSetting = Main.getApplicationSetting ' エディタが開いている間に接続状態が変更されている可能性があるので、アプリケーション設定情報を取得する
+    queryExecution.applicationSetting = Main.getApplicationSetting(ActiveSheet.parent) ' エディタが開いている間に接続状態が変更されている可能性があるので、アプリケーション設定情報を取得する
     queryExecution.canceled = False
     queryExecution.isBeginTran = isBeginTran
     queryExecution.appendSheet = isAppend
@@ -536,6 +536,30 @@ Private Sub select__ReflectionRecord(ByVal recordListSize As Long, recordList As
     
     DoEvents
 
+End Sub
+
+' =========================================================
+' ▼参照イベント - レコード反映エラー
+' =========================================================
+Private Sub select__ReflectionRecordError(message As String, ByVal cell As String)
+
+    frmProgressVar.priMessage = "レコード反映エラー"
+    
+    ' クエリ結果情報に詳細を追加する
+    
+    If Not queryResultInfo Is Nothing Then
+    
+        Dim detail As New ValQueryResultDetailInfo
+        detail.cell = cell
+        detail.sqlState = ""
+        detail.message = message
+        detail.query = ""
+        
+        queryResultInfo.addDetail detail
+    End If
+
+    DoEvents
+    
 End Sub
 
 ' =========================================================
@@ -2443,7 +2467,7 @@ Public Sub selectAll()
     End If
     
     ' --------------------------------------------------------------
-    ' レジストリに実行したSQLを前回実行したSQLの情報として設定する
+    ' 実行したSQLを前回実行したSQLの情報として設定する
     ' --------------------------------------------------------------
     ' テーブル定義
     Dim tableSheet As ValTableWorksheet
@@ -2478,7 +2502,7 @@ err:
     frmProgressVar.HideExt
 
     ' クエリ結果情報を設定する
-    If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If Not queryResultInfo Is Nothing And (errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Or errT.Number = ERR_NUMBER_CELL_MAX_LENGTH_OVER_REFLECT) Then
     
         queryResultInfo.processCount = 0
         queryResultInfo.successCount = 0
@@ -2511,8 +2535,8 @@ Public Sub selectCondition()
     
     ' SELECT SQL生成フォームを表示する
     frmSelectConditionCreatorVar.ShowExt vbModal _
-                                    , Main.getApplicationSetting _
-                                    , Main.getApplicationSettingColFormat _
+                                    , Main.getApplicationSetting(ActiveWorkbook) _
+                                    , Main.getApplicationSettingColFormat(ActiveWorkbook) _
                                     , Main.getDBConnection
     
     Exit Sub
@@ -2602,7 +2626,7 @@ err:
     frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
-    If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If Not queryResultInfo Is Nothing And (errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Or errT.Number = ERR_NUMBER_CELL_MAX_LENGTH_OVER_REFLECT) Then
     
         queryResultInfo.dbQueryBatchType = DB_QUERY_BATCH_TYPE.selectCondition
         queryResultInfo.processCount = 0
@@ -2645,7 +2669,7 @@ Public Sub selectReExecute()
     Set tableSheet = tableSheetReader.readTableInfo
     
     ' ------------------------------------------------
-    ' 前回実行されたSELECT文の情報をレジストリから取得する
+    ' 前回実行されたSELECT文の情報を取得する
     ' ------------------------------------------------
     Dim latestType   As String      ' SQLの種類
     Dim latestSql    As String      ' SQL
@@ -2728,7 +2752,7 @@ err:
     frmProgressVar.HideExt
     
     ' クエリ結果情報を設定する
-    If Not queryResultInfo Is Nothing And errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Then
+    If Not queryResultInfo Is Nothing And (errT.Number = ERR_NUMBER_SQL_EXECUTE_FAILED Or errT.Number = ERR_NUMBER_CELL_MAX_LENGTH_OVER_REFLECT) Then
     
         queryResultInfo.processCount = 0
         queryResultInfo.successCount = 0
@@ -2967,7 +2991,7 @@ Public Sub settingQueryParameter()
     Set frmQueryParameterVar = frmQueryParameter
     
     ' オプションフォームを表示する
-    frmQueryParameterVar.ShowExt vbModal
+    frmQueryParameterVar.ShowExt vbModal, applicationSetting
 
     ' イベント受信用のオプションフォームを破棄する
     Set frmQueryParameterVar = Nothing

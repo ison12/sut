@@ -221,7 +221,7 @@ Public Function execute(ByRef sqlDefineWorkSheet As ValSnapSqlDefineWorkSheet) A
         sqlTemplate = sqlDefineSql.sql
         sql = sqlTemplate
         
-        queryConverter.initIfFirst Me.conn, queryParameterList(sqlDefineWorkSheet.sheet)
+        queryConverter.initIfFirst Me.conn, queryParameterList(sqlDefineWorkSheet.sheet), m_applicationSetting.queryParameterEncloseCustomPrefix, m_applicationSetting.queryParameterEncloseCustomSuffix
         sql = queryConverter.convertSql(sql)
     
         ' -------------------------------------------------------------

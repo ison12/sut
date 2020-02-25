@@ -20,15 +20,15 @@ Option Explicit
 '
 ' *********************************************************
 ' DBコネクション
-Public conn          As Object
+Private conn          As Object
 
-' 囲み文字 開始
-Public encloseStart As String
-' 囲み文字 終了
-Public encloseEnd   As String
+' 囲み文字 接頭辞
+Private enclosePrefix As String
+' 囲み文字 接尾辞
+Private encloseSuffix As String
 
 ' クエリパラメータリスト
-Private queryParamList As ValCollection
+Private queryParamList     As ValCollection
 ' 変換対象パラメータリスト
 Private convertedParamList As ValCollection
 ' ワークシート
@@ -40,9 +40,6 @@ Private isInit As Boolean
 ' ▽クラス初期化メソッド
 ' =========================================================
 Private Sub Class_Initialize()
-
-    encloseStart = ConstantsTable.QUERY_PARAMETER_ENCLOSE_START
-    encloseEnd = ConstantsTable.QUERY_PARAMETER_ENCLOSE_END
     
     Set queryParamList = New ValCollection
     Set convertedParamList = New ValCollection
@@ -61,10 +58,13 @@ End Sub
 ' =========================================================
 ' ▽初期化処理メソッド
 ' =========================================================
-Public Sub init(ByRef conn As Object, ByRef queryParamList_ As ValQueryParameterList)
+Public Sub init(ByRef conn_ As Object _
+              , ByRef queryParamList_ As ValQueryParameterList _
+              , ByVal enclosePrefix_ As String _
+              , ByVal encloseSuffix_ As String)
 
     ' DBコネクション
-    Set Me.conn = conn
+    Set conn = conn_
     ' クエリパラメータリスト
     Dim queryParameter As ValQueryParameter
     For Each queryParameter In queryParamList_.list.col
@@ -73,6 +73,9 @@ Public Sub init(ByRef conn As Object, ByRef queryParamList_ As ValQueryParameter
     
     Next
     
+    enclosePrefix = enclosePrefix_
+    encloseSuffix = encloseSuffix_
+    
     isInit = True
     
 End Sub
@@ -80,10 +83,13 @@ End Sub
 ' =========================================================
 ' ▽初期化処理メソッド（初回のみ実行）
 ' =========================================================
-Public Sub initIfFirst(ByRef conn As Object, ByRef queryParamList_ As ValQueryParameterList)
+Public Sub initIfFirst(ByRef conn_ As Object _
+                     , ByRef queryParamList_ As ValQueryParameterList _
+                     , ByVal enclosePrefix_ As String _
+                     , ByVal encloseSuffix_ As String)
 
     If isInit = False Then
-        Call init(conn, queryParamList_)
+        Call init(conn_, queryParamList_, enclosePrefix_, encloseSuffix_)
     End If
     
 End Sub
@@ -132,7 +138,7 @@ Public Function convertSql(ByRef sql As String) As String
     ' 正規表現の指定
     With reg
         ' パターンを指定
-        .Pattern = "\" & encloseStart & "(.+?)" & "\" & encloseEnd
+        .Pattern = "\" & enclosePrefix & "(.+?)" & "\" & encloseSuffix
         ' 大文字と小文字を区別するか(False)、しないか(True)
         .IgnoreCase = False
         ' 文字列全体を検索するか(True)、しないか(False)
@@ -183,7 +189,7 @@ Public Function convertSql(ByRef sql As String) As String
         convertedQueryParamName = convertedParam(0)
         convertedQueryParamValue = convertedParam(1)
         
-        sql = replace(sql, encloseStart & convertedQueryParamName & encloseEnd, convertedQueryParamValue)
+        sql = replace(sql, enclosePrefix & convertedQueryParamName & encloseSuffix, convertedQueryParamValue)
         
 continue:
     

@@ -10,7 +10,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 ' *********************************************************
-' フォームの位置をレジストリに出し入れするクラス
+' フォームの位置情報を永続化するクラス
 '
 ' 作成者　：Ison
 ' 履歴　　：2009/06/11　新規作成
@@ -75,7 +75,7 @@ Public Function readForData(ByRef rect As ValRectPt)
     varX = appProp.getValue(ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_X)
     varY = appProp.getValue(ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_Y)
     
-    ' レジストリから情報を取得できた場合は、そちらを利用する
+    ' 情報を取得できた場合は、そちらを利用する
     If _
         IsNumeric(varX) = True _
     And IsNumeric(varY) = True Then
@@ -95,7 +95,7 @@ Public Function readForData(ByRef rect As ValRectPt)
                           , rect.Width _
                           , rect.Height) = True Then
 
-            ' レジストリから取得した情報がスクリーン内に収まっていれば処理を抜ける
+            ' 取得した情報がスクリーン内に収まっていれば処理を抜ける
             Exit Function
         End If
         

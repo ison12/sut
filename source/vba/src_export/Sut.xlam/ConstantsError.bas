@@ -38,7 +38,8 @@ Public Const ERR_NUMBER_NOT_SELECTED_TABLE_SHEET  As Long = 25 + vbObjectError +
 Public Const ERR_NUMBER_CREATE_WORKSHEET_FAILED  As Long = 26 + vbObjectError + 512
 Public Const ERR_NUMBER_ACTIVE_ADDIN_BOOK        As Long = 27 + vbObjectError + 512
 Public Const ERR_NUMBER_SHEET_MISSING        As Long = 28 + vbObjectError + 512
-
+Public Const ERR_NUMBER_CELL_MAX_LENGTH_OVER As Long = 29 + vbObjectError + 512
+Public Const ERR_NUMBER_CELL_MAX_LENGTH_OVER_REFLECT As Long = 30 + vbObjectError + 512
 
 Public Const ERR_NUMBER_REG_EXP_NOT_CREATED   As Long = 997 + vbObjectError + 512
 Public Const ERR_NUMBER_REGISTRY_ACCESS_FAILED   As Long = 998 + vbObjectError + 512
@@ -74,6 +75,8 @@ Public Const ERR_DESC_NOT_SELECTED_TABLE_SHEET As String = "ƒV[ƒg‚ð1‚ÂˆÈã‘I‘ð‚
 Public Const ERR_DESC_CREATE_WORKSHEET_FAILED  As String = "ƒ[ƒNƒuƒbƒN‚Ìì¬‚ÉŽ¸”s‚µ‚Ü‚µ‚½B"
 Public Const ERR_DESC_ACTIVE_ADDIN_BOOK        As String = "ƒAƒhƒCƒ“ƒuƒbƒN‚ªƒAƒNƒeƒBƒu‚É‚È‚Á‚Ä‚¢‚Ü‚·B" & vbNewLine & "‘¼‚ÌƒuƒbƒN‚ðƒAƒNƒeƒBƒu‚É‚µ‚ÄÄ“xŽÀs‚µ‚Ä‚­‚¾‚³‚¢B"
 Public Const ERR_DESC_SHEET_MISSING            As String = "‘ÎÛ‚Æ‚È‚éƒV[ƒg‚©‚çî•ñ‚ð“Ç‚ÝŽæ‚ê‚Ü‚¹‚ñB" & vbNewLine & "íœ‚³‚ê‚½‰Â”\«‚ª‚ ‚è‚Ü‚·B"
+Public Const ERR_DESC_CELL_MAX_LENGTH_OVER     As String = "ƒZƒ‹‚Ö‚Ì“ü—Í‰Â”\‚ÈÅ‘å•¶Žš”i32767•¶Žšj‚ð’´‚¦‚ÄAƒf[ƒ^‚ªŒ‡—Ž‚µ‚Ü‚µ‚½B"
+Public Const ERR_DESC_CELL_MAX_LENGTH_OVER_REFLECT    As String = "ƒZƒ‹‚Ö‚Ìƒf[ƒ^”½‰fŽž‚ÉÅ‘å•¶Žš”i32767•¶Žšj‚ð’´‚¦‚ÄAƒf[ƒ^‚ªŒ‡—Ž‚µ‚Ü‚µ‚½B"
 
 Public Const ERR_DESC_REGISTRY_ACCESS_FAILED   As String = "ƒŒƒWƒXƒgƒŠ‚ÌƒAƒNƒZƒX‚ÉŽ¸”s‚µ‚Ü‚µ‚½B"
 Public Const ERR_DESC_DLL_FUNCTION_FAILED      As String = "DLL‚ÌŒÄ‚Ño‚µ‚ÉŽ¸”s‚µ‚Ü‚µ‚½B"

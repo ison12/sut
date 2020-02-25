@@ -284,7 +284,7 @@ Private Sub cmdOk_Click()
 
     On Error GoTo err
     
-    ' レジストリに登録する情報
+    ' 登録する情報
     Dim storedList As New ValCollection
 
     ' コントロールオブジェクト
@@ -618,7 +618,7 @@ Private Sub initListControl()
         ' メニューの要素を取得する
         Set sutMenuItem = shortcutInfo.commandBarControl
         
-        ' レジストリに保存されていない場合は、機能リストに追加
+        ' 保存されていない場合は、機能リストに追加
         If selectedItemList.exist(sutMenuItem.Tag) = False Then
         
             ' 左側のメニューに項目を追加する

@@ -131,7 +131,7 @@ Public Function getPkStr(ByVal recordIndex As Long) As String
     
     Dim pk As ValSnapSqlDefineSqlPk
     
-    If IsEmpty(recordList) Then
+    If isEmpty(recordList) Then
         ' レコードがない場合は、PKもなし
         Exit Function
     End If
@@ -163,7 +163,7 @@ Public Function convertToMapKeyIsPkValIsReocrdIndex() As ValCollection
     Dim ret As ValCollection
     Set ret = New ValCollection
     
-    If IsEmpty(recordList) Then
+    If isEmpty(recordList) Then
         ' レコードがない場合は、空で返却
         Set convertToMapKeyIsPkValIsReocrdIndex = ret
         Exit Function

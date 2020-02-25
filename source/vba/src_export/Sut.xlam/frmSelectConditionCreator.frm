@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSelectConditionCreator 
    Caption         =   "SELECT"
-   ClientHeight    =   9405.001
+   ClientHeight    =   9030.001
    ClientLeft      =   45
    ClientTop       =   360
-   ClientWidth     =   7935
+   ClientWidth     =   8640.001
    OleObjectBlob   =   "frmSelectConditionCreator.frx":0000
 End
 Attribute VB_Name = "frmSelectConditionCreator"
@@ -12,8 +12,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
-
 Option Explicit
 
 ' *********************************************************
@@ -75,6 +73,8 @@ Private tableSheet As ValTableWorksheet
 
 ' 検索条件　配列ントロール　カラム
 Private columnCondList()   As CntListBox
+' 検索条件　配列ントロール　記号
+Private signCondList()     As CntListBox
 ' 検索条件　配列ントロール　値
 Private valueCondList()    As control
 ' 検索条件　配列ントロール　順序
@@ -82,6 +82,8 @@ Private orderCondList()    As control
 
 ' SQL編集フラグ
 Private editedSql As Boolean
+' 記号リスト
+Private signList As ValCollection
 
 ' 対象ブック
 Private targetBook As Workbook
@@ -266,6 +268,17 @@ End Sub
 ' =========================================================
 Private Sub initial()
 
+    Set signList = New ValCollection
+    signList.setItem "="
+    signList.setItem "<"
+    signList.setItem "<="
+    signList.setItem ">"
+    signList.setItem ">="
+    signList.setItem "<>"
+    signList.setItem "LIKE"
+    signList.setItem "NOT LIKE"
+    signList.setItem "IS"
+
 End Sub
 
 ' =========================================================
@@ -324,6 +337,27 @@ Private Sub activate()
     Set columnCondList(i) = New CntListBox: columnCondList(i).init cboColumnCond8: columnCondList(i).addAll table.columnList, "columnName": i = i + 1
     Set columnCondList(i) = New CntListBox: columnCondList(i).init cboColumnCond9: columnCondList(i).addAll table.columnList, "columnName": i = i + 1
     Set columnCondList(i) = New CntListBox: columnCondList(i).init cboColumnCond10: columnCondList(i).addAll table.columnList, "columnName": i = i + 1
+    
+    ' -----------------------------------------------
+    ' 記号
+    ' -----------------------------------------------
+    ' コントロール配列を解放する
+    Erase signCondList
+    ' コントロール配列を確保する
+    ReDim signCondList(COLUMN_COND_MIN To COLUMN_COND_MAX)
+    
+    i = COLUMN_COND_MIN
+    
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign1: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign2: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign3: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign4: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign5: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign6: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign7: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign8: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign9: signCondList(i).addAll signList: i = i + 1
+    Set signCondList(i) = New CntListBox: signCondList(i).init cboCondSign10: signCondList(i).addAll signList: i = i + 1
         
     ' -----------------------------------------------
     ' 値
@@ -368,7 +402,6 @@ Private Sub activate()
     Set orderCondList(i) = tglOrderCond8: i = i + 1
     Set orderCondList(i) = tglOrderCond9: i = i + 1
     Set orderCondList(i) = tglOrderCond10: i = i + 1
-    
     
     ' ファイルから各コントロールの情報を読み込む
     restoreSelectCondition
@@ -687,7 +720,7 @@ Private Sub txtRecRangeStart_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
         changeControlPropertyByValidFalse txtRecRangeStart
     
     ' 数値範囲チェック
-    ElseIf CDbl(txtRecRangeStart.text) < 1 Then
+    ElseIf CDec(txtRecRangeStart.text) < 1 Then
     
         ' 更新をキャンセルする
         Cancel = True
@@ -744,7 +777,7 @@ Private Sub txtRecRangeEnd_BeforeUpdate(ByVal Cancel As MSForms.ReturnBoolean)
         changeControlPropertyByValidFalse txtRecRangeEnd
         
     ' 数値範囲チェック
-    ElseIf CDbl(txtRecRangeEnd.text) < 1 Then
+    ElseIf CDec(txtRecRangeEnd.text) < 1 Then
     
         ' 更新をキャンセルする
         Cancel = True
@@ -952,6 +985,8 @@ Private Sub resetWhereOrderby()
     
         ' カラム名を空に設定
         columnCondList(i).control.value = ""
+        ' 記号を空に設定
+        signCondList(i).control.value = "="
         ' 値を空に設定
         valueCondList(i).value = ""
         ' 順序をなしに設定
@@ -1081,7 +1116,9 @@ Private Function createSql() As String
 
     Set queryCreator = dbObjFactory.createQueryCreator(dbConn _
                                                             , applicationSetting.emptyCellReading _
-                                                            , applicationSetting.getDirectInputChar _
+                                                            , applicationSetting.getDirectInputCharPrefix _
+                                                            , applicationSetting.getDirectInputCharSuffix _
+                                                            , applicationSetting.getNullInputChar _
                                                             , applicationSettingColFmt.getDbColFormatListByDbConn(dbConn) _
                                                             , applicationSetting.schemaUse _
                                                             , applicationSetting.getTableColumnEscapeByDbConn(dbConn))
@@ -1108,6 +1145,8 @@ Private Function createCondition() As ValSelectCondition
 
     ' カラム名
     Dim columnName  As String
+    ' 記号
+    Dim sign        As String
     ' 値
     Dim value       As String
     ' 順序
@@ -1122,6 +1161,8 @@ Private Function createCondition() As ValSelectCondition
     
         ' カラム名を取得
         columnName = columnCondList(i).control.value
+        ' 記号を取得
+        sign = signCondList(i).control.value
         ' 値を取得
         value = valueCondList(i).value
         ' 順序を取得
@@ -1130,25 +1171,27 @@ Private Function createCondition() As ValSelectCondition
         ' カラム名が設定されている場合のみ、条件として設定する
         If columnName <> "" Then
         
+            ' 念のため記号を = に変換する
+            If signCondList(i).exist(sign) = False Then
+                ' 選択肢リストに存在しないものが入力されている場合は強制的にイコールに設定しなおす
+                signCondList(i).control.value = "="
+                sign = signCondList(i).control.value
+            End If
+        
             ' コントロールの値を ValSelectCondition の定数に変換する
             ' 昇順
             If orderby = ORDER_BY_VALUE_ASC Then
-            
                 orderByLong = ret.ORDER_ASC
-                
             ' 降順
             ElseIf orderby = ORDER_BY_VALUE_DESC Then
-            
                 orderByLong = ret.ORDER_DESC
-                
             ' 無し
             Else
-            
                 orderByLong = ret.ORDER_NONE
             End If
             
             ' 条件を設定する
-            ret.setCondition columnName, value, orderByLong
+            ret.setCondition columnName, sign, value, orderByLong
             
         End If
         
@@ -1209,6 +1252,7 @@ Private Sub storeSelectCondition()
     For i = COLUMN_COND_MIN To COLUMN_COND_MAX
     
         values.setItem Array(columnCondList(i).control.name, columnCondList(i).control.value)
+        values.setItem Array(signCondList(i).control.name, signCondList(i).control.value)
         values.setItem Array(valueCondList(i).name, valueCondList(i).value)
         ' 順序コントロール（トグルボタン）は未選択の場合にNULLを返すので空文字列に変換する
         values.setItem Array(orderCondList(i).name, VBUtil.convertNullToEmptyStr(orderCondList(i).value))
@@ -1259,6 +1303,7 @@ Private Sub restoreSelectCondition()
     For i = COLUMN_COND_MIN To COLUMN_COND_MAX
     
         val = values.getItem(columnCondList(i).control.name, vbVariant): If IsArray(val) Then columnCondList(i).control.value = val(2) Else columnCondList(i).control.value = ""
+        val = values.getItem(signCondList(i).control.name, vbVariant): If IsArray(val) Then signCondList(i).control.value = val(2) Else signCondList(i).control.value = "="
         val = values.getItem(valueCondList(i).name, vbVariant): If IsArray(val) Then valueCondList(i).value = val(2) Else valueCondList(i).value = ""
         val = values.getItem(orderCondList(i).name, vbVariant): If IsArray(val) Then orderCondList(i).value = val(2) Else orderCondList(i).value = ""
         

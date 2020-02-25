@@ -142,7 +142,7 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
 
     ' シートが途中で削除されても良いように、エラー発生時にも継続実行されるようにする
     On Error Resume Next
-    ssKey = sheet.parent.name & " " & sheet.name
+    ssKey = sheet.Cells(ConstantsSnapSqlDefine.SNAPSHOT_ID_ROW, ConstantsSnapSqlDefine.SNAPSHOT_ID_COL)
     On Error GoTo err
     
     If ssKey = "" Then
@@ -172,7 +172,7 @@ Private Sub frmSnapShotVar_execSnapshot(sheet As Worksheet)
     
     Set snapQueryExecution = New ExeSnapQueryExecution
     Set snapQueryExecution.conn = conn
-    snapQueryExecution.applicationSetting = Main.getApplicationSetting ' エディタが開いている間に接続状態が変更されている可能性があるので、アプリケーション設定情報を取得する
+    snapQueryExecution.applicationSetting = Main.getApplicationSetting(sheet.parent) ' エディタが開いている間に接続状態が変更されている可能性があるので、アプリケーション設定情報を取得する
     snapQueryExecution.canceled = False
     
     ' -----------------------------------------------------------
@@ -242,7 +242,7 @@ Private Sub frmSnapShotVar_changeSql(sheet As Worksheet)
 
     ' シートが途中で削除されても良いように、エラー発生時にも継続実行されるようにする
     On Error Resume Next
-    ssKey = sheet.parent.name & " " & sheet.name
+    ssKey = sheet.Cells(ConstantsSnapSqlDefine.SNAPSHOT_ID_ROW, ConstantsSnapSqlDefine.SNAPSHOT_ID_COL)
     On Error GoTo 0
     
     If ssKey = "" Then
@@ -293,7 +293,7 @@ Private Sub frmSnapShotVar_clearSnapshot(sheet As Worksheet)
 
     ' シートが途中で削除されても良いように、エラー発生時にも継続実行されるようにする
     On Error Resume Next
-    ssKey = sheet.parent.name & " " & sheet.name
+    ssKey = sheet.Cells(ConstantsSnapSqlDefine.SNAPSHOT_ID_ROW, ConstantsSnapSqlDefine.SNAPSHOT_ID_COL)
     On Error GoTo err
 
     If ssKey = "" Then
@@ -327,7 +327,7 @@ Private Sub frmSnapShotVar_execDiff(ByRef sheet As Worksheet, ByVal srcIndex As 
     
     ' シートが途中で削除されても良いように、エラー発生時にも継続実行されるようにする
     On Error Resume Next
-    ssKey = sheet.parent.name & " " & sheet.name
+    ssKey = sheet.Cells(ConstantsSnapSqlDefine.SNAPSHOT_ID_ROW, ConstantsSnapSqlDefine.SNAPSHOT_ID_COL)
     On Error GoTo err
 
     If ssKey = "" Then

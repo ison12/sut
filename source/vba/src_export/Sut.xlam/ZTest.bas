@@ -504,7 +504,7 @@ Private Sub testValAppSettingColFormatR()
 
     Dim a As New ValApplicationSettingColFormat
 
-    a.init
+    a.init ActiveWorkbook
 
 
 End Sub
@@ -535,7 +535,7 @@ End Sub
 
 Private Sub testExeDataTypeReader2()
 
-    Main.getApplicationSettingColFormat
+    Main.getApplicationSettingColFormat ActiveWorkbook
 
 End Sub
 
