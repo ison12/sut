@@ -7,7 +7,7 @@ rem ログファイル
 set log=logs\00_Release_collect.log
 
 rem ログフォルダ作成
-mkdir "%curdir%\logs" >> "%curdir%\%log%" 2>&1
+mkdir "%curdir%\logs" 2>&1
 
 echo  > "%curdir%\%log%"
 
