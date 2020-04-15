@@ -138,19 +138,19 @@ End Sub
 ' ------------------------------------------------------------------
 ' IniDataをラップして各メソッドを呼び出す
 ' ------------------------------------------------------------------
-Public Function getValue _
+Public Function GetValue _
             (ByVal SECTION As String, _
              ByVal key As String) As String
 
     If Not iniw Is Nothing Then
         If iniw.isExistsData Then
-            getValue = iniw.getValue(SECTION, key)
+            GetValue = iniw.GetValue(SECTION, key)
             Exit Function
         End If
     End If
 
     If Not inif Is Nothing Then
-        getValue = inif.getValue(SECTION, key)
+        GetValue = inif.GetValue(SECTION, key)
         Exit Function
     End If
 

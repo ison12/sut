@@ -1005,7 +1005,7 @@ Public Function readRecordListBySelectionArea(ByRef tableSheet As ValTableWorksh
             For i = 1 To selectionRange.Rows.count
                 
                 ' キーを取得する
-                uniqueCheckKey = CStr(selectionRange.Offset.row + i - 1)
+                uniqueCheckKey = CStr(selectionRange.offset.row + i - 1)
                 
                 ' 重複している場合
                 If uniqueCheck.exist(uniqueCheckKey) = True Then
@@ -1073,7 +1073,7 @@ Public Function readRecordListBySelectionArea(ByRef tableSheet As ValTableWorksh
             For i = 1 To selectionRange.Columns.count
                 
                 ' キーを取得する
-                uniqueCheckKey = CStr(selectionRange.Offset.column + i - 1)
+                uniqueCheckKey = CStr(selectionRange.offset.column + i - 1)
                 
                 ' 重複している場合
                 If uniqueCheck.exist(uniqueCheckKey) = True Then

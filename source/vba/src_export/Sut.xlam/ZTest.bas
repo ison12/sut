@@ -162,8 +162,8 @@ Private Sub test6()
     Dim value As String
     Set b = a.getKeyList
     a.setValue "key1", "あいうえおかきくけこ"
-    Debug.Print a.getValue("key1", value)
-    Debug.Print a.getValue("key2", value)
+    Debug.Print a.GetValue("key1", value)
+    Debug.Print a.GetValue("key2", value)
     
     a.deleteValue "key1"
     
@@ -1224,7 +1224,7 @@ Public Sub testIniFile()
     Set im = New IniFile
     im.init testFilePath
     
-    retValue = im.getValue("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
+    retValue = im.GetValue("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
                          , "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf)
     assert retValue = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf
 
@@ -1254,22 +1254,22 @@ Public Sub testIniFile()
     Set im = New IniFile
     im.init testFilePath
     
-    retValue = im.getValue("section", "key")
+    retValue = im.GetValue("section", "key")
     assert retValue = "value"
     
-    retValue = im.getValue("section", "key2")
+    retValue = im.GetValue("section", "key2")
     assert retValue = ""
     
-    retValue = im.getValue("sectionNotExists", "key")
+    retValue = im.GetValue("sectionNotExists", "key")
     assert retValue = ""
     
-    retValue = im.getValue("section", "keyNotExists")
+    retValue = im.GetValue("section", "keyNotExists")
     assert retValue = ""
     
-    retValue = im.getValue("セクション", "キー")
+    retValue = im.GetValue("セクション", "キー")
     assert retValue = "値"
     
-    retValue = im.getValue("セクション", "キー=" & vbCr & vbLf)
+    retValue = im.GetValue("セクション", "キー=" & vbCr & vbLf)
     assert retValue = "値=" & vbCr & vbLf
     
     Set retValueArray = im.getValues("sectionArray")
@@ -1296,10 +1296,10 @@ Public Sub testIniFile()
     im.delete "sectionArray"
     im.delete "section", "key"
     
-    retValue = im.getValue("section", "key")
+    retValue = im.GetValue("section", "key")
     assert retValue = "" ' 削除したキーなので存在しない
     
-    retValue = im.getValue("セクション", "キー")
+    retValue = im.GetValue("セクション", "キー")
     assert retValue = "値" ' 何もしていないので存在する
     
     Set retValueArray = im.getValues("sectionArray")
@@ -1416,7 +1416,7 @@ Public Sub testIniWorksheet()
     Set im = New IniWorksheet
     im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
     
-    retValue = im.getValue("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
+    retValue = im.GetValue("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf _
                          , "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf)
     assert retValue = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!""#$%&'()-=^~\|@`[{;+:*]},<.>/?_あいうえおアイウエオｱｲｳｴｵ亜衣兎絵尾" & ChrW(&H9EB4) & vbTab & vbCr & vbLf
 
@@ -1446,22 +1446,22 @@ Public Sub testIniWorksheet()
     Set im = New IniWorksheet
     im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
     
-    retValue = im.getValue("section", "key")
+    retValue = im.GetValue("section", "key")
     assert retValue = "value"
     
-    retValue = im.getValue("section", "key2")
+    retValue = im.GetValue("section", "key2")
     assert retValue = ""
     
-    retValue = im.getValue("sectionNotExists", "key")
+    retValue = im.GetValue("sectionNotExists", "key")
     assert retValue = ""
     
-    retValue = im.getValue("section", "keyNotExists")
+    retValue = im.GetValue("section", "keyNotExists")
     assert retValue = ""
     
-    retValue = im.getValue("セクション", "キー")
+    retValue = im.GetValue("セクション", "キー")
     assert retValue = "値"
     
-    retValue = im.getValue("セクション", "キー=" & vbCr & vbLf)
+    retValue = im.GetValue("セクション", "キー=" & vbCr & vbLf)
     assert retValue = "値=" & vbCr & vbLf
     
     Set retValueArray = im.getValues("sectionArray")
@@ -1488,10 +1488,10 @@ Public Sub testIniWorksheet()
     im.delete "sectionArray"
     im.delete "section", "key"
     
-    retValue = im.getValue("section", "key")
+    retValue = im.GetValue("section", "key")
     assert retValue = "" ' 削除したキーなので存在しない
     
-    retValue = im.getValue("セクション", "キー")
+    retValue = im.GetValue("セクション", "キー")
     assert retValue = "値" ' 何もしていないので存在する
     
     Set retValueArray = im.getValues("sectionArray")
@@ -1505,13 +1505,13 @@ Public Sub testIniWorksheet()
     Set im = New IniWorksheet
     im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
     
-    retValue = im.getValue("section", "key2")
+    retValue = im.GetValue("section", "key2")
     assert retValue = ""
     
-    retValue = im.getValue("セクション", "キー")
+    retValue = im.GetValue("セクション", "キー")
     assert retValue = "値"
     
-    retValue = im.getValue("セクション", "キー=" & vbCr & vbLf)
+    retValue = im.GetValue("セクション", "キー=" & vbCr & vbLf)
     assert retValue = "値=" & vbCr & vbLf
     
     Set retValueArray = im.getValues("sectionArray")
@@ -1552,22 +1552,22 @@ Public Sub testIniWorksheet()
     Set im = New IniWorksheet
     im.init wb, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, testFileName
     
-    retValue = im.getValue("section", "key")
+    retValue = im.GetValue("section", "key")
     assert retValue = "value"
     
-    retValue = im.getValue("section", "key2")
+    retValue = im.GetValue("section", "key2")
     assert retValue = ""
     
-    retValue = im.getValue("sectionNotExists", "key")
+    retValue = im.GetValue("sectionNotExists", "key")
     assert retValue = ""
     
-    retValue = im.getValue("section", "keyNotExists")
+    retValue = im.GetValue("section", "keyNotExists")
     assert retValue = ""
     
-    retValue = im.getValue("セクション", "キー")
+    retValue = im.GetValue("セクション", "キー")
     assert retValue = "値"
     
-    retValue = im.getValue("セクション", "キー=" & vbCr & vbLf)
+    retValue = im.GetValue("セクション", "キー=" & vbCr & vbLf)
     assert retValue = "値=" & vbCr & vbLf
     
     Set retValueArray = im.getValues("sectionArray")

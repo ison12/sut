@@ -179,10 +179,16 @@ Private Sub frmTableSheetCreatorVar_complete(createTargetTable As ValCollection)
     Exit Sub
 err:
 
+    ' エラー情報を退避する
+    Dim errT As errInfo: errT = VBUtil.swapErr
+    
     Set longTimeProcessing = Nothing
     
     frmProgressVar.HideExt
     
+    ' 退避したエラー情報を設定しなおす
+    VBUtil.setErr errT
+    ' エラー発生
     Main.ShowErrorMessage
 
 End Sub

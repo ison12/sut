@@ -83,12 +83,12 @@ End Sub
 ' 戻り値　　：セクションとキーに紐づく値
 '
 ' =========================================================
-Public Function getValue _
+Public Function GetValue _
             (ByVal SECTION As String, _
              ByVal key As String) As String
              
     ' 戻り値の初期値
-    getValue = ""
+    GetValue = ""
              
     Dim dataSection As ValCollection
     Dim data As Variant
@@ -98,7 +98,7 @@ Public Function getValue _
 
         data = dataSection.getItem(key, vbVariant)
         If IsArray(data) Then
-            getValue = data(2)
+            GetValue = data(2)
         End If
         
     End If

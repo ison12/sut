@@ -1969,7 +1969,7 @@ Public Function getEncodeListFromRegistry() As ValCollection
                         , False
                         
         ' 文字コードのエイリアスであるかを判定する
-        If regCharAlias.getValue(REG_KEY_ALIAS_CHARSET, charAlias) = False Then
+        If regCharAlias.GetValue(REG_KEY_ALIAS_CHARSET, charAlias) = False Then
         
             ' エイリアスではない場合、追加する
             charListRemovalAlias.setItem char, char

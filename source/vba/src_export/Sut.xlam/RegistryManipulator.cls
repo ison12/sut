@@ -184,7 +184,7 @@ End Function
 ' 戻り値　　：キー値
 '
 ' =========================================================
-Public Function getValue _
+Public Function GetValue _
             (ByVal valueKey As String _
            , ByRef value As String) As Boolean
 
@@ -217,7 +217,7 @@ Public Function getValue _
     And ret <> WinAPI_ADVAP.ERROR_SUCCESS Then
     
         ' 失敗
-        getValue = False
+        GetValue = False
         Exit Function
     End If
     
@@ -234,10 +234,10 @@ Public Function getValue _
     If ret <> WinAPI_ADVAP.ERROR_SUCCESS Then
     
         ' 失敗
-        getValue = False
+        GetValue = False
     Else
     
-        getValue = True
+        GetValue = True
     
         ' 文字列として設定する
         ' ※UnicodeバージョンのAPIを使用するため、LeftBやInStrBは使わない

@@ -72,8 +72,8 @@ Public Function readForData(ByRef rect As ValRectPt)
     Dim varX As String
     Dim varY As String
     
-    varX = appProp.getValue(ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_X)
-    varY = appProp.getValue(ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_Y)
+    varX = appProp.GetValue(ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_X)
+    varY = appProp.GetValue(ConstantsApplicationProperties.INI_SECTION_DEFAULT, ConstantsApplicationProperties.INI_KEY_Y)
     
     ' î•ñ‚ğæ“¾‚Å‚«‚½ê‡‚ÍA‚»‚¿‚ç‚ğ—˜—p‚·‚é
     If _

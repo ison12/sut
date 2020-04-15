@@ -150,7 +150,7 @@ Public Function getPkStr(ByVal recordIndex As Long) As String
     
     For Each pkIndex In pkListIndex.col
     
-        getPkStr = recordList(recordIndex, pkIndex) & "_"
+        getPkStr = getPkStr & recordList(recordIndex, pkIndex) & "_"
     Next
     
 End Function

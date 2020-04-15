@@ -159,11 +159,11 @@ End Sub
 ' ------------------------------------------------------------------
 ' IniDataをラップして各メソッドを呼び出す
 ' ------------------------------------------------------------------
-Public Function getValue _
+Public Function GetValue _
             (ByVal SECTION As String, _
              ByVal key As String) As String
 
-    getValue = inid.getValue(SECTION, key)
+    GetValue = inid.GetValue(SECTION, key)
 End Function
 
 Public Sub setValue _

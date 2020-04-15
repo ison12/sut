@@ -94,8 +94,8 @@ Public Function getSchemaList() As ValCollection
     Do While Not recordSet.EOF
     
         Set retObj = New ValDbDefineSchema
-        retObj.schemaName = VBUtil.convertNullToEmptyStr(recordSet!SCHEMA_NAME)
-        retObj.schemaComment = VBUtil.convertNullToEmptyStr(recordSet!SCHEMA_COMMENT)
+        retObj.schemaName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!SCHEMA_NAME))
+        retObj.schemaComment = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!SCHEMA_COMMENT))
         
         ret.setItem retObj, retObj.schemaName
     
@@ -145,9 +145,9 @@ Public Function getTableList(ByVal schemaList As ValCollection) As ValCollection
     Do While Not recordSet.EOF
     
         Set retObj = New ValDbDefineTable
-        retObj.schemaName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA)
-        retObj.tableName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME)
-        retObj.tableComment = VBUtil.convertNullToEmptyStr(recordSet!TABLE_COMMENT)
+        retObj.schemaName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA))
+        retObj.tableName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME))
+        retObj.tableComment = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_COMMENT))
         
         ret.setItem retObj, retObj.schemaTableName
     
@@ -209,41 +209,41 @@ Public Function getTable(ByVal schemaName As String, ByVal tableName As String) 
     ' レコードセットから情報を取得する
     Do While Not recordSet.EOF
     
-        If lastSchemaTableName <> VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA) & "_" & _
-                                  VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME) Then
+        If lastSchemaTableName <> VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA)) & "_" & _
+                                  VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME)) Then
     
             Set retTableObj = New ValDbDefineTable
-            retTableObj.schemaName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA)
-            retTableObj.tableName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME)
-            retTableObj.tableComment = VBUtil.convertNullToEmptyStr(recordSet!TABLE_COMMENT)
+            retTableObj.schemaName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA))
+            retTableObj.tableName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME))
+            retTableObj.tableComment = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_COMMENT))
         
-            ret.setItem retTableObj, VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA) & "_" & _
-                                     VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME)
+            ret.setItem retTableObj, VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA)) & "_" & _
+                                     VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME))
             
         End If
             
         Set retColumnObj = New ValDbDefineColumn
-        retColumnObj.schemaName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA)
-        retColumnObj.tableName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME)
-        retColumnObj.columnName = VBUtil.convertNullToEmptyStr(recordSet!COLUMN_NAME)
-        retColumnObj.dataType = VBUtil.convertNullToEmptyStr(recordSet!COLUMN_TYPE)
-        retColumnObj.dataTypeFormal = VBUtil.convertNullToEmptyStr(recordSet!COLUMN_TYPE_FORMAL)
+        retColumnObj.schemaName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA))
+        retColumnObj.tableName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME))
+        retColumnObj.columnName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!COLUMN_NAME))
+        retColumnObj.dataType = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!COLUMN_TYPE))
+        retColumnObj.dataTypeFormal = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!COLUMN_TYPE_FORMAL))
         If recordSet!IS_NULL = "Y" Then
             retColumnObj.isNull = True
         Else
             retColumnObj.isNull = False
         End If
-        retColumnObj.default = VBUtil.convertNullToEmptyStr(recordSet!DEFAULT_VALUE)
-        retColumnObj.charLength = VBUtil.convertNullToEmptyStr(recordSet!CHAR_LENGTH)
-        retColumnObj.dataPrecision = VBUtil.convertNullToEmptyStr(recordSet!DATA_PRECISION)
-        retColumnObj.dataScale = VBUtil.convertNullToEmptyStr(recordSet!DATA_SCALE)
-        retColumnObj.dateTimePrecision = VBUtil.convertNullToEmptyStr(recordSet!DATETIME_PRECISION)
-        retColumnObj.columnComment = VBUtil.convertNullToEmptyStr(recordSet!COLUMN_COMMENT)
+        retColumnObj.default = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!DEFAULT_VALUE))
+        retColumnObj.charLength = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!CHAR_LENGTH))
+        retColumnObj.dataPrecision = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!DATA_PRECISION))
+        retColumnObj.dataScale = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!DATA_SCALE))
+        retColumnObj.dateTimePrecision = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!DATETIME_PRECISION))
+        retColumnObj.columnComment = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!COLUMN_COMMENT))
         
         retTableObj.addColumn retColumnObj
 
-        lastSchemaTableName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA) & "_" & _
-                              VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME)
+        lastSchemaTableName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA)) & "_" & _
+                              VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME))
     
         recordSet.MoveNext
     Loop
@@ -258,48 +258,48 @@ Public Function getTable(ByVal schemaName As String, ByVal tableName As String) 
     Do While Not recordSet.EOF
     
         Set retTableObj = ret.getItem( _
-            VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA) & "_" & _
-            VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME))
+            VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA)) & "_" & _
+            VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME)))
     
         If Not retTableObj Is Nothing Then
         
-            Set retConstObj = retTableObj.constraintsList.getItem(convertNullToEmptyStr(recordSet!CONSTRAINT_NAME))
+            Set retConstObj = retTableObj.constraintsList.getItem(convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!CONSTRAINT_NAME)))
             If retConstObj Is Nothing Then
                 Set retConstObj = New ValDbDefineTableConstraints
-                retConstObj.constraintName = VBUtil.convertNullToEmptyStr(recordSet!CONSTRAINT_NAME)
+                retConstObj.constraintName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!CONSTRAINT_NAME))
                 
                 retTableObj.addConstraint retConstObj
             End If
       
-            If VBUtil.convertNullToEmptyStr(recordSet!CONSTRAINT_TYPE) = "P" Then
+            If VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!CONSTRAINT_TYPE)) = "P" Then
                 retConstObj.constraintType = tableConstPk
-            ElseIf VBUtil.convertNullToEmptyStr(recordSet!CONSTRAINT_TYPE) = "U" Then
+            ElseIf VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!CONSTRAINT_TYPE)) = "U" Then
                 retConstObj.constraintType = tableConstUk
-            ElseIf VBUtil.convertNullToEmptyStr(recordSet!CONSTRAINT_TYPE) = "F" Then
+            ElseIf VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!CONSTRAINT_TYPE)) = "F" Then
                 retConstObj.constraintType = tableConstFk
             Else
                 retConstObj.constraintType = tableConstUnknown
             End If
             
-            retConstObj.schemaName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA)
-            retConstObj.tableName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME)
+            retConstObj.schemaName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA))
+            retConstObj.tableName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME))
             
-            If VBUtil.convertNullToEmptyStr(recordSet!COLUMN_NAME) <> Empty Then
+            If VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!COLUMN_NAME)) <> Empty Then
             
                 Set retConstColumnObj = New ValDbDefineColumn
-                retConstColumnObj.schemaName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_SCHEMA)
-                retConstColumnObj.tableName = VBUtil.convertNullToEmptyStr(recordSet!TABLE_NAME)
-                retConstColumnObj.columnName = VBUtil.convertNullToEmptyStr(recordSet!COLUMN_NAME)
+                retConstColumnObj.schemaName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_SCHEMA))
+                retConstColumnObj.tableName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!TABLE_NAME))
+                retConstColumnObj.columnName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!COLUMN_NAME))
                 retConstObj.addColumn retConstColumnObj
                 
             End If
             
-            If VBUtil.convertNullToEmptyStr(recordSet!REF_COLUMN_NAME) <> Empty Then
+            If VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!REF_COLUMN_NAME)) <> Empty Then
             
                 Set retConstFkColumnObj = New ValDbDefineColumn
-                retConstFkColumnObj.schemaName = VBUtil.convertNullToEmptyStr(recordSet!REF_TABLE_SCHEMA)
-                retConstFkColumnObj.tableName = VBUtil.convertNullToEmptyStr(recordSet!REF_TABLE_NAME)
-                retConstFkColumnObj.columnName = VBUtil.convertNullToEmptyStr(recordSet!REF_COLUMN_NAME)
+                retConstFkColumnObj.schemaName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!REF_TABLE_SCHEMA))
+                retConstFkColumnObj.tableName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!REF_TABLE_NAME))
+                retConstFkColumnObj.columnName = VBUtil.convertNullToEmptyStr(DBUtil.GetRecordValue(recordSet!REF_COLUMN_NAME))
                 retConstObj.addFkColumn retConstFkColumnObj
                 
             End If
@@ -322,5 +322,4 @@ err:
     err.Raise err.Number, err.Source, err.Description, err.HelpFile, err.HelpContext
 
 End Function
-
 

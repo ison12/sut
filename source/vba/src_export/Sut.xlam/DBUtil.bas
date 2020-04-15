@@ -608,3 +608,40 @@ Public Sub extractSchemaTable(ByVal val As String _
 
 
 End Sub
+
+' =========================================================
+' ▽レコードから情報を取得する。
+'
+' 概要　　　：
+'
+' 引数　　　：val    値
+' 戻り値　　：値を取得する
+'
+' =========================================================
+Public Function GetRecordValue(ByRef val As Variant) As Variant
+
+    ' チャンクサイズ
+    Const CHUNK_SIZE As Long = 1024
+
+    Dim actualSize As Long ' 実際のサイズ
+    Dim offset     As Long ' オフセット
+
+    If val.Attributes And &H80 Then
+        ' GetChunkで情報を取得すべき場合（adFldLongの場合）
+        
+        ' 合計サイズを取得する
+        actualSize = val.actualSize
+        
+        ' GetChunkで情報を全て取得する
+        Do While offset < actualSize
+            GetRecordValue = GetRecordValue & val.GetChunk(CHUNK_SIZE)
+            offset = offset + CHUNK_SIZE
+        Loop
+        
+    Else
+        ' 通常の場合
+        GetRecordValue = val
+    
+    End If
+
+End Function
