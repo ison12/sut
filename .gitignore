@@ -16,3 +16,4 @@ source/vba/src/resource/config/*
 source/vba/src/module
 dist/tool/logs/*
 source/vba/src/SutInstaller*
+dist/Sut/resource/config

@@ -19,6 +19,10 @@ Option Explicit
 '
 ' 作成者　：Ison
 ' 履歴　　：2020/02/12　新規作成
+'           2020/04/27  シート保護のコメントアウト
+'                       Excel2013以降セキュリティ機能の強化によりシート保護することでパフォーマンスが著しく低下する問題があるとのこと
+'                       そのため、シート保護をコメントアウトする
+'                       参考：http://chiroinu.freehostia.com/wordpress/?p=384
 '
 ' 特記事項：
 ' *********************************************************
@@ -230,7 +234,10 @@ Private Function createSheet(ByVal book As Workbook, ByVal sheetName As String, 
     If isGetOnly = True Then
         ' 取得のみ
         ' シートを保護する
-        targetSheet.Protect UserInterfaceOnly:=True
+        ' 2020/04/27 Excel2013以降セキュリティ機能の強化によりシート保護することでパフォーマンスが著しく低下する問題があるとのこと
+        '            そのため、シート保護をコメントアウトする
+        '            参考：http://chiroinu.freehostia.com/wordpress/?p=384
+        'targetSheet.Protect UserInterfaceOnly:=True
         Set createSheet = targetSheet
         Exit Function
     End If
@@ -249,7 +256,10 @@ Private Function createSheet(ByVal book As Workbook, ByVal sheetName As String, 
         ' シート見出しに色を付ける
         .Tab.colorIndex = ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_COLOR_INDEX
         ' シートを保護する
-        .Protect UserInterfaceOnly:=True
+        ' 2020/04/27 Excel2013以降セキュリティ機能の強化によりシート保護することでパフォーマンスが著しく低下する問題があるとのこと
+        '            そのため、シート保護をコメントアウトする
+        '            参考：http://chiroinu.freehostia.com/wordpress/?p=384
+        '.Protect UserInterfaceOnly:=True
         ' メッセージを設定する
         .Range(ConstantsApplicationProperties.BOOK_PROPERTIES_WARN_MESSAGE_CELL).value = ConstantsApplicationProperties.BOOK_PROPERTIES_WARN_MESSAGE
     End With
