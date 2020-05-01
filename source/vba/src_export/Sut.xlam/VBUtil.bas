@@ -6,6 +6,7 @@ Option Explicit
 '
 ' 作成者　：Ison
 ' 履歴　　：2008/08/10　新規作成
+'           2020/05/01  convertNewLineConsistent関数を追加
 '
 ' 特記事項：
 '
@@ -2002,6 +2003,28 @@ Public Function getNewlineList() As ValCollection
 End Function
 
 ' =========================================================
+' ▽改行コード文字を指定の改行文字列に統一させるように変換する。
+'
+' 概要　　　：
+' 引数　　　：str        対象文字列
+' 引数　　　：newLineStr 改行文字列
+' 戻り値　　：変換後の文字列
+'
+' =========================================================
+Public Function convertNewLineConsistent(ByRef str As String, ByVal newLineStr As String) As String
+
+    Dim ret As String
+    ret = str
+
+    ret = replace(ret, vbCrLf, vbLf)
+    ret = replace(ret, vbCr, vbLf)
+    ret = replace(ret, vbLf, newLineStr)
+    
+    convertNewLineConsistent = ret
+
+End Function
+
+' =========================================================
 ' ▽改行コード文字を実際の改行コード値に変換する関数
 '
 ' 概要　　　：
@@ -2035,7 +2058,6 @@ Public Function convertNewLineStrToNewLineCode(ByVal newLineStr As String) As St
     End If
 
 End Function
-
 ' =========================================================
 ' ▽正規表現の検索文字列のエスケープ処理関数
 '

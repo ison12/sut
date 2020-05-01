@@ -14,6 +14,8 @@ Option Explicit
 '
 ' 作成者　：Ison
 ' 履歴　　：2008/02/01　新規作成
+'           2020/05/01  ファイル出力コンテンツの改行コード変換に不具合があったので修正
+'                       （convertNewLineConsistent関数を使用するように修正）
 '
 ' 特記事項：
 ' *********************************************************
@@ -777,7 +779,7 @@ Private Function executeOutputQueryFile(ByRef tableSheet As ValTableWorksheet _
                 resultCnt = resultCnt + 1
                 
                 ' 改行コードを変換する
-                sql = replace(sql, vbLf, newline)
+                sql = VBUtil.convertNewLineConsistent(sql, newline)
                 ' セミコロンを付加する
                 sql = sql & ";" & newline
                 
