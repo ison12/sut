@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "ValCollection"
+Attribute VB_Name = "ValDictionary"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
@@ -10,23 +10,23 @@ Attribute VB_Exposed = False
 Option Explicit
 
 ' *********************************************************
-' VB6.0 Collectionのラッパークラス
+' Scripting.Dictionaryのラッパークラス
 '
 ' 作成者　：Ison
-' 履歴　　：2008/06/28　新規作成
+' 履歴　　：2020/09/06　新規作成
 '
 ' 特記事項：
 ' *********************************************************
 
-' コレクションオブジェクト
-Public col  As collection
+' ディクショナリオブジェクト
+Public dic  As Object
 
 ' =========================================================
 ' ▽クラス初期化メソッド
 ' =========================================================
 Private Sub Class_Initialize()
 
-    Set col = New collection
+    Set dic = CreateObject("Scripting.Dictionary")
     
 End Sub
 
@@ -35,7 +35,7 @@ End Sub
 ' =========================================================
 Private Sub Class_Terminate()
 
-    Set col = Nothing
+    Set dic = Nothing
     
 End Sub
 
@@ -49,23 +49,7 @@ End Sub
 ' =========================================================
 Public Function exist(ByRef key As Variant) As Boolean
 
-    On Error Resume Next
-
-    Dim temp As Variant
-    
-    col.item key
-    
-    If err <> 0 Then
-    
-        exist = False
-        
-    Else
-    
-        exist = True
-    End If
-
-    On Error GoTo 0
-
+    exist = dic.Exists(key)
 End Function
 
 ' =========================================================
@@ -78,18 +62,9 @@ End Function
 ' 戻り値　　：無し
 '
 ' =========================================================
-Public Sub setItem(ByRef item As Variant, Optional ByRef key As Variant = Empty)
+Public Sub setItem(ByRef item As Variant, ByRef key As Variant)
 
     Dim isKeyFlg As Boolean
-    
-    ' キーの指定がない場合、そのまま追加する
-    If key = Empty Then
-    
-        col.Add item
-    
-        Exit Sub
-        
-    End If
 
     ' 引数keyをString型に変換
     Dim keyStr As String: keyStr = CStr(key)
@@ -98,80 +73,18 @@ Public Sub setItem(ByRef item As Variant, Optional ByRef key As Variant = Empty)
     If exist(keyStr) = True Then
     
         ' ▽アイテムを一旦削除する
-        col.remove (keyStr)
+        dic.remove (keyStr)
         ' ▽アイテムを追加
-        col.Add item, keyStr
+        dic.Add keyStr, item
     
     Else
     
         ' ▽アイテムを追加する
-        col.Add item, keyStr
+        dic.Add keyStr, item
     
     End If
 
 End Sub
-
-' =========================================================
-' ▽オブジェクト設定（インデックス指定）
-'
-' 概要　　　：指定したインデックスの前方にオブジェクトを設定する。
-' 引数　　　：item オブジェクト
-' 　　　　　　index インデックス
-' 戻り値　　：True 設定に成功
-'
-' =========================================================
-Public Function setItemByIndexBefore(ByRef item As Variant, ByVal index As Long) As Boolean
-
-    On Error Resume Next
-    
-    If col.count = 0 Then
-        col.Add item:=item
-    Else
-        col.Add item:=item, before:=index
-    End If
-
-    If err.Number <> 0 Then
-    
-        setItemByIndexBefore = False
-    Else
-    
-        setItemByIndexBefore = True
-    End If
-
-    On Error GoTo 0
-    
-End Function
-
-' =========================================================
-' ▽オブジェクト設定（インデックス指定）
-'
-' 概要　　　：指定したインデックスの後方にオブジェクトを設定する。
-' 引数　　　：item オブジェクト
-' 　　　　　　index インデックス
-' 戻り値　　：True 設定に成功
-'
-' =========================================================
-Public Function setItemByIndexAfter(ByRef item As Variant, ByVal index As Long) As Boolean
-
-    On Error Resume Next
-    
-    If col.count = 0 Then
-        col.Add item:=item
-    Else
-        col.Add item:=item, after:=index
-    End If
-
-    If err.Number <> 0 Then
-    
-        setItemByIndexAfter = False
-    Else
-    
-        setItemByIndexAfter = True
-    End If
-
-    On Error GoTo 0
-    
-End Function
 
 ' =========================================================
 ' ▽オブジェクト取得
@@ -209,56 +122,12 @@ Public Function getItem(ByRef key As Variant, Optional t As VbVarType = vbObject
     ' オブジェクト型
     If t = vbObject Then
     
-        Set getItem = col.item(keyStr)
+        Set getItem = dic.item(keyStr)
     
     ' その他の型
     Else
     
-        getItem = col.item(keyStr)
-    
-    End If
-
-End Function
-
-' =========================================================
-' ▽オブジェクト取得
-'
-' 概要　　　：オブジェクトを取得する。
-' 　　　　　　インデックス番号indexには[1～count]までの数値を設定する。
-'
-' 　　　　　　引数 t を基に適切な戻り値を返す。
-'
-' 引数　　　：index インデックス
-' 　　　　　　    t オブジェクトの型
-' 戻り値　　：無し
-'
-' =========================================================
-Public Function getItemByIndex(ByVal index As Long, Optional t As VbVarType = vbObject) As Variant
-    
-    ' keyに紐づくオブジェクトが存在しているかどうかを判定する
-    If exist(index) = False Then
-    
-        If t = vbObject Then
-            
-            Set getItemByIndex = Nothing
-            
-        Else
-            getItemByIndex = Empty
-        
-        End If
-    
-        Exit Function
-    End If
-    
-    ' オブジェクト型
-    If t = vbObject Then
-    
-        Set getItemByIndex = col.item(index)
-    
-    ' その他の型
-    Else
-    
-        getItemByIndex = col.item(index)
+        getItem = dic.item(keyStr)
     
     End If
 
@@ -274,7 +143,7 @@ End Function
 ' =========================================================
 Public Function count() As Long
 
-    count = col.count
+    count = dic.count
 
 End Function
 
@@ -293,7 +162,7 @@ Public Function remove(ByRef key As Variant) As Boolean
     
     If exist(keyStr) = True Then
     
-        col.remove keyStr
+        dic.remove keyStr
         
         remove = True
     Else
@@ -312,41 +181,15 @@ End Function
 '
 ' =========================================================
 Public Sub removeAll()
-    
-    Do While col.count > 0
-    
-        removeByIndex 1
-    Loop
+
+    dic.removeAll
     
 End Sub
 
 ' =========================================================
-' ▽オブジェクト削除
-'
-' 概要　　　：オブジェクトを削除する
-' 　　　　　　インデックス番号indexには[1～count]までの数値を設定する。
-' 引数　　　：index インデックス
-' 戻り値　　：正常に削除した場合True
-'
-' =========================================================
-Public Function removeByIndex(ByVal index As Long) As Boolean
-    
-    If exist(index) = True Then
-    
-        col.remove index
-        
-        removeByIndex = True
-    Else
-    
-        removeByIndex = False
-    End If
-    
-End Function
-
-' =========================================================
 ' ▽配列変換
 '
-' 概要　　　：コレクションを配列に変換する。
+' 概要　　　：ディクショナリを配列に変換する。
 ' 引数　　　：
 ' 戻り値　　：
 '
@@ -356,28 +199,31 @@ Public Function toArray(Optional t As VbVarType = vbObject) As Variant
     ' 戻り値
     Dim ret As Variant
     
-    If col.count = 0 Then
+    If dic.count = 0 Then
     
         toArray = Empty
         Exit Function
     End If
     
-    ' 配列を確保する（サイズは１～コレクションのサイズ）
-    ReDim ret(1 To col.count)
+    ' 配列を確保する（サイズは１～ディクショナリのサイズ）
+    ReDim ret(1 To dic.count)
     
+    Dim a As Variant
     Dim i As Long
     
-    For i = LBound(ret) To UBound(ret)
+    a = dic.items
+    
+    For i = LBound(a) To UBound(a)
     
         ' 型がオブジェクトの場合
         If t = vbObject Then
         
-            Set ret(i) = getItemByIndex(i, vbObject)
+            Set ret(i + 1) = a(i)
             
         ' 上記以外
         Else
         
-            ret(i) = getItemByIndex(i, vbVariant)
+            ret(i + 1) = a(i)
         End If
     Next
     
@@ -387,22 +233,24 @@ Public Function toArray(Optional t As VbVarType = vbObject) As Variant
 End Function
 
 ' =========================================================
-' ▽コレクションオブジェクトのコピー
+' ▽ディクショナリオブジェクトのコピー
 '
 ' 概要　　　：
-' 引数　　　：col コレクションオブジェクト
+' 引数　　　：dic ディクショナリオブジェクト
 ' 戻り値　　：コピーしたオブジェクト
 '
 ' =========================================================
-Public Function copy() As ValCollection
+Public Function copy() As ValDictionary
 
-    Dim ret As New ValCollection
+    Dim ret As New ValDictionary
     
-    Dim var As Variant
-    For Each var In Me.col
-        ret.setItem var
+    Dim key As Variant
+    
+    For Each key In dic
+        ret.setItem dic.item(key), key
     Next
     
     Set copy = ret
 
 End Function
+

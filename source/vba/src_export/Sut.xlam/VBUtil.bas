@@ -1513,7 +1513,7 @@ Public Function isExistFile(ByVal filePath As String) As Boolean
     Dim fso As Object
     Set fso = CreateObject("Scripting.FileSystemObject")
     
-    If fso.FileExists(filePath) Then
+    If fso.fileExists(filePath) Then
         ' ファイルが存在する場合
         isExistFile = True
     Else
@@ -1658,6 +1658,28 @@ Public Function deleteDir(ByVal filePath As String) As Boolean
     End If
 
     deleteDir = False
+        
+End Function
+
+' =========================================================
+' ▽ファイルを削除する
+'
+' 概要　　　：
+' 引数　　　：filePath ファイルパス
+' 戻り値　　：True ファイル削除時はTrueを返却
+'
+' =========================================================
+Public Function deleteFile(ByVal filePath As String) As Boolean
+
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    If fso.fileExists(filePath) = True Then
+        fso.deleteFile filePath, True
+        deleteFile = True
+    End If
+
+    deleteFile = False
         
 End Function
 

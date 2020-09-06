@@ -1,14 +1,6 @@
 Attribute VB_Name = "ZTest"
 Option Explicit
 
-#If DEBUG_MODE = 1 Then
-
-#If VBA7 And Win64 Then
-    Declare PtrSafe Function GetTickCount Lib "kernel32" () As Long
-#Else
-    Declare Function GetTickCount Lib "kernel32" () As Long
-#End If
-
 Private Sub assert(ByVal test As Boolean)
 
     Debug.Assert test
@@ -18,6 +10,14 @@ Private Sub assert(ByVal test As Boolean)
     End If
 
 End Sub
+
+#If DEBUG_MODE = 1 Then
+
+#If VBA7 And Win64 Then
+    Declare PtrSafe Function GetTickCount Lib "kernel32" () As Long
+#Else
+    Declare Function GetTickCount Lib "kernel32" () As Long
+#End If
 
 Private Sub taestByValByRef()
 
@@ -1669,6 +1669,55 @@ Public Sub testIniWorksheetPerform()
     Debug.Print "Iniè¡ÇµçûÇ›ÅF" & timeEnd - timeBegin & "É~Éäïbåoâﬂ"
     ' ---------------------------------------------------------
 
+End Sub
+
+Private Sub testValDictionary()
+
+    Dim i As Long
+    Dim a  As New ValDictionary
+    Dim aa As New ValDictionary
+    Dim aToArray As Variant
+    Dim key As Variant
+    
+    assert a.count = 0
+    
+    a.setItem 1, "key1"
+    assert a.getItem("key1", vbVariant) = 1
+    a.setItem 2, "key1"
+    assert a.getItem("key1", vbVariant) = 2
+    
+    Dim o1 As New ValCollection
+    Dim o2 As New ValCollection
+    
+    a.setItem o1, "key2"
+    assert a.getItem("key2", vbObject) Is o1
+    a.setItem o2, "key2"
+    assert a.getItem("key2", vbObject) Is o2
+    
+    assert a.remove("key1")
+    assert a.count = 1
+    
+    assert Not a.remove("key1")
+    assert a.count = 1
+    
+    a.removeAll
+    assert a.count = 0
+    
+    a.setItem 1, "key1"
+    a.setItem 2, "key2"
+    aToArray = a.toArray(vbVariant)
+    
+    For i = LBound(aToArray) To UBound(aToArray)
+        assert aToArray(i) = i
+    Next
+    
+    Set aa = a.copy
+    assert aa.count = a.count
+    
+    For Each key In aa.dic
+        assert aa.getItem(key, vbVariant) = a.getItem(key, vbVariant)
+    Next
+    
 End Sub
 
 #End If

@@ -241,8 +241,8 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
     
     Dim pkStr As String
 
-    Dim diff1RecMap As ValCollection
-    Dim diff2RecMap As ValCollection
+    Dim diff1RecMap As ValDictionary
+    Dim diff2RecMap As ValDictionary
     
     Dim diff1RecVal As Variant
     Dim diff2RecVal As Variant

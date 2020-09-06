@@ -158,10 +158,10 @@ End Function
 ' =========================================================
 ' ▽PK文字列取得処理メソッド
 ' =========================================================
-Public Function convertToMapKeyIsPkValIsReocrdIndex() As ValCollection
+Public Function convertToMapKeyIsPkValIsReocrdIndex() As ValDictionary
 
-    Dim ret As ValCollection
-    Set ret = New ValCollection
+    Dim ret As ValDictionary
+    Set ret = New ValDictionary
     
     If isEmpty(recordList) Then
         ' レコードがない場合は、空で返却
