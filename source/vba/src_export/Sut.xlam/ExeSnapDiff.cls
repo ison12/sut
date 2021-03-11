@@ -244,6 +244,12 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
     Dim diff1RecMap As ValDictionary
     Dim diff2RecMap As ValDictionary
     
+    Dim diff1HeaderList As Variant
+    Dim diff2HeaderList As Variant
+    
+    Dim diff1RecList As Variant
+    Dim diff2RecList As Variant
+    
     Dim diff1RecVal As Variant
     Dim diff2RecVal As Variant
     
@@ -260,8 +266,14 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
 
     diffRecords = offsetRow
 
-    If UBound(diff1Rec.headerList) - LBound(diff1Rec.headerList) <> _
-       UBound(diff2Rec.headerList) - LBound(diff2Rec.headerList) Then
+    diff1HeaderList = diff1Rec.headerList
+    diff2HeaderList = diff2Rec.headerList
+    
+    diff1RecList = diff1Rec.recordList
+    diff2RecList = diff2Rec.recordList
+
+    If UBound(diff1HeaderList) - LBound(diff1HeaderList) <> _
+       UBound(diff2HeaderList) - LBound(diff2HeaderList) Then
         ' ヘッダの件数が違うのはエラー（通常は発生しないはず）
         err.Raise _
             ConstantsError.ERR_NUMBER_SNAP_DIFF__EXEC_ERROR, _
@@ -272,9 +284,9 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
             err.HelpContext
     End If
     
-    For header1Index = LBound(diff1Rec.headerList) To UBound(diff1Rec.headerList)
+    For header1Index = LBound(diff1HeaderList) To UBound(diff1HeaderList)
     
-        If diff1Rec.headerList(header1Index) <> diff2Rec.headerList(header1Index) Then
+        If diff1HeaderList(header1Index) <> diff2HeaderList(header1Index) Then
             ' ヘッダ名が違うのはエラー（通常は発生しないはず）
             err.Raise _
                 ConstantsError.ERR_NUMBER_SNAP_DIFF__EXEC_ERROR, _
@@ -299,29 +311,29 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
     ' ヘッダをセルに出力する
     ' --------------------------------------------
     ' レコードリストの空欄の領域を出力
-    insertHeaderListCell sheet, offsetRowHeader, VBUtil.arraySize(diff1Rec.headerList)
+    insertHeaderListCell sheet, offsetRowHeader, VBUtil.arraySize(diff1HeaderList)
     ' 内容を出力
-    ExcelUtil.copyArrayToCellsForColumns diff1Rec.headerList, sheet, offsetRowHeader, ConstantsSnapDiff.HEADER_COL
+    ExcelUtil.copyArrayToCellsForColumns diff1HeaderList, sheet, offsetRowHeader, ConstantsSnapDiff.HEADER_COL
     
     Set diff1RecMap = diff1Rec.convertToMapKeyIsPkValIsReocrdIndex
     Set diff2RecMap = diff2Rec.convertToMapKeyIsPkValIsReocrdIndex
     
     ' diff1を基準に比較する
-    If Not isEmpty(diff1Rec.recordList) Then
+    If Not isEmpty(diff1RecList) Then
     
         ' --------------------------------------------
         ' レコードリストをセルに出力する
         ' --------------------------------------------
         ' レコードリストの空欄の領域を出力
-        insertRecordListCell sheet, offsetRowReocrd, VBUtil.arraySize(diff1Rec.recordList), VBUtil.arraySize(diff1Rec.recordList, 2)
+        insertRecordListCell sheet, offsetRowReocrd, VBUtil.arraySize(diff1RecList), VBUtil.arraySize(diff1RecList, 2)
         ' 内容を出力
-        ExcelUtil.copyArrayToCells diff1Rec.recordList, sheet, offsetRowReocrd, ConstantsSnapDiff.RECORD_COL
+        ExcelUtil.copyArrayToCells diff1RecList, sheet, offsetRowReocrd, ConstantsSnapDiff.RECORD_COL
     
-        totalCount = totalCount + VBUtil.arraySize(diff1Rec.recordList)
+        totalCount = totalCount + VBUtil.arraySize(diff1RecList)
     
         recordIndex = 0
-        For recordIndex = LBound(diff1Rec.recordList) To UBound(diff1Rec.recordList)
-            
+        For recordIndex = LBound(diff1RecList) To UBound(diff1RecList)
+
             pkStr = diff1Rec.getPkStr(recordIndex)
             
             If diff2RecMap.exist(pkStr) = False Then
@@ -332,7 +344,7 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
                 ' 背景色を変更する
                 sheet.Range( _
                     sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL).Address, _
-                    sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL + VBUtil.arraySize(diff1Rec.headerList) - 1).Address _
+                    sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL + VBUtil.arraySize(diff1HeaderList) - 1).Address _
                 ).Interior.Color = _
                     RGB( _
                         ConstantsSnapDiff.INSERT_COLOR_R, _
@@ -350,10 +362,11 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
                 diff2RecIndex = diff2RecMap.getItem(pkStr, vbLong)
                 
                 isUpdate = False
-                For headerIndex = LBound(diff1Rec.headerList) To UBound(diff1Rec.headerList)
+                
+                For headerIndex = LBound(diff1HeaderList) To UBound(diff1HeaderList)
                     
-                    diff1RecVal = diff1Rec.recordList(recordIndex, headerIndex)
-                    diff2RecVal = diff2Rec.recordList(diff2RecIndex, headerIndex)
+                    diff1RecVal = diff1RecList(recordIndex, headerIndex)
+                    diff2RecVal = diff2RecList(diff2RecIndex, headerIndex)
                     diff1RecValIsNull = isNull(diff1RecVal)
                     diff2RecValIsNull = isNull(diff2RecVal)
                     
@@ -364,7 +377,7 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
                         ExcelUtil.addCommentForWorkSheet sheet, _
                             offsetRowReocrd, _
                             ConstantsSnapDiff.RECORD_COL + headerIndex, _
-                            VBUtil.convertNullToEmptyStr(diff2Rec.recordList(diff2RecIndex, headerIndex))
+                            VBUtil.convertNullToEmptyStr(diff2RecList(diff2RecIndex, headerIndex))
                             
                         ' 背景色を変更する
                         sheet.Cells(offsetRowReocrd, ConstantsSnapDiff.RECORD_COL + headerIndex).Interior.Color = _
@@ -408,10 +421,10 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
     End If
     
     ' diff2を基準に比較する
-    If Not isEmpty(diff2Rec.recordList) Then
+    If Not isEmpty(diff2RecList) Then
         
         recordIndex = 0
-        For recordIndex = LBound(diff2Rec.recordList) To UBound(diff2Rec.recordList)
+        For recordIndex = LBound(diff2RecList) To UBound(diff2RecList)
             
             pkStr = diff2Rec.getPkStr(recordIndex)
             
@@ -419,7 +432,7 @@ Private Function diffRecords(ByVal recordSetIndex As Long, ByRef sheet As Worksh
                 ' PKに該当するレコードが存在しない場合
                 ' DELETE
                 
-                diffDeletedRecord = convert2to1Array(diff2Rec.recordList, recordIndex)
+                diffDeletedRecord = convert2to1Array(diff2RecList, recordIndex)
                 
                 ' --------------------------------------------
                 ' レコードリストをセルに出力する

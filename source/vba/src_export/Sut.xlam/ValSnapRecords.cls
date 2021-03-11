@@ -80,6 +80,7 @@ Public Function convertToPkIndexList() As ValCollection
     If Not pkListIndex Is Nothing Then
         ' Šù‚É•ÏŠ·Ï‚İ‚Ìê‡‚ÍA•ÏŠ·Ï‚İ‚ÌƒŠƒXƒg‚ğ•Ô‹p‚·‚é
         Set convertToPkIndexList = pkListIndex
+        Exit Function
     End If
     
     Dim ret As ValCollection
