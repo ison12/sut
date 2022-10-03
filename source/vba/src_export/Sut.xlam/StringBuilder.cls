@@ -163,7 +163,7 @@ Public Function replace(ByRef strFind As String, ByRef strReplace As String) As 
     
     Do While True
     
-        findIndex = InStr(instrStartIndex, m_buffer, strFind)
+        findIndex = InStr(instrStartIndex, Me.str, strFind)
         
         If findIndex = 0 Then
             ' ŒŸõ•¶š—ñ‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡‚ÍAˆ—‚ğI—¹‚·‚é

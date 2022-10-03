@@ -142,5 +142,8 @@
     <Image Include="..\..\..\resource\image\sut_mark_icon.bmp">
       <Filter>リソース ファイル</Filter>
     </Image>
+    <Image Include="..\..\..\resource\image\sut_icon.bmp">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>
