@@ -52,3 +52,5 @@ Public Const DB_CONNECT_FAVORITE_DEFAULT_NAME As String = "favorite"
 ' DBカラム書式情報のデフォルト名
 Public Const DB_COLUMN_FORMAT_DEFAULT_NAME As String = "column"
 
+' ローカルのアプリケーションデータフォルダ
+Public Const APP_DATA_LOCAL As String = "AppData\Local\Sut"

@@ -632,7 +632,7 @@ Public Sub insertUpdateAll()
     
     frmFileOutputVar.ShowExt vbModal _
                             , "INSERT + UPDATE SQL" _
-                            , tableSheet.table.schemaTableName & ".sql"
+                            , tableSheet.sheetName & ".sql"
 
     Exit Sub
     
@@ -668,7 +668,7 @@ Public Sub insertUpdateSelection()
     
     frmFileOutputVar.ShowExt vbModal _
                             , "INSERT + UPDATE SQL（範囲選択）" _
-                            , tableSheet.table.schemaTableName & ".sql"
+                            , tableSheet.sheetName & ".sql"
 
     Exit Sub
     
@@ -703,7 +703,7 @@ Public Sub insertAll()
     
     frmFileOutputVar.ShowExt vbModal _
                             , "INSERT SQL" _
-                            , tableSheet.table.schemaTableName & ".sql"
+                            , tableSheet.sheetName & ".sql"
 
     Exit Sub
     
@@ -739,7 +739,7 @@ Public Sub insertSelection()
     
     frmFileOutputVar.ShowExt vbModal _
                             , "INSERT SQL（範囲選択）" _
-                            , tableSheet.table.schemaTableName & ".sql"
+                            , tableSheet.sheetName & ".sql"
 
     Exit Sub
     
@@ -775,7 +775,7 @@ Public Sub updateAll()
     
     frmFileOutputVar.ShowExt vbModal _
                             , "UPDATE SQL" _
-                            , tableSheet.table.schemaTableName & ".sql"
+                            , tableSheet.sheetName & ".sql"
 
     Exit Sub
     
@@ -811,7 +811,7 @@ Public Sub updateSelection()
     
     frmFileOutputVar.ShowExt vbModal _
                             , "UPDATE SQL（範囲選択）" _
-                            , tableSheet.table.schemaTableName & ".sql"
+                            , tableSheet.sheetName & ".sql"
 
     Exit Sub
     
@@ -847,7 +847,7 @@ Public Sub deleteAll()
     
     frmFileOutputVar.ShowExt vbModal _
                             , "DELETE SQL" _
-                            , tableSheet.table.schemaTableName & ".sql"
+                            , tableSheet.sheetName & ".sql"
 
     Exit Sub
     
@@ -883,7 +883,7 @@ Public Sub deleteSelection()
     
     frmFileOutputVar.ShowExt vbModal _
                             , "DELETE SQL（範囲選択）" _
-                            , tableSheet.table.schemaTableName & ".sql"
+                            , tableSheet.sheetName & ".sql"
 
     Exit Sub
     

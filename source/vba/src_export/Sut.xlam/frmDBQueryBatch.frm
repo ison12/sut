@@ -652,8 +652,7 @@ End Sub
 Private Function createApplicationProperties() As ApplicationProperties
 
     Dim appProp As New ApplicationProperties
-    appProp.initFile VBUtil.getApplicationIniFilePath & ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
-    appProp.initWorksheet targetBook, ConstantsApplicationProperties.BOOK_PROPERTIES_SHEET_NAME, ConstantsApplicationProperties.INI_FILE_DIR_FORM & "\" & Me.name & ".ini"
+    appProp.initFile Environ("USERPROFILE") & "\" & ConstantsCommon.APP_DATA_LOCAL & "\" & Me.name & ".ini"
 
     Set createApplicationProperties = appProp
     
