@@ -14,8 +14,14 @@
 
 # リリースバッチの使い方
 
-1. 変更ファイルのバージョン番号が切り替わっているかを確認する。
 1. 00_Release_collect.bat を実行。
   本バッチ実行後に、Sut.xlamを開いて条件付きコンパイル引数のDEBUG_MODEを除去する。
 1. 01_Release_archive.bat を実行。
   本バッチ実行後に、Sut.zipが生成されるのでこちらをリリースする。
+
+# GitHubへのリリース
+
+1. リリースバッチによって、Sut.zipを生成しておくこと。
+1. GitHubの当該ページでリリースを実施。
+  https://github.com/ison12/sut/releases
+  ※リリース時に、Sut.zipファイルを添付
