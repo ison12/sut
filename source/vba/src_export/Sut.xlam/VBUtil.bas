@@ -1593,6 +1593,34 @@ Public Function extractDirPathFromFilePath(filePath As String) As String
 End Function
 
 ' =========================================================
+' ▽ファイルパスからファイル名を抽出する
+'   ディレクトリの場合、引数を返却
+'       ファイルの場合、ファイル名を抽出
+'
+' 概要　　　：
+' 引数　　　：filePath ファイルパス
+' 戻り値　　：ファイル名
+'
+' =========================================================
+Public Function extractFileNameFromFilePath(filePath As String) As String
+
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    If fso.folderexists(filePath) Then
+        ' ファイルではない（＝ディレクトリなどの）場合
+        extractFileNameFromFilePath = filePath
+        Exit Function
+    End If
+    
+    ' 戻り値
+    Dim ret As String
+    ret = fso.GetFileName(filePath)
+    
+    extractFileNameFromFilePath = ret
+End Function
+
+' =========================================================
 ' ▽ディレクトリパスとファイルパスを連結する
 '
 ' 概要　　　：

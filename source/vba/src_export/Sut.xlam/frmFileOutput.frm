@@ -200,6 +200,22 @@ Private Sub btnFileSelect_Click()
 End Sub
 
 ' =========================================================
+' ▽カレントフォルダへの切替ボタンクリック時のイベントプロシージャ
+'
+' 概要　　　：ファイルパステキストボックスの値をカレントフォルダに切り替える
+'
+' =========================================================
+Private Sub cmdChangeCurrentFolder_Click()
+
+    Dim filePath As String
+    filePath = txtFilePath.text
+    If filePath <> "" Then
+        txtFilePath.text = ThisWorkbook.path & "\" & VBUtil.extractFileNameFromFilePath(filePath)
+    End If
+
+End Sub
+
+' =========================================================
 ' ▽ファイルを開くダイアログオープン
 '
 ' 概要　　　：ファイルを開くダイアログをオープンする

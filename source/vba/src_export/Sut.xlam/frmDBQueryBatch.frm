@@ -375,6 +375,20 @@ Private Sub btnFileSelect_Click()
 End Sub
 
 ' =========================================================
+' ▽カレントフォルダへの切替ボタンクリック時のイベントプロシージャ
+'
+' 概要　　　：ファイルパステキストボックスの値をカレントフォルダに切り替える
+'
+' =========================================================
+Private Sub cmdChangeCurrentFolder_Click()
+
+    Dim filePath As String
+    filePath = txtFilePath.text
+    txtFilePath.text = ThisWorkbook.path
+
+End Sub
+
+' =========================================================
 ' ▽フォルダを開くダイアログオープン
 '
 ' 概要　　　：フォルダを開くダイアログをオープンする
@@ -580,6 +594,7 @@ Private Sub activate()
         lblChoiceNewLine.visible = True
         cboChoiceNewLine.visible = True
         btnFileSelect.visible = True
+        cmdChangeCurrentFolder.visible = True
     Else
         ' DB実行時
         lblFilePath.visible = False
@@ -589,6 +604,7 @@ Private Sub activate()
         lblChoiceNewLine.visible = False
         cboChoiceNewLine.visible = False
         btnFileSelect.visible = False
+        cmdChangeCurrentFolder.visible = False
     End If
     
     ' DBバッチクエリ種類リストに選択肢を追加する
