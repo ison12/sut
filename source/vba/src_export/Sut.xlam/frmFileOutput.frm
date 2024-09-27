@@ -209,8 +209,8 @@ Private Sub cmdChangeCurrentFolder_Click()
 
     Dim filePath As String
     filePath = txtFilePath.text
-    If filePath <> "" Then
-        txtFilePath.text = ThisWorkbook.path & "\" & VBUtil.extractFileNameFromFilePath(filePath)
+    If filePath <> "" And ActiveWorkbook.path <> "" Then
+        txtFilePath.text = ActiveWorkbook.path & "\" & VBUtil.extractFileNameFromFilePath(filePath)
     End If
 
 End Sub

@@ -384,7 +384,10 @@ Private Sub cmdChangeCurrentFolder_Click()
 
     Dim filePath As String
     filePath = txtFilePath.text
-    txtFilePath.text = ThisWorkbook.path
+    
+    If ActiveWorkbook.path <> "" Then
+        txtFilePath.text = ActiveWorkbook.path
+    End If
 
 End Sub
 
